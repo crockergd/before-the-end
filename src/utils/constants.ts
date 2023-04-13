@@ -15,4 +15,7 @@ export abstract class Constants {
     public static readonly ENEMY_KEYS: Array<string> = ['baron'];
 
     public static readonly IDLE_ANIMATION_RATE: number = 4;
+
+    public static readonly LINE_BREAK: string = '\n';
+    public static readonly TAB: string = '     ';
 }
