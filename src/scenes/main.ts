@@ -61,23 +61,21 @@ export default class Main extends AbstractScene {
         this.input.on(Constants.UP_EVENT, () => {
             const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
 
-            const clamp: number = 30;
-            const diff: Vector = new Vector(MathExtensions.clamp(pointer.worldX - this.player.absolute_x, -clamp, clamp), MathExtensions.clamp(pointer.worldY - this.player.absolute_y, -clamp, clamp));
-            diff.multiply(0.02);
+            const normalized_cursor_direction: Vector = new Vector(pointer.worldX - this.player.absolute_x, pointer.worldY - this.player.absolute_y).normalize();
 
-            if (diff.x > 0) {
+            if (normalized_cursor_direction.x > 0) {
                 this.player.flip_x(false);
             } else {
                 this.player.flip_x(true);
             }
 
-            this.player.physics_body.applyForce(diff.pv2);
+            this.player.physics_body.applyForce(normalized_cursor_direction.pv2);
         }, this);
     }
 
     public spawn_enemy(): void {
         const initial_position: Vector = new Vector(Math.floor(this.player.absolute_x), Math.floor(this.player.absolute_y));
-        const distance: number = 200;
+        const distance: number = 300;
         const bounds: Vector = new Vector(initial_position.x - distance, initial_position.y - distance, initial_position.x + distance, initial_position.y + distance);
         const enemy_position: Vector = MathExtensions.rand_within_bounds(bounds);
 
@@ -90,6 +88,8 @@ export default class Main extends AbstractScene {
         enemy.physics_body.setOnCollide(() => {
             this.enemies_defeated++;
             enemy.destroy();
+
+            this.spawn_enemy();
             this.spawn_enemy();
         });
     }
