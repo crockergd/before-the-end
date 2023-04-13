@@ -21,6 +21,10 @@ export default class Entity {
         return this.identifier_info.sprite_key;
     }
 
+    public get power(): number {
+        return this.battle_info.power;
+    }
+
     constructor(readonly identifier_info: IdentifierInfo, readonly battle_info: BattleInfo) {
 
     }

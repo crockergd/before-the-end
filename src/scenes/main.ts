@@ -85,12 +85,18 @@ export default class Main extends AbstractScene {
         const enemy: Entity = EntityFactory.create_enemy(EntityFactory.random_enemy_key(), 3 + this.enemies_defeated);
         this.scene_renderer.draw_enemy(enemy, enemy_position);
 
-        enemy.physics.setOnCollide(() => {
-            this.enemies_defeated++;
-            enemy.destroy();
+        enemy.physics.setOnCollide((collision: any) => {
+            if (this.player.power >= enemy.power) {
+                collision.isActive = false;
+                this.enemies_defeated++;
+                enemy.destroy();
 
-            this.spawn_enemy();
-            this.spawn_enemy();
+                this.spawn_enemy();
+                this.spawn_enemy();
+
+            } else {
+                enemy.battle_info.power -= this.player.power;
+            }
         });
     }
 }
