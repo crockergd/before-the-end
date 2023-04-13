@@ -2,13 +2,19 @@ import AbstractScene from '../abstracts/abstractscene';
 import AbstractSprite from '../abstracts/abstractsprite';
 import AbstractText from '../abstracts/abstracttext';
 import SceneData from '../contexts/scenedata';
+import Entity from '../entities/entity';
+import EntityFactory from '../entities/entityfactory';
 import TransitionType from '../ui/transitiontype';
 import { Constants } from '../utils/constants';
 import MathExtensions from '../utils/mathextensions';
 import Vector from '../utils/vector';
+import MainRenderer from './mainrenderer';
 
 export default class Main extends AbstractScene {
-    public player: AbstractSprite;
+    public scene_renderer: MainRenderer;
+
+    public player: Entity;
+    public enemies: Array<Entity>;
     public debug: AbstractText;
 
     public start_time: number;
@@ -18,8 +24,11 @@ export default class Main extends AbstractScene {
         super.init(data);
         this.render_context.set_scene(this);
 
+        this.scene_renderer = new MainRenderer(this.render_context);
+
         this.matter.world.disableGravity();
         this.enemies_defeated = 0;
+        this.enemies = new Array<Entity>();
     }
 
     public create(): void {
@@ -43,49 +52,40 @@ export default class Main extends AbstractScene {
         super.update(time, dt_ms);
         const dt: number = (dt_ms / 1000);
 
-        this.debug.text = 'Position: ' + Math.floor(this.player.absolute_x) + ', ' + Math.floor(this.player.absolute_y) + Constants.LINE_BREAK +
+        this.debug.text = 'Position: ' + Math.floor(this.player.x) + ', ' + Math.floor(this.player.y) + Constants.LINE_BREAK +
             'Enemies Defeated: ' + this.enemies_defeated + Constants.LINE_BREAK +
             'Time Elapsed: ' + Math.floor((this.render_context.now - this.start_time) / 1000);
     }
 
     public spawn_player(): void {
-        this.player = this.render_context.add_sprite(0, 0, 'bandit', undefined, undefined, true);
-        this.player.set_anchor(0.5, 0.5);
-        this.player.play('idle_bandit');
-
-        this.player.physics_body.setFixedRotation();
-        this.player.physics_body.setFriction(0.4, 0.1);
-
-        this.render_context.camera.startFollow(this.player.framework_object, true, 0.6, 0.6);
+        this.player = EntityFactory.create_player('bandit');
+        this.scene_renderer.draw_player(this.player);
 
         this.input.on(Constants.UP_EVENT, () => {
             const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
 
-            const normalized_cursor_direction: Vector = new Vector(pointer.worldX - this.player.absolute_x, pointer.worldY - this.player.absolute_y).normalize();
+            const normalized_cursor_direction: Vector = new Vector(pointer.worldX - this.player.x, pointer.worldY - this.player.y).normalize();
 
             if (normalized_cursor_direction.x > 0) {
-                this.player.flip_x(false);
+                this.player.sprite.flip_x(false);
             } else {
-                this.player.flip_x(true);
+                this.player.sprite.flip_x(true);
             }
 
-            this.player.physics_body.applyForce(normalized_cursor_direction.pv2);
+            this.player.physics.applyForce(normalized_cursor_direction.pv2);
         }, this);
     }
 
     public spawn_enemy(): void {
-        const initial_position: Vector = new Vector(Math.floor(this.player.absolute_x), Math.floor(this.player.absolute_y));
+        const initial_position: Vector = new Vector(Math.floor(this.player.x), Math.floor(this.player.y));
         const distance: number = 300;
         const bounds: Vector = new Vector(initial_position.x - distance, initial_position.y - distance, initial_position.x + distance, initial_position.y + distance);
         const enemy_position: Vector = MathExtensions.rand_within_bounds(bounds);
 
-        const enemy: AbstractSprite = this.render_context.add_sprite(enemy_position.x, enemy_position.y, 'baron', undefined, undefined, true);
-        enemy.set_anchor(0.5, 0.5);
-        enemy.play('idle_baron');
-        enemy.physics_body.setFixedRotation();
-        enemy.physics_body.setStatic(true);
-        enemy.physics_body.setBounce(0.8);
-        enemy.physics_body.setOnCollide(() => {
+        const enemy: Entity = EntityFactory.create_enemy(EntityFactory.random_enemy_key(), 3 + this.enemies_defeated);
+        this.scene_renderer.draw_enemy(enemy, enemy_position);
+
+        enemy.physics.setOnCollide(() => {
             this.enemies_defeated++;
             enemy.destroy();
 
