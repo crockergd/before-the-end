@@ -7,6 +7,7 @@ import EntityFactory from '../entities/entityfactory';
 import TransitionType from '../ui/transitiontype';
 import { Constants } from '../utils/constants';
 import MathExtensions from '../utils/mathextensions';
+import StringExtensions from '../utils/stringextensions';
 import Vector from '../utils/vector';
 import MainRenderer from './mainrenderer';
 
@@ -71,7 +72,7 @@ export default class Main extends AbstractScene {
         const enemy_position: Vector = MathExtensions.rand_within_bounds(bounds);
 
         const enemy: Entity = EntityFactory.create_enemy(EntityFactory.random_enemy_key(), 3 + this.enemies_defeated);
-        this.scene_renderer.draw_enemy(enemy, enemy_position);
+        this.scene_renderer.draw_enemy(enemy_position.x, enemy_position.y, enemy);
 
         enemy.physics.setOnCollide((collision: any) => {
             this.collide(this.player, enemy, collision);
@@ -93,10 +94,13 @@ export default class Main extends AbstractScene {
     }
 
     public collide(player: Entity, enemy: Entity, collision: any): void {
+        this.scene_renderer.flash_combat_text(enemy.x, enemy.y - enemy.sprite.height_half + this.render_context.literal(20), StringExtensions.numeric(player.power));
+
         if (player.power >= enemy.power) {
             collision.isActive = false;
             this.enemies_defeated++;
-            enemy.destroy();
+            this.matter.world.remove(enemy.physics);
+            this.scene_renderer.flash_enemy_death(enemy);
 
             this.spawn_enemy();
             this.spawn_enemy();
