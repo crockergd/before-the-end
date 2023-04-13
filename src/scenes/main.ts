@@ -61,19 +61,7 @@ export default class Main extends AbstractScene {
         this.player = EntityFactory.create_player('bandit');
         this.scene_renderer.draw_player(this.player);
 
-        this.input.on(Constants.UP_EVENT, () => {
-            const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
-
-            const normalized_cursor_direction: Vector = new Vector(pointer.worldX - this.player.x, pointer.worldY - this.player.y).normalize();
-
-            if (normalized_cursor_direction.x > 0) {
-                this.player.sprite.flip_x(false);
-            } else {
-                this.player.sprite.flip_x(true);
-            }
-
-            this.player.physics.applyForce(normalized_cursor_direction.pv2);
-        }, this);
+        this.input.on(Constants.UP_EVENT, this.click, this);
     }
 
     public spawn_enemy(): void {
@@ -86,17 +74,35 @@ export default class Main extends AbstractScene {
         this.scene_renderer.draw_enemy(enemy, enemy_position);
 
         enemy.physics.setOnCollide((collision: any) => {
-            if (this.player.power >= enemy.power) {
-                collision.isActive = false;
-                this.enemies_defeated++;
-                enemy.destroy();
-
-                this.spawn_enemy();
-                this.spawn_enemy();
-
-            } else {
-                enemy.battle_info.power -= this.player.power;
-            }
+            this.collide(this.player, enemy, collision);
         });
+    }
+
+    public click(): void {
+        const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
+
+        const normalized_cursor_direction: Vector = new Vector(pointer.worldX - this.player.x, pointer.worldY - this.player.y).normalize();
+
+        if (normalized_cursor_direction.x > 0) {
+            this.player.sprite.flip_x(false);
+        } else {
+            this.player.sprite.flip_x(true);
+        }
+
+        this.player.physics.applyForce(normalized_cursor_direction.pv2);
+    }
+
+    public collide(player: Entity, enemy: Entity, collision: any): void {
+        if (player.power >= enemy.power) {
+            collision.isActive = false;
+            this.enemies_defeated++;
+            enemy.destroy();
+
+            this.spawn_enemy();
+            this.spawn_enemy();
+
+        } else {
+            enemy.battle_info.power -= this.player.power;
+        }
     }
 }

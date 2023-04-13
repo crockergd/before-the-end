@@ -12,6 +12,11 @@ export default class MainRenderer {
         player.sprite.set_anchor(0.5, 0.5);
         player.sprite.play('idle_' + player.sprite_key);
 
+        player.physics.setBody({
+            type: 'rectangle',
+            width: 100,
+            height: 100
+        });
         player.sprite.physics_body.setFixedRotation();
         player.sprite.physics_body.setFriction(0.4, 0.1);
 
@@ -22,8 +27,14 @@ export default class MainRenderer {
         enemy.sprite = this.render_context.add_sprite(position.x, position.y, enemy.sprite_key, undefined, undefined, true);
         enemy.sprite.set_anchor(0.5, 0.5);
         enemy.sprite.play('idle_' + enemy.sprite_key);
-        enemy.sprite.physics_body.setFixedRotation();
-        enemy.sprite.physics_body.setStatic(true);
-        enemy.sprite.physics_body.setBounce(0.8);
+
+        enemy.physics.setBody({
+            type: 'rectangle',
+            width: 100,
+            height: 100
+        });
+        enemy.physics.setFixedRotation();
+        enemy.physics.setStatic(true);
+        enemy.physics.setBounce(0.8);
     }
 }
