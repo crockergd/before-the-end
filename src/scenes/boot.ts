@@ -1,0 +1,97 @@
+import AbstractScene from '../abstracts/abstractscene';
+import AbstractSprite from '../abstracts/abstractsprite';
+import SceneContext from '../contexts/scenecontext';
+import TransitionType from '../ui/transitiontype';
+import CallbackBinding from '../utils/callbackbinding';
+import Cache from './cache';
+import Main from './main';
+
+export default class Boot extends AbstractScene {
+    public preload(): void {
+        this.scene_context = new SceneContext(this.game);
+        this.render_context.set_scene(this);
+
+        this.game.scale.setGameSize(this.render_context.width * this.render_context.DPR, this.render_context.height * this.render_context.DPR);
+
+        const require_image: __WebpackModuleApi.RequireContext = require.context('../../assets/images/', true);
+        this.load.image('radbee_logo', require_image('./radbee_logo.png')).once('filecomplete-image-radbee_logo', () => {
+            const offset_y: number = this.render_context.literal(10);
+
+            const logo: AbstractSprite = this.render_context.add_sprite(this.render_context.center_x, this.render_context.center_y - offset_y, 'radbee_logo');
+            logo.set_anchor(0.5, 0.5);
+            logo.set_alpha(0);
+
+            this.tweens.add({
+                targets: [logo.framework_object],
+                alpha: 1,
+                duration: 200
+            });
+
+        }, this);
+
+        this.load_scenes();
+        this.load_assets();
+    }
+
+    public create(): void {
+        this.bind_device_events();
+
+        this.scene.launch('cache', {
+            scene_context: this.scene_context
+        });
+
+        this.render_context.transition_scene(TransitionType.OUT, new CallbackBinding(() => {
+            this.start('main', {
+                scene_context: this.scene_context,
+                full: true
+            });
+        }, this));
+    }
+
+    private load_scenes(): void {
+        this.scene.add('main', Main, false);
+        this.scene.add('cache', Cache, false);
+    }
+
+    private load_assets(): void {
+        const require_image: __WebpackModuleApi.RequireContext = require.context('../../assets/images/', true);
+        // const require_tilesheet: __WebpackModuleApi.RequireContext = require.context('../../assets/tilesheets/', true);
+        // const require_audio: __WebpackModuleApi.RequireContext = require.context('../../assets/audio/', true);
+        // const require_json: __WebpackModuleApi.RequireContext = require.context('../../assets/json/', true);
+        const require_bitmap: __WebpackModuleApi.RequireContext = require.context('../../assets/bitmap/', true);
+
+        this.load.bitmapFont('pixchicago', require_bitmap('./pixchicago_0.png'), require_bitmap('./pixchicago.fnt'));
+        this.load.bitmapFont('pixchicago_lg', require_bitmap('./pixchicago_lg_0.png'), require_bitmap('./pixchicago_lg.fnt'));
+        this.load.bitmapFont('pixchicago_i', require_bitmap('./pixchicago_i_0.png'), require_bitmap('./pixchicago_i.fnt'));
+        this.load.bitmapFont('pixchicago_green', require_bitmap('./pixchicago_green_0.png'), require_bitmap('./pixchicago_green.fnt'));
+        this.load.bitmapFont('pixchicago_red', require_bitmap('./pixchicago_red_0.png'), require_bitmap('./pixchicago_red.fnt'));
+        this.load.bitmapFont('pixchicago_lg_green', require_bitmap('./pixchicago_lg_green_0.png'), require_bitmap('./pixchicago_lg_green.fnt'));
+        this.load.bitmapFont('pixchicago_lg_gold', require_bitmap('./pixchicago_lg_gold_0.png'), require_bitmap('./pixchicago_lg_gold.fnt'));
+
+        // this.load.image('x', require_image('./x.png'));
+    }
+
+    private bind_device_events(): void {
+        window.addEventListener('error', (event: ErrorEvent) => {
+            // this.scene_context.log(LogLevel.ERROR, event.error.message, event.error.stack);
+            event.preventDefault();
+        });
+
+        window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+            // this.scene_context.log(LogLevel.ERROR, event.reason, event.type);
+            event.preventDefault();
+        });
+
+        document.addEventListener('pause', () => {
+            this.render_context.scene.sound.pauseAll();
+            this.render_context.scene.scene.pause();
+            this.render_context.cache.scene.pause();
+        });
+
+        document.addEventListener('resume', () => {
+            this.render_context.scene.sound.resumeAll();
+            this.render_context.scene.scene.resume();
+            this.render_context.cache.scene.resume();
+        });
+    }
+}
