@@ -16,8 +16,11 @@ import AbstractGame from './abstracts/abstractgame';
             width: '100%',
             height: '100%'
         },
-        input: {
-            gamepad: true
+        physics: {
+            default: 'matter',
+            matter: {
+
+            }
         }
     };
 

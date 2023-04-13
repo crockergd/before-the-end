@@ -10,4 +10,9 @@ export abstract class Constants {
     public static readonly UNNAV_EVENT: string = 'unnavigate';
     public static readonly OUTNAV_EVENT: string = 'outnavigate';
     public static readonly EVENT_RECAST: string = '-recast';
+
+    public static readonly CLASS_KEYS: Array<string> = ['bandit'];
+    public static readonly ENEMY_KEYS: Array<string> = ['baron'];
+
+    public static readonly IDLE_ANIMATION_RATE: number = 4;
 }

@@ -10,6 +10,10 @@ import { Constants } from '../utils/constants';
 export default class AbstractSprite extends AbstractBaseType {
     public framework_object: GameObjects.Sprite;
 
+    get physics_body(): Phaser.Physics.Matter.Sprite {
+        return (this.framework_object as Phaser.Physics.Matter.Sprite);
+    }
+
     get width(): number {
         return this.framework_object.displayWidth; // / this.renderer.DPR;
     }
@@ -39,10 +43,15 @@ export default class AbstractSprite extends AbstractBaseType {
         return this.framework_object.isCropped;
     }
 
-    constructor(renderer: RenderContext, scene: AbstractScene, x: number, y: number, key: string | any, collection?: AbstractCollectionType) {
+    constructor(renderer: RenderContext, scene: AbstractScene, x: number, y: number, key: string | any, collection?: AbstractCollectionType, physics?: boolean) {
         super(renderer, x, y);
 
-        const framework_object: GameObjects.Sprite = scene.add.sprite(0, 0, key);
+        let framework_object: GameObjects.Sprite;
+        if (physics) {
+            framework_object = scene.matter.add.sprite(0, 0, key);
+        } else {
+            framework_object = scene.add.sprite(0, 0, key);
+        }
         this.set_framework_object(framework_object);
 
         this.set_anchor(0, 0);

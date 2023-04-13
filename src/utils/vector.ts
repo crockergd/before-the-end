@@ -12,11 +12,22 @@ export default class Vector {
         return this.y;
     }
 
+    public get pv2(): Phaser.Math.Vector2 {
+        return new Phaser.Math.Vector2(this.x, this.y);
+    }
+
     constructor(x: number, y: number, z?: number, w?: number) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.w = w;
+    }
+
+    public multiply(value: number): Vector {
+        this.x *= value;
+        this.y *= value;
+
+        return this;
     }
 
     public static equal(lhs: Vector, x: number, y: number, z?: number, w?: number): boolean {

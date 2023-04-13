@@ -3,6 +3,7 @@ import AbstractSprite from '../abstracts/abstractsprite';
 import SceneContext from '../contexts/scenecontext';
 import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
+import { Constants } from '../utils/constants';
 import Cache from './cache';
 import Main from './main';
 
@@ -34,6 +35,7 @@ export default class Boot extends AbstractScene {
     }
 
     public create(): void {
+        this.load_animations();
         this.bind_device_events();
 
         this.scene.launch('cache', {
@@ -55,7 +57,7 @@ export default class Boot extends AbstractScene {
 
     private load_assets(): void {
         const require_image: __WebpackModuleApi.RequireContext = require.context('../../assets/images/', true);
-        // const require_tilesheet: __WebpackModuleApi.RequireContext = require.context('../../assets/tilesheets/', true);
+        const require_tilesheet: __WebpackModuleApi.RequireContext = require.context('../../assets/tilesheets/', true);
         // const require_audio: __WebpackModuleApi.RequireContext = require.context('../../assets/audio/', true);
         // const require_json: __WebpackModuleApi.RequireContext = require.context('../../assets/json/', true);
         const require_bitmap: __WebpackModuleApi.RequireContext = require.context('../../assets/bitmap/', true);
@@ -68,7 +70,50 @@ export default class Boot extends AbstractScene {
         this.load.bitmapFont('pixchicago_lg_green', require_bitmap('./pixchicago_lg_green_0.png'), require_bitmap('./pixchicago_lg_green.fnt'));
         this.load.bitmapFont('pixchicago_lg_gold', require_bitmap('./pixchicago_lg_gold_0.png'), require_bitmap('./pixchicago_lg_gold.fnt'));
 
-        // this.load.image('x', require_image('./x.png'));
+        this.load.spritesheet('bandit', require_tilesheet('./bandit.png'), { frameWidth: 84, frameHeight: 70 });
+        this.load.spritesheet('baron', require_tilesheet('./baron.png'), { frameWidth: 62, frameHeight: 98 });
+
+        this.load.image('zone_courtyards_transition', require_image('./zone_courtyards_transition.png'));
+    }
+
+    private load_animations(): void {
+        const sprite_keys: Array<string> = Constants.CLASS_KEYS.concat(Constants.ENEMY_KEYS);
+
+        for (const key of sprite_keys) {
+            this.anims.create({
+                key: 'idle_' + key,
+                frames: this.anims.generateFrameNumbers(key, {
+                    start: 0,
+                    end: 2
+                }),
+                repeat: -1,
+                frameRate: Constants.IDLE_ANIMATION_RATE,
+                yoyo: true,
+                skipMissedFrames: true
+            });
+
+            if (Constants.CLASS_KEYS.find(friendly => friendly === key)) {
+                this.anims.create({
+                    key: 'active_' + key,
+                    frames: this.anims.generateFrameNumbers(key, {
+                        start: 3,
+                        end: 5
+                    }),
+                    repeat: -1,
+                    frameRate: Constants.IDLE_ANIMATION_RATE,
+                    yoyo: true,
+                    skipMissedFrames: true
+                });
+
+                this.anims.create({
+                    key: 'death_' + key,
+                    frames: this.anims.generateFrameNumbers(key, {
+                        start: 6,
+                        end: 6
+                    }),
+                });
+            }
+        }
     }
 
     private bind_device_events(): void {

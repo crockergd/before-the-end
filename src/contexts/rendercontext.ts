@@ -64,11 +64,11 @@ export default class RenderContext {
     }
 
     public get baseline_x(): number {
-        return 640;
+        return 640 * 2;
     }
 
     public get baseline_y(): number {
-        return 360;
+        return 360 * 2;
     }
 
     public get inner_x(): number {
@@ -206,10 +206,10 @@ export default class RenderContext {
         return group_object;
     }
 
-    public add_sprite(x: number, y: number, key: string, collection?: AbstractCollectionType, scene_override?: AbstractScene): AbstractSprite {
+    public add_sprite(x: number, y: number, key: string, collection?: AbstractCollectionType, scene_override?: AbstractScene, physics?: boolean): AbstractSprite {
         const scene: AbstractScene = scene_override ?? this.scene;
 
-        const sprite_object: AbstractSprite = new AbstractSprite(this, scene, x, y, key, collection);
+        const sprite_object: AbstractSprite = new AbstractSprite(this, scene, x, y, key, collection, physics);
         sprite_object.set_scale(this.base_scale_factor, this.base_scale_factor);
 
         return sprite_object;
