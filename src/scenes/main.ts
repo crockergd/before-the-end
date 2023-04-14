@@ -22,16 +22,18 @@ export default class Main extends AbstractScene {
     public debug: AbstractText;
 
     public enemies_defeated: number;
+    public tick_count: number;
 
     public init(data: SceneData): void {
         super.init(data);
         this.render_context.set_scene(this);
 
-        this.timer = new WorldTimer(this.render_context.now, 15);
+        this.timer = new WorldTimer(this.render_context.now, 600);
         this.scene_renderer = new MainRenderer(this.render_context, this.timer);
 
         this.matter.world.disableGravity();
         this.enemies_defeated = 0;
+        this.tick_count = 0;
         this.enemies = new Array<Entity>();
     }
 
@@ -42,7 +44,11 @@ export default class Main extends AbstractScene {
         transition.set_anchor(0.5, 0.5);
 
         this.spawn_player();
-        this.spawn_enemy();
+        this.spawn_enemy(3);
+
+        this.render_context.bind_update('world_tick', new CallbackBinding(() => {
+            this.world_tick();
+        }, this), 3000);
 
         this.debug = this.render_context.add_text(this.render_context.space_buffer, this.render_context.space_buffer, '');
         this.debug.affix_ui();
@@ -62,18 +68,7 @@ export default class Main extends AbstractScene {
             'Time Elapsed: ' + Math.ceil(this.timer.elapsed_time);
 
         if (!this.timer.update(dt)) {
-            this.timer.doomed = true;
-            this.scene_renderer.draw_game_over(this.player, new CallbackBinding(() => {
-                this.input.once(Constants.UP_EVENT, () => {
-                    this.render_context.transition_scene(TransitionType.OUT, new CallbackBinding(() => {
-                        this.start('menu', {
-                            scene_context: this.scene_context
-                        });
-                    }, this));
-                }, this);
-            }, this));
-            this.input.off(Constants.UP_EVENT);
-            this.render_context.camera.stopFollow();
+            this.end_game();
         }
 
         this.scene_renderer.update(dt);
@@ -86,18 +81,20 @@ export default class Main extends AbstractScene {
         this.input.on(Constants.UP_EVENT, this.click, this);
     }
 
-    public spawn_enemy(): void {
-        const initial_position: Vector = new Vector(Math.floor(this.player.x), Math.floor(this.player.y));
-        const distance: number = 300;
-        const bounds: Vector = new Vector(initial_position.x - distance, initial_position.y - distance, initial_position.x + distance, initial_position.y + distance);
-        const enemy_position: Vector = MathExtensions.rand_within_bounds(bounds);
+    public spawn_enemy(count: number = 1): void {
+        for (let i: number = 0; i < count; i++) {
+            const initial_position: Vector = new Vector(Math.floor(this.player.x), Math.floor(this.player.y));
+            const distance: number = 300;
+            const bounds: Vector = new Vector(initial_position.x - distance, initial_position.y - distance, initial_position.x + distance, initial_position.y + distance);
+            const enemy_position: Vector = MathExtensions.rand_within_bounds(bounds);
 
-        const enemy: Entity = EntityFactory.create_enemy(EntityFactory.random_enemy_key(), 3 + this.enemies_defeated);
-        this.scene_renderer.draw_enemy(enemy_position.x, enemy_position.y, enemy);
+            const enemy: Entity = EntityFactory.create_enemy(EntityFactory.random_enemy_key(), 3 + this.enemies_defeated);
+            this.scene_renderer.draw_enemy(enemy_position.x, enemy_position.y, enemy);
 
-        enemy.physics.setOnCollide((collision: any) => {
-            this.collide(this.player, enemy, collision);
-        });
+            enemy.physics.setOnCollide((collision: any) => {
+                this.collide(this.player, enemy, collision);
+            });
+        }
     }
 
     public click(): void {
@@ -124,11 +121,34 @@ export default class Main extends AbstractScene {
             this.matter.world.remove(enemy.physics);
             this.scene_renderer.flash_enemy_death(enemy);
 
-            this.spawn_enemy();
-            this.spawn_enemy();
-
         } else {
             enemy.battle_info.power -= this.player.power;
         }
+    }
+
+    public world_tick(): void {
+        const enemies_summoned: number = 2 + (Math.floor(this.tick_count / 2));
+        this.spawn_enemy(enemies_summoned);
+
+        this.timer.difficulty_scalar += (this.tick_count / 8);
+
+        this.tick_count++;
+    }
+
+    public end_game(): void {
+        this.timer.doomed = true;
+        this.scene_renderer.draw_game_over(this.player, new CallbackBinding(() => {
+            this.input.once(Constants.UP_EVENT, () => {
+                this.render_context.transition_scene(TransitionType.OUT, new CallbackBinding(() => {
+                    this.start('menu', {
+                        scene_context: this.scene_context
+                    });
+                }, this));
+            }, this);
+        }, this));
+        this.input.off(Constants.UP_EVENT);
+
+        this.render_context.camera.stopFollow();
+        this.render_context.unbind_update('world_tick');
     }
 }

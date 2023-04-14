@@ -18,6 +18,7 @@ import MathExtensions from '../utils/mathextensions';
 import TweenConfig from '../utils/tweenconfig';
 import Vector from '../utils/vector';
 import SceneContext from './scenecontext';
+import UpdateBinding from '../utils/updatebinding';
 
 export default class RenderContext {
     public scene: AbstractScene;
@@ -26,6 +27,7 @@ export default class RenderContext {
     public transitioning_component: boolean;
 
     public anim_scale: number;
+    private update_bindings: Array<UpdateBinding>;
 
     public get transitioning(): boolean {
         return this.transitioning_scene || this.transitioning_custom || this.transitioning_component;
@@ -173,10 +175,16 @@ export default class RenderContext {
         this.transitioning_component = false;
 
         this.anim_scale = 1;
+        this.update_bindings = new Array<UpdateBinding>();
     }
 
     public update(time: number, dt_ms: number): void {
-
+        for (const binding of this.update_bindings) {
+            if (time > (binding.last_time + binding.interval)) {
+                if (this.focussed) binding.callback.call();
+                binding.last_time = time;
+            }
+        }
     }
 
     public get_json(key: string): any {
@@ -460,6 +468,23 @@ export default class RenderContext {
         }
 
         return event_key;
+    }
+
+    public bind_update(key: string, callback: CallbackBinding, interval_ms: number): void {
+        this.update_bindings.push({
+            key: key,
+            callback: callback,
+            interval: interval_ms,
+            last_time: 0
+        });
+    }
+
+    public unbind_update(key?: string): void {
+        if (key) {
+            this.update_bindings = this.update_bindings.filter(binding => binding.key !== key);
+        } else {
+            this.update_bindings = new Array<UpdateBinding>();
+        }
     }
 
     public validate_tolerance(pointer: Phaser.Input.Pointer): boolean {
