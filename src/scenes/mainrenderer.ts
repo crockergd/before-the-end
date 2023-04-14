@@ -66,6 +66,41 @@ export default class MainRenderer {
         this.world_timer_bar.set_anchor(0.5, 1);
     }
 
+    public draw_game_over(player: Entity): void {
+        const game_over_text: AbstractText = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y, 'Game Over');
+        game_over_text.set_anchor(0.5, 0.5);
+        game_over_text.affix_ui();
+        game_over_text.set_scale(5, 5);
+        game_over_text.set_depth(AbstractDepth.UI);
+        game_over_text.set_alpha(0);
+
+        const duration: number = 200;
+
+        this.render_context.tween({
+            targets: [game_over_text.framework_object],
+            alpha: 1,
+            duration: duration
+        });
+
+        this.render_context.tween({
+            targets: [player.sprite.framework_object],
+            alpha: 0,
+            duration: duration,
+            on_complete: new CallbackBinding(() => {
+                player.destroy();
+            }, this)
+        });
+
+        const vignette: Phaser.FX.Vignette = this.render_context.camera.postFX.addVignette(undefined, undefined, 1, 0);
+
+        this.render_context.scene.tweens.add({
+            targets: [vignette],
+            radius: 0.5,
+            strength: 0.5,
+            duration: duration
+        });
+    }
+
     public flash_combat_text(x: number, y: number, value: string): void {
         const dmg_text: AbstractText = this.render_context.add_text(x, y, value);
         dmg_text.set_anchor(0.5, 1);

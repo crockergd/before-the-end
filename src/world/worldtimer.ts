@@ -1,4 +1,5 @@
 export default class WorldTimer {
+    public doomed: boolean;
     public expiry_time: number;
     public elapsed_time: number;
     public difficulty_scalar: number;
@@ -12,6 +13,7 @@ export default class WorldTimer {
     }
 
     constructor(readonly start_time: number, readonly doom_time: number) {
+        this.doomed = false;
         this.expiry_time = this.doom_time;
         this.elapsed_time = 0;
         this.difficulty_scalar = 1;

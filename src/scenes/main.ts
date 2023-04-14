@@ -53,13 +53,18 @@ export default class Main extends AbstractScene {
         super.update(time, dt_ms);
         const dt: number = (dt_ms / 1000);
 
+        if (this.timer.doomed) return;
+
         this.debug.text = 'Position: ' + Math.floor(this.player.x) + ', ' + Math.floor(this.player.y) + Constants.LINE_BREAK +
             'Enemies Defeated: ' + this.enemies_defeated + Constants.LINE_BREAK +
             'Time Remaining: ' + Math.floor(this.timer.expiry_time) + Constants.LINE_BREAK +
             'Time Elapsed: ' + Math.ceil(this.timer.elapsed_time);
 
         if (!this.timer.update(dt)) {
-            // game over
+            this.timer.doomed = true;
+            this.scene_renderer.draw_game_over(this.player);
+            this.input.off(Constants.UP_EVENT);
+            this.render_context.camera.stopFollow();
         }
 
         this.scene_renderer.update(dt);
