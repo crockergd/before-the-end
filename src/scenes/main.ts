@@ -9,16 +9,17 @@ import { Constants } from '../utils/constants';
 import MathExtensions from '../utils/mathextensions';
 import StringExtensions from '../utils/stringextensions';
 import Vector from '../utils/vector';
+import WorldTimer from '../world/worldtimer';
 import MainRenderer from './mainrenderer';
 
 export default class Main extends AbstractScene {
     public scene_renderer: MainRenderer;
 
+    public timer: WorldTimer;
     public player: Entity;
     public enemies: Array<Entity>;
     public debug: AbstractText;
 
-    public start_time: number;
     public enemies_defeated: number;
 
     public init(data: SceneData): void {
@@ -46,7 +47,7 @@ export default class Main extends AbstractScene {
 
         this.render_context.camera.setBackgroundColor(0x003003);
 
-        this.start_time = this.render_context.now;
+        this.timer = new WorldTimer(this.render_context.now);
     }
 
     public update(time: number, dt_ms: number): void {
@@ -55,7 +56,12 @@ export default class Main extends AbstractScene {
 
         this.debug.text = 'Position: ' + Math.floor(this.player.x) + ', ' + Math.floor(this.player.y) + Constants.LINE_BREAK +
             'Enemies Defeated: ' + this.enemies_defeated + Constants.LINE_BREAK +
-            'Time Elapsed: ' + Math.floor((this.render_context.now - this.start_time) / 1000);
+            'Time Remaining: ' + Math.floor(this.timer.expiry_time) + Constants.LINE_BREAK +
+            'Time Elapsed: ' + Math.ceil(this.timer.elapsed_time);
+
+        if (!this.timer.update(dt)) {
+            // game over
+        }
     }
 
     public spawn_player(): void {
