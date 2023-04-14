@@ -5,6 +5,7 @@ import SceneData from '../contexts/scenedata';
 import Entity from '../entities/entity';
 import EntityFactory from '../entities/entityfactory';
 import TransitionType from '../ui/transitiontype';
+import CallbackBinding from '../utils/callbackbinding';
 import { Constants } from '../utils/constants';
 import MathExtensions from '../utils/mathextensions';
 import StringExtensions from '../utils/stringextensions';
@@ -62,7 +63,15 @@ export default class Main extends AbstractScene {
 
         if (!this.timer.update(dt)) {
             this.timer.doomed = true;
-            this.scene_renderer.draw_game_over(this.player);
+            this.scene_renderer.draw_game_over(this.player, new CallbackBinding(() => {
+                this.input.once(Constants.UP_EVENT, () => {
+                    this.render_context.transition_scene(TransitionType.OUT, new CallbackBinding(() => {
+                        this.start('menu', {
+                            scene_context: this.scene_context
+                        });
+                    }, this));
+                }, this);
+            }, this));
             this.input.off(Constants.UP_EVENT);
             this.render_context.camera.stopFollow();
         }

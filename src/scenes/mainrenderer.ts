@@ -66,7 +66,7 @@ export default class MainRenderer {
         this.world_timer_bar.set_anchor(0.5, 1);
     }
 
-    public draw_game_over(player: Entity): void {
+    public draw_game_over(player: Entity, on_complete: CallbackBinding): void {
         const game_over_text: AbstractText = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y, 'Game Over');
         game_over_text.set_anchor(0.5, 0.5);
         game_over_text.affix_ui();
@@ -99,6 +99,10 @@ export default class MainRenderer {
             strength: 0.5,
             duration: duration
         });
+
+        this.render_context.delay(1000, () => {
+            on_complete.call();
+        }, this);
     }
 
     public flash_combat_text(x: number, y: number, value: string): void {

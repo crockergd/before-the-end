@@ -6,6 +6,7 @@ import CallbackBinding from '../utils/callbackbinding';
 import { Constants } from '../utils/constants';
 import Cache from './cache';
 import Main from './main';
+import Menu from './menu';
 
 export default class Boot extends AbstractScene {
     public preload(): void {
@@ -43,14 +44,14 @@ export default class Boot extends AbstractScene {
         });
 
         this.render_context.transition_scene(TransitionType.OUT, new CallbackBinding(() => {
-            this.start('main', {
-                scene_context: this.scene_context,
-                full: true
+            this.start('menu', {
+                scene_context: this.scene_context
             });
         }, this));
     }
 
     private load_scenes(): void {
+        this.scene.add('menu', Menu, false);
         this.scene.add('main', Main, false);
         this.scene.add('cache', Cache, false);
     }
