@@ -82,7 +82,7 @@ export default class Main extends AbstractScene {
     public click(): void {
         const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
 
-        const normalized_cursor_direction: Vector = new Vector(pointer.worldX - this.player.x, pointer.worldY - this.player.y).normalize();
+        const normalized_cursor_direction: Vector = new Vector(pointer.worldX - this.player.x, pointer.worldY - this.player.y);
 
         if (normalized_cursor_direction.x > 0) {
             this.player.sprite.flip_x(false);
@@ -90,7 +90,7 @@ export default class Main extends AbstractScene {
             this.player.sprite.flip_x(true);
         }
 
-        this.player.physics.applyForce(normalized_cursor_direction.pv2);
+        this.player.physics.applyForce(normalized_cursor_direction.pv2.normalize());
     }
 
     public collide(player: Entity, enemy: Entity, collision: any): void {
