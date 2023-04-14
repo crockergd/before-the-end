@@ -1,14 +1,25 @@
-import { Vector } from 'matter';
+import AbstractDepth from '../abstracts/abstractdepth';
+import AbstractGroup from '../abstracts/abstractgroup';
+import AbstractSprite from '../abstracts/abstractsprite';
+import AbstractText from '../abstracts/abstracttext';
 import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
-import StringExtensions from '../utils/stringextensions';
-import AbstractText from '../abstracts/abstracttext';
 import CallbackBinding from '../utils/callbackbinding';
-import TextType from '../ui/texttype';
+import WorldTimer from '../world/worldtimer';
 
 export default class MainRenderer {
-    constructor(readonly render_context: RenderContext) {
+    public world_timer_group: AbstractGroup;
+    public world_timer_bar: AbstractSprite;
+    public world_timer_frame: AbstractSprite;
 
+    constructor(readonly render_context: RenderContext, readonly timer: WorldTimer) {
+        this.draw_world_timer();
+    }
+
+    public update(dt: number): void {
+        const width: number = 356;
+        const height: number = 6;
+        this.world_timer_bar.crop(0, 0, width * this.timer.remaining_percentage, height);
     }
 
     public draw_player(player: Entity): void {
@@ -40,6 +51,19 @@ export default class MainRenderer {
         enemy.physics.setFixedRotation();
         enemy.physics.setStatic(true);
         enemy.physics.setBounce(0.8);
+    }
+
+    public draw_world_timer(): void {
+        this.world_timer_group = this.render_context.add_group();
+        this.world_timer_group.set_position(this.render_context.center_x, this.render_context.height - this.render_context.space_buffer);
+        this.world_timer_group.affix_ui();
+        this.world_timer_group.set_depth(AbstractDepth.UI);
+
+        this.world_timer_frame = this.render_context.add_sprite(0, 0, 'world_timer_frame', this.world_timer_group);
+        this.world_timer_frame.set_anchor(0.5, 1);
+
+        this.world_timer_bar = this.render_context.add_sprite(0, - this.render_context.literal(2), 'world_timer_bar', this.world_timer_group);
+        this.world_timer_bar.set_anchor(0.5, 1);
     }
 
     public flash_combat_text(x: number, y: number, value: string): void {

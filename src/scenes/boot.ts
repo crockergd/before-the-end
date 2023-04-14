@@ -76,6 +76,8 @@ export default class Boot extends AbstractScene {
         this.load.spritesheet('forester', require_tilesheet('./forester.png'), { frameWidth: 130, frameHeight: 78 });
 
         this.load.image('zone_courtyards_transition', require_image('./zone_courtyards_transition.png'));
+        this.load.image('world_timer_bar', require_image('./world_timer_bar.png'));
+        this.load.image('world_timer_frame', require_image('./world_timer_frame.png'));
     }
 
     private load_animations(): void {

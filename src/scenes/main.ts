@@ -26,7 +26,8 @@ export default class Main extends AbstractScene {
         super.init(data);
         this.render_context.set_scene(this);
 
-        this.scene_renderer = new MainRenderer(this.render_context);
+        this.timer = new WorldTimer(this.render_context.now, 15);
+        this.scene_renderer = new MainRenderer(this.render_context, this.timer);
 
         this.matter.world.disableGravity();
         this.enemies_defeated = 0;
@@ -46,8 +47,6 @@ export default class Main extends AbstractScene {
         this.debug.affix_ui();
 
         this.render_context.camera.setBackgroundColor(0x003003);
-
-        this.timer = new WorldTimer(this.render_context.now);
     }
 
     public update(time: number, dt_ms: number): void {
@@ -62,6 +61,8 @@ export default class Main extends AbstractScene {
         if (!this.timer.update(dt)) {
             // game over
         }
+
+        this.scene_renderer.update(dt);
     }
 
     public spawn_player(): void {
@@ -105,6 +106,7 @@ export default class Main extends AbstractScene {
         if (player.power >= enemy.power) {
             collision.isActive = false;
             this.enemies_defeated++;
+            this.timer.extend_time(0.5);
             this.matter.world.remove(enemy.physics);
             this.scene_renderer.flash_enemy_death(enemy);
 

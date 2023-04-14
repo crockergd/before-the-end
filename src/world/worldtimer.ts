@@ -7,8 +7,12 @@ export default class WorldTimer {
         return this.expiry_time;
     }
 
-    constructor(readonly start_time: number) {
-        this.expiry_time = 30;
+    public get remaining_percentage(): number {
+        return this.remaining / this.doom_time;
+    }
+
+    constructor(readonly start_time: number, readonly doom_time: number) {
+        this.expiry_time = this.doom_time;
         this.elapsed_time = 0;
         this.difficulty_scalar = 1;
     }
@@ -22,5 +26,6 @@ export default class WorldTimer {
 
     public extend_time(value: number): void {
         this.expiry_time += value;
+        this.expiry_time = Math.min(this.expiry_time, this.doom_time);
     }
 }
