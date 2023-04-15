@@ -27,9 +27,10 @@ export default class Main extends AbstractScene {
     public init(data: SceneData): void {
         super.init(data);
         this.render_context.set_scene(this);
+        this.physics_context.set_scene(this);
 
         this.timer = new WorldTimer(this.render_context.now, 600);
-        this.scene_renderer = new MainRenderer(this.render_context, this.timer);
+        this.scene_renderer = new MainRenderer(this.render_context, this.physics_context, this.timer);
 
         this.matter.world.disableGravity();
         this.enemies_defeated = 0;
@@ -52,6 +53,8 @@ export default class Main extends AbstractScene {
 
         this.debug = this.render_context.add_text(this.render_context.space_buffer, this.render_context.space_buffer, '');
         this.debug.affix_ui();
+
+
 
         this.render_context.camera.setBackgroundColor(0x003003);
     }
@@ -100,15 +103,18 @@ export default class Main extends AbstractScene {
     public click(): void {
         const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
 
-        const normalized_cursor_direction: Vector = new Vector(pointer.worldX - this.player.x, pointer.worldY - this.player.y);
-
-        if (normalized_cursor_direction.x > 0) {
+        const cursor_direction: Vector = new Vector(pointer.worldX - this.player.x, pointer.worldY - this.player.y);
+        if (cursor_direction.x > 0) {
             this.player.sprite.flip_x(false);
         } else {
             this.player.sprite.flip_x(true);
         }
 
-        this.player.physics.applyForce(normalized_cursor_direction.pv2.normalize());
+        const angle: number = MathExtensions.vector_to_degrees(cursor_direction);
+        this.scene_renderer.draw_attack(this.player, angle);
+
+        const normalized_direction: Phaser.Math.Vector2 = cursor_direction.pv2.normalize();
+        this.player.physics.applyForce(normalized_direction);
     }
 
     public collide(player: Entity, enemy: Entity, collision: any): void {

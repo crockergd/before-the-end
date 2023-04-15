@@ -121,6 +121,17 @@ export default class MathExtensions {
         return final;
     }
 
+    public static vector_to_degrees(value: Vector): number {
+        const radians: number = Math.atan2(value.y, value.x);
+        let degrees: number = radians * (180 / Math.PI);
+
+        if (degrees < 0) {
+            degrees += 360;
+        }
+
+        return degrees;
+    }
+
     public static within_range(value: number, comparison: number, range: number): boolean {
         if (comparison > value && value + range >= comparison) {
             return true;

@@ -12,6 +12,8 @@ export default class Boot extends AbstractScene {
     public preload(): void {
         this.scene_context = new SceneContext(this.game);
         this.render_context.set_scene(this);
+        this.physics_context.set_scene(this);
+        this.physics_context.init();
 
         this.game.scale.setGameSize(this.render_context.width * this.render_context.DPR, this.render_context.height * this.render_context.DPR);
 
@@ -79,6 +81,7 @@ export default class Boot extends AbstractScene {
         this.load.image('zone_courtyards_transition', require_image('./zone_courtyards_transition.png'));
         this.load.image('world_timer_bar', require_image('./world_timer_bar.png'));
         this.load.image('world_timer_frame', require_image('./world_timer_frame.png'));
+        this.load.image('stab', require_image('./stab.png'));
     }
 
     private load_animations(): void {

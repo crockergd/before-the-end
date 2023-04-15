@@ -2,12 +2,17 @@ import { Scene } from 'phaser';
 import RenderContext from '../contexts/rendercontext';
 import SceneContext from '../contexts/scenecontext';
 import SceneData from '../contexts/scenedata';
+import PhysicsContext from '../contexts/physicscontext';
 
 export default class AbstractScene extends Scene {
     public scene_context: SceneContext;
 
     public get render_context(): RenderContext {
         return this.scene_context.render_context;
+    }
+
+    public get physics_context(): PhysicsContext {
+        return this.scene_context.physics_context;
     }
 
     public init(data: SceneData) {

@@ -2,6 +2,7 @@ import AbstractDepth from '../abstracts/abstractdepth';
 import AbstractGroup from '../abstracts/abstractgroup';
 import AbstractSprite from '../abstracts/abstractsprite';
 import AbstractText from '../abstracts/abstracttext';
+import PhysicsContext from '../contexts/physicscontext';
 import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
 import CallbackBinding from '../utils/callbackbinding';
@@ -12,7 +13,7 @@ export default class MainRenderer {
     public world_timer_bar: AbstractSprite;
     public world_timer_frame: AbstractSprite;
 
-    constructor(readonly render_context: RenderContext, readonly timer: WorldTimer) {
+    constructor(readonly render_context: RenderContext, readonly physics_context: PhysicsContext, readonly timer: WorldTimer) {
         this.draw_world_timer();
     }
 
@@ -29,11 +30,13 @@ export default class MainRenderer {
 
         player.physics.setBody({
             type: 'rectangle',
-            width: 100,
-            height: 100
+            width: 60,
+            height: 80
         });
-        player.sprite.physics_body.setFixedRotation();
-        player.sprite.physics_body.setFriction(0.4, 0.1);
+        player.physics.setFixedRotation();
+        player.physics.setFriction(0.4, 0.1);
+        player.physics.setCollisionCategory(this.physics_context.collision_player);
+        player.physics.setCollidesWith(this.physics_context.collision_player);
 
         this.render_context.camera.startFollow(player.sprite.framework_object, true, 0.6, 0.6);
     }
@@ -45,12 +48,34 @@ export default class MainRenderer {
 
         enemy.physics.setBody({
             type: 'rectangle',
-            width: 100,
-            height: 100
+            width: 60,
+            height: 80
         });
         enemy.physics.setFixedRotation();
         enemy.physics.setStatic(true);
         enemy.physics.setBounce(0.8);
+        enemy.physics.setCollisionCategory(this.physics_context.collision_enemy);
+        enemy.physics.setCollidesWith(this.physics_context.collision_attack);
+    }
+
+    public draw_attack(player: Entity, angle: number): void {
+        const effect: AbstractSprite = this.render_context.add_sprite(player.x, player.y, 'stab', undefined, undefined, true);
+        effect.set_rotation(angle);
+
+        effect.physics_body.setFixedRotation();
+        effect.physics_body.setCollisionCategory(this.physics_context.collision_attack);
+        effect.physics_body.setCollidesWith(this.physics_context.collision_enemy);
+
+        const constraint: MatterJS.ConstraintType = this.render_context.scene.matter.add.constraint((player.physics as any), (effect.physics_body as any));
+
+        this.render_context.tween({
+            targets: [effect.framework_object],
+            alpha: 0,
+            on_complete: new CallbackBinding(() => {
+                this.physics_context.matter.world.remove(constraint);
+                effect.destroy();
+            }, this)
+        })
     }
 
     public draw_world_timer(): void {

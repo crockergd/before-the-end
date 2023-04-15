@@ -19,10 +19,10 @@ import AbstractGame from './abstracts/abstractgame';
         physics: {
             default: 'matter',
             matter: {
-                debug: {
-                    showBounds: true,
-                    showVelocity: true
-                }
+                // debug: {
+                //     showBounds: true,
+                //     showVelocity: true
+                // }
             }
         }
     };
