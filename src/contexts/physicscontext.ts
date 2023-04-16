@@ -3,6 +3,7 @@ import AbstractScene from '../abstracts/abstractscene';
 export default class PhysicsContext {
     public scene: AbstractScene;
 
+    public collision_none: number;
     public collision_player: number;
     public collision_enemy: number;
     public collision_attack: number;
@@ -16,6 +17,7 @@ export default class PhysicsContext {
     }
 
     public init(): void {
+        this.collision_none = this.matter.world.nextCategory();
         this.collision_player = this.matter.world.nextCategory();
         this.collision_enemy = this.matter.world.nextCategory();
         this.collision_attack = this.matter.world.nextCategory();

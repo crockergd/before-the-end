@@ -122,10 +122,21 @@ export default class Main extends AbstractScene {
 
         if (player.power >= enemy.power) {
             collision.isActive = false;
+            collision.bodyB.gameObject.setVelocity(0);
+            collision.bodyB.gameObject.setCollidesWith(this.physics_context.collision_none);
+            this.matter.world.remove(collision.bodyA.gameObject);
+            this.matter.world.remove(collision.bodyB.gameObject);
+
+            this.render_context.camera.shake(200, 0.003);
+
             this.enemies_defeated++;
             this.timer.extend_time(0.5);
-            this.matter.world.remove(enemy.physics);
             this.scene_renderer.flash_enemy_death(enemy);
+
+            this.player.physics.setVelocity(0);
+            this.render_context.delay(100, () => {
+                this.player.sprite.set_position(enemy.x, enemy.y);
+            }, this);
 
         } else {
             enemy.battle_info.power -= this.player.power;
