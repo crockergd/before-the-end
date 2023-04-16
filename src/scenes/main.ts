@@ -119,6 +119,7 @@ export default class Main extends AbstractScene {
 
     public collide(player: Entity, enemy: Entity, collision: any): void {
         this.scene_renderer.flash_combat_text(enemy.x, enemy.y - enemy.sprite.height_half + this.render_context.literal(20), StringExtensions.numeric(player.power));
+        this.scene_renderer.flash_combat_hit(enemy);
 
         if (player.power >= enemy.power) {
             collision.isActive = false;
@@ -134,7 +135,7 @@ export default class Main extends AbstractScene {
             this.scene_renderer.flash_enemy_death(enemy);
 
             this.player.physics.setVelocity(0);
-            this.render_context.delay(100, () => {
+            this.render_context.delay(50, () => {
                 this.player.sprite.set_position(enemy.x, enemy.y);
             }, this);
 

@@ -19,6 +19,7 @@ import TweenConfig from '../utils/tweenconfig';
 import Vector from '../utils/vector';
 import SceneContext from './scenecontext';
 import UpdateBinding from '../utils/updatebinding';
+import ObjectExtensions from '../utils/objectextensions';
 
 export default class RenderContext {
     public scene: AbstractScene;
@@ -375,9 +376,11 @@ export default class RenderContext {
         }
     }
 
-    public tween(config: TweenConfig, base: any = {}): void {
+    public tween(config: TweenConfig | any, base: any = {}): void {
         if (!config.targets || !config.targets.length) return;
         else base.targets = config.targets;
+
+        Object.assign(base, config);
 
         if (config.blocking) {
             this.transitioning_component = true;

@@ -77,6 +77,7 @@ export default class Boot extends AbstractScene {
         this.load.spritesheet('baron', require_tilesheet('./baron.png'), { frameWidth: 62, frameHeight: 98 });
         this.load.spritesheet('huntsman', require_tilesheet('./huntsman.png'), { frameWidth: 126, frameHeight: 76 });
         this.load.spritesheet('forester', require_tilesheet('./forester.png'), { frameWidth: 130, frameHeight: 78 });
+        this.load.spritesheet('hit_slash', require_tilesheet('./hit_slash.png'), { frameWidth: 49, frameHeight: 55 });
 
         this.load.image('zone_courtyards_transition', require_image('./zone_courtyards_transition.png'));
         this.load.image('world_timer_bar', require_image('./world_timer_bar.png'));
@@ -122,6 +123,15 @@ export default class Boot extends AbstractScene {
                 });
             }
         }
+
+        this.anims.create({
+            key: 'hit_slash',
+            frames: this.anims.generateFrameNumbers('hit_slash', {
+                start: 0,
+                end: 7
+            }),
+            frameRate: 20
+        });
     }
 
     private bind_device_events(): void {

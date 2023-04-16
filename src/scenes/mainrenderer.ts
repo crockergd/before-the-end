@@ -63,7 +63,7 @@ export default class MainRenderer {
         effect.set_rotation(angle);
 
         effect.physics_body.setName(effect.uid);
-        effect.physics_body.setFixedRotation();
+        // effect.physics_body.setFixedRotation();
         effect.physics_body.setCollisionCategory(this.physics_context.collision_attack);
         effect.physics_body.setCollidesWith(this.physics_context.collision_enemy);
 
@@ -73,6 +73,7 @@ export default class MainRenderer {
             // collision.isActive = false;
             // effect.physics_body.setCollidesWith(this.physics_context.collision_none);
             this.physics_context.matter.world.remove(constraint);
+            effect.physics_body.setBounce(0.6);
             effect.physics_body.setFriction(0.4, 0.2);
 
             // this.physics_context.matter.world.remove(effect.physics_body);
@@ -146,13 +147,36 @@ export default class MainRenderer {
     public flash_combat_text(x: number, y: number, value: string): void {
         const dmg_text: AbstractText = this.render_context.add_text(x, y, value);
         dmg_text.set_anchor(0.5, 1);
-        dmg_text.set_scale(4, 4);
+        dmg_text.set_scale(3, 3);
 
         this.render_context.tween({
             targets: [dmg_text.framework_object],
+            duration: 400,
             alpha: 0,
+            y: dmg_text.y - 20,
             on_complete: new CallbackBinding(() => {
                 dmg_text.destroy();
+            }, this)
+        });
+    }
+
+    public flash_combat_hit(enemy: Entity): void {
+        // const hit: AbstractSprite = this.render_context.add_sprite(enemy.x, enemy.y, 'hit_slash');
+        // hit.set_anchor(0.5, 0.5);
+
+        // hit.play('hit_slash', undefined, undefined, new CallbackBinding(() => {
+        //     hit.destroy();
+        // }, this));
+
+        const glow: Phaser.FX.Glow = enemy.sprite.framework_object.postFX.addGlow(0x7f062e, 0, 0);
+
+        this.render_context.tween({
+            targets: [glow],
+            duration: 160,
+            innerStrength: 4,
+            yoyo: true,
+            on_complete: new CallbackBinding(() => {
+                glow.destroy();
             }, this)
         });
     }
