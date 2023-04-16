@@ -376,7 +376,7 @@ export default class RenderContext {
         }
     }
 
-    public tween(config: TweenConfig | any, base: any = {}): void {
+    public tween(config: TweenConfig, base: any = {}): void {
         if (!config.targets || !config.targets.length) return;
         else base.targets = config.targets;
 

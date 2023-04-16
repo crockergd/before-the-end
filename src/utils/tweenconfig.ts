@@ -17,4 +17,5 @@ export default interface TweenConfig {
     unique?: boolean;
     ease?: any;
     blocking?: boolean;
+    [other: string | number]: unknown;
 }

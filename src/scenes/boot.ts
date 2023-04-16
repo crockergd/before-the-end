@@ -83,6 +83,7 @@ export default class Boot extends AbstractScene {
         this.load.image('world_timer_bar', require_image('./world_timer_bar.png'));
         this.load.image('world_timer_frame', require_image('./world_timer_frame.png'));
         this.load.image('stab', require_image('./stab.png'));
+        this.load.image('exp_drop', require_image('./exp_drop.png'));
     }
 
     private load_animations(): void {

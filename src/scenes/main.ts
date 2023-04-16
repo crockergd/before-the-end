@@ -133,6 +133,7 @@ export default class Main extends AbstractScene {
             this.enemies_defeated++;
             this.timer.extend_time(0.5);
             this.scene_renderer.flash_enemy_death(enemy);
+            this.scene_renderer.draw_exp_drop(enemy);
 
             this.player.physics.setVelocity(0);
             this.render_context.delay(50, () => {

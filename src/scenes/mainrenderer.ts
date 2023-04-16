@@ -1,3 +1,4 @@
+import exp from 'constants';
 import AbstractDepth from '../abstracts/abstractdepth';
 import AbstractGroup from '../abstracts/abstractgroup';
 import AbstractSprite from '../abstracts/abstractsprite';
@@ -6,7 +7,9 @@ import PhysicsContext from '../contexts/physicscontext';
 import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
 import CallbackBinding from '../utils/callbackbinding';
+import Vector from '../utils/vector';
 import WorldTimer from '../world/worldtimer';
+import MathExtensions from '../utils/mathextensions';
 
 export default class MainRenderer {
     public world_timer_group: AbstractGroup;
@@ -88,6 +91,29 @@ export default class MainRenderer {
             on_complete: new CallbackBinding(() => {
                 this.physics_context.matter.world.remove(constraint);
                 effect.destroy();
+            }, this)
+        });
+    }
+
+    public draw_exp_drop(enemy: Entity): void {
+        const drop_distance: number = 100;
+        const drop_location: Vector = new Vector(enemy.x + MathExtensions.rand_int_inclusive(-drop_distance, drop_distance), enemy.y + MathExtensions.rand_int_inclusive(-drop_distance, drop_distance));
+        const exp_drop: AbstractSprite = this.render_context.add_sprite(enemy.x, enemy.y, 'exp_drop');
+        exp_drop.set_anchor(0.5, 0.5);
+
+        this.render_context.tween({
+            targets: [exp_drop.framework_object],
+            duration: 200,
+            x: drop_location.x,
+            y: drop_location.y,
+            on_complete: new CallbackBinding(() => {
+                this.render_context.tween({
+                    targets: [exp_drop.framework_object],
+                    duration: 200,
+                    y: exp_drop.framework_object.y + this.render_context.literal(4),
+                    yoyo: true,
+                    repeat: -1
+                });
             }, this)
         });
     }
