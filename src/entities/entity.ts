@@ -25,6 +25,10 @@ export default class Entity {
         return this.battle_info.power;
     }
 
+    public get alive(): boolean {
+        return this.battle_info.alive;
+    }
+
     constructor(readonly identifier_info: IdentifierInfo, readonly battle_info: BattleInfo) {
 
     }

@@ -12,6 +12,10 @@ export default class Vector {
         return this.y;
     }
 
+    public get magnitude(): number {
+        return Math.sqrt((this.x * this.x) + (this.y * this.y));
+    }
+
     public get pv2(): Phaser.Math.Vector2 {
         return new Phaser.Math.Vector2(this.x, this.y);
     }
@@ -26,6 +30,13 @@ export default class Vector {
     public multiply(value: number): Vector {
         this.x *= value;
         this.y *= value;
+        return this;
+    }
+
+    public normalize(): Vector {
+        const magnitude: number = this.magnitude;
+        this.x /= magnitude;
+        this.y /= magnitude;
         return this;
     }
 

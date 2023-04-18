@@ -4,6 +4,7 @@ import AbstractText from '../abstracts/abstracttext';
 import SceneData from '../contexts/scenedata';
 import Entity from '../entities/entity';
 import EntityFactory from '../entities/entityfactory';
+import ExpDrop from '../entities/expdrop';
 import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
 import { Constants } from '../utils/constants';
@@ -19,6 +20,7 @@ export default class Main extends AbstractScene {
     public timer: WorldTimer;
     public player: Entity;
     public enemies: Array<Entity>;
+    public exp_drops: Array<ExpDrop>;
     public debug: AbstractText;
 
     public enemies_defeated: number;
@@ -36,6 +38,7 @@ export default class Main extends AbstractScene {
         this.enemies_defeated = 0;
         this.tick_count = 0;
         this.enemies = new Array<Entity>();
+        this.exp_drops = new Array<ExpDrop>();
     }
 
     public create(): void {
@@ -54,8 +57,6 @@ export default class Main extends AbstractScene {
         this.debug = this.render_context.add_text(this.render_context.space_buffer, this.render_context.space_buffer, '');
         this.debug.affix_ui();
 
-
-
         this.render_context.camera.setBackgroundColor(0x003003);
     }
 
@@ -68,12 +69,38 @@ export default class Main extends AbstractScene {
         this.debug.text = 'Position: ' + Math.floor(this.player.x) + ', ' + Math.floor(this.player.y) + Constants.LINE_BREAK +
             'Enemies Defeated: ' + this.enemies_defeated + Constants.LINE_BREAK +
             'Time Remaining: ' + Math.floor(this.timer.expiry_time) + Constants.LINE_BREAK +
-            'Time Elapsed: ' + Math.ceil(this.timer.elapsed_time);
+            'Time Elapsed: ' + Math.ceil(this.timer.elapsed_time); // + Constants.LINE_BREAK +
+        // 'Enemies: ' + this.enemies.length;
+
+        // let count: number = 0;
+        // for (const scene of this.game.scene.scenes) {
+        //     count += scene.children.getChildren().filter(child => child.willRender(this.render_context.camera)).length;
+        // }
+
+        // this.debug.text = 'Display List: ' + count.toString();
+        // this.debug.text += Constants.LINE_BREAK + 'FPS: ' + StringExtensions.numeric(this.render_context.scene.game.loop.actualFps);
+
+        for (const exp_drop of this.exp_drops.filter(exp_drop => exp_drop.collected)) {
+            const player_direction: Vector = new Vector(exp_drop.sprite.absolute_x - this.player.x, exp_drop.sprite.absolute_y - this.player.y);
+            const distance: number = Math.abs(player_direction.x + player_direction.y);
+
+            if (distance < 3) {
+                exp_drop.absorbed = true;
+                exp_drop.sprite.destroy();
+                this.exp_drops = this.exp_drops.filter(exp_drop => !exp_drop.absorbed);
+
+                // add exp
+
+            } else {
+                player_direction.normalize();
+                player_direction.multiply(400 * dt);
+                exp_drop.sprite.set_position(-player_direction.x, -player_direction.y, true);
+            }
+        }
 
         if (!this.timer.update(dt)) {
             this.end_game();
         }
-
         this.scene_renderer.update(dt);
     }
 
@@ -97,7 +124,11 @@ export default class Main extends AbstractScene {
             enemy.physics.setOnCollide((collision: any) => {
                 this.collide(this.player, enemy, collision);
             });
+
+            this.enemies.push(enemy);
         }
+
+        this.enemies = this.enemies.filter(enemy => enemy.alive);
     }
 
     public click(): void {
@@ -113,8 +144,8 @@ export default class Main extends AbstractScene {
         const angle: number = MathExtensions.vector_to_degrees(cursor_direction);
         this.scene_renderer.draw_attack(this.player, angle);
 
-        const normalized_direction: Phaser.Math.Vector2 = cursor_direction.pv2.normalize();
-        this.player.physics.applyForce(normalized_direction);
+        const normalized_direction: Vector = cursor_direction.normalize();
+        this.player.physics.applyForce(normalized_direction.pv2);
     }
 
     public collide(player: Entity, enemy: Entity, collision: any): void {
@@ -133,7 +164,7 @@ export default class Main extends AbstractScene {
             this.enemies_defeated++;
             this.timer.extend_time(0.5);
             this.scene_renderer.flash_enemy_death(enemy);
-            this.scene_renderer.draw_exp_drop(enemy);
+            this.drop_exp(enemy);
 
             this.player.physics.setVelocity(0);
             this.render_context.delay(50, () => {
@@ -143,6 +174,12 @@ export default class Main extends AbstractScene {
         } else {
             enemy.battle_info.power -= this.player.power;
         }
+    }
+
+    public drop_exp(enemy: Entity): void {
+        const exp_drop: ExpDrop = new ExpDrop();
+        this.scene_renderer.draw_exp_drop(exp_drop, this.player, enemy);
+        this.exp_drops.push(exp_drop);
     }
 
     public world_tick(): void {

@@ -10,6 +10,7 @@ import CallbackBinding from '../utils/callbackbinding';
 import Vector from '../utils/vector';
 import WorldTimer from '../world/worldtimer';
 import MathExtensions from '../utils/mathextensions';
+import ExpDrop from '../entities/expdrop';
 
 export default class MainRenderer {
     public world_timer_group: AbstractGroup;
@@ -39,7 +40,7 @@ export default class MainRenderer {
         player.physics.setFixedRotation();
         player.physics.setFriction(0.4, 0.1);
         player.physics.setCollisionCategory(this.physics_context.collision_player);
-        player.physics.setCollidesWith(this.physics_context.collision_none);
+        player.physics.setCollidesWith(this.physics_context.collision_drop);
 
         this.render_context.camera.startFollow(player.sprite.framework_object, true, 0.6, 0.6);
     }
@@ -95,24 +96,34 @@ export default class MainRenderer {
         });
     }
 
-    public draw_exp_drop(enemy: Entity): void {
+    public draw_exp_drop(exp_drop: ExpDrop, player: Entity, enemy: Entity): void {
         const drop_distance: number = 100;
         const drop_location: Vector = new Vector(enemy.x + MathExtensions.rand_int_inclusive(-drop_distance, drop_distance), enemy.y + MathExtensions.rand_int_inclusive(-drop_distance, drop_distance));
-        const exp_drop: AbstractSprite = this.render_context.add_sprite(enemy.x, enemy.y, 'exp_drop');
-        exp_drop.set_anchor(0.5, 0.5);
+        exp_drop.sprite = this.render_context.add_sprite(enemy.x, enemy.y, 'exp_drop', undefined, undefined, true);
+        exp_drop.sprite.set_anchor(0.5, 0.5);
 
         this.render_context.tween({
-            targets: [exp_drop.framework_object],
+            targets: [exp_drop.sprite.framework_object],
             duration: 200,
             x: drop_location.x,
             y: drop_location.y,
             on_complete: new CallbackBinding(() => {
                 this.render_context.tween({
-                    targets: [exp_drop.framework_object],
+                    targets: [exp_drop.sprite.framework_object],
                     duration: 200,
-                    y: exp_drop.framework_object.y + this.render_context.literal(4),
+                    y: exp_drop.sprite.framework_object.y + this.render_context.literal(4),
                     yoyo: true,
                     repeat: -1
+                });
+
+                exp_drop.sprite.physics_body.setCollisionCategory(this.physics_context.collision_drop);
+                exp_drop.sprite.physics_body.setCollidesWith(this.physics_context.collision_player);
+                exp_drop.sprite.physics_body.setSensor(true);
+
+                exp_drop.sprite.physics_body.setOnCollideWith(player.physics, () => {
+                    exp_drop.collected = true;
+                    this.render_context.untween(exp_drop.sprite.framework_object);
+                    this.physics_context.matter.world.remove(exp_drop.sprite.physics_body);
                 });
             }, this)
         });
