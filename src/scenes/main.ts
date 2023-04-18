@@ -90,8 +90,7 @@ export default class Main extends AbstractScene {
                 exp_drop.absorbed = true;
                 exp_drop.sprite.destroy();
                 this.exp_drops = this.exp_drops.filter(exp_drop => !exp_drop.absorbed);
-
-                // add exp
+                this.add_exp(10);
 
             } else {
                 player_direction.normalize();
@@ -182,6 +181,17 @@ export default class Main extends AbstractScene {
         const exp_drop: ExpDrop = new ExpDrop();
         this.scene_renderer.draw_exp_drop(exp_drop, this.player, enemy);
         this.exp_drops.push(exp_drop);
+    }
+
+    public add_exp(experience: number): void {
+        const chart: Array<number> = [30, 70, 150, 260];
+
+        this.player.add_exp(experience);
+        while (this.player.level_info.experience >= chart[this.player.level_info.level]) {
+            this.player.level_info.level++;
+            this.player.battle_info.power += 5;
+            this.scene_renderer.flash_combat_text(this.player.x, this.player.y, 'LEVEL UP');
+        }
     }
 
     public world_tick(): void {

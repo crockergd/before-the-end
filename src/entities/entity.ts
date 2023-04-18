@@ -1,6 +1,7 @@
 import AbstractSprite from '../abstracts/abstractsprite';
 import BattleInfo from './battleinfo';
 import IdentifierInfo from './identifierinfo';
+import LevelInfo from './levelinfo';
 
 export default class Entity {
     public sprite: AbstractSprite;
@@ -29,8 +30,12 @@ export default class Entity {
         return this.battle_info.alive;
     }
 
-    constructor(readonly identifier_info: IdentifierInfo, readonly battle_info: BattleInfo) {
+    constructor(readonly identifier_info: IdentifierInfo, readonly battle_info: BattleInfo, readonly level_info?: LevelInfo) {
 
+    }
+
+    public add_exp(experience: number): void {
+        this.level_info.experience += experience;
     }
 
     public destroy(): void {

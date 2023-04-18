@@ -5,6 +5,7 @@ import Team from './team';
 import BattleInfo from './battleinfo';
 import ObjectExtensions from '../utils/objectextensions';
 import { Constants } from '../utils/constants';
+import LevelInfo from './levelinfo';
 
 export default abstract class EntityFactory {
     public static create_player(sprite_key: string): Entity {
@@ -19,7 +20,12 @@ export default abstract class EntityFactory {
             power: 5
         };
 
-        return new Entity(identifier_info, battle_info);
+        const level_info: LevelInfo = {
+            level: 0,
+            experience: 0
+        };
+
+        return new Entity(identifier_info, battle_info, level_info);
     }
 
     public static create_enemy(sprite_key: string, power: number): Entity {

@@ -185,6 +185,7 @@ export default class MainRenderer {
 
     public flash_combat_text(x: number, y: number, value: string): void {
         const dmg_text: AbstractText = this.render_context.add_text(x, y, value);
+        dmg_text.set_depth(AbstractDepth.UI);
         dmg_text.set_anchor(0.5, 1);
         dmg_text.set_scale(3, 3);
 
