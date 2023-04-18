@@ -21,7 +21,8 @@ export default class AbstractScene extends Scene {
         }
 
         this.events.once('shutdown', () => {
-
+            this.render_context.unbind_update();
+            this.render_context.cache.tweens.killAll();
         }, this);
     }
 

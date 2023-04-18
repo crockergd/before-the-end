@@ -16,10 +16,9 @@ import CallbackBinding from '../utils/callbackbinding';
 import { Constants } from '../utils/constants';
 import MathExtensions from '../utils/mathextensions';
 import TweenConfig from '../utils/tweenconfig';
+import UpdateBinding from '../utils/updatebinding';
 import Vector from '../utils/vector';
 import SceneContext from './scenecontext';
-import UpdateBinding from '../utils/updatebinding';
-import ObjectExtensions from '../utils/objectextensions';
 
 export default class RenderContext {
     public scene: AbstractScene;

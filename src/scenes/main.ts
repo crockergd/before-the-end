@@ -1,3 +1,4 @@
+import AbstractDepth from '../abstracts/abstractdepth';
 import AbstractScene from '../abstracts/abstractscene';
 import AbstractSprite from '../abstracts/abstractsprite';
 import AbstractText from '../abstracts/abstracttext';
@@ -55,6 +56,7 @@ export default class Main extends AbstractScene {
         }, this), 3000);
 
         this.debug = this.render_context.add_text(this.render_context.space_buffer, this.render_context.space_buffer, '');
+        this.debug.set_depth(AbstractDepth.UI);
         this.debug.affix_ui();
 
         this.render_context.camera.setBackgroundColor(0x003003);

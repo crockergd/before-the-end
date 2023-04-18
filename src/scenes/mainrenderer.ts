@@ -30,6 +30,7 @@ export default class MainRenderer {
     public draw_player(player: Entity): void {
         player.sprite = this.render_context.add_sprite(0, 0, player.sprite_key, undefined, undefined, true);
         player.sprite.set_anchor(0.5, 0.5);
+        player.sprite.set_depth(AbstractDepth.FIELD);
         player.sprite.play('idle_' + player.sprite_key);
 
         player.physics.setBody({
@@ -64,6 +65,7 @@ export default class MainRenderer {
 
     public draw_attack(player: Entity, angle: number): void {
         const effect: AbstractSprite = this.render_context.add_sprite(player.x, player.y, 'stab', undefined, undefined, true);
+        effect.set_depth(AbstractDepth.FIELD);
         effect.set_rotation(angle);
 
         effect.physics_body.setName(effect.uid);
