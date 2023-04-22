@@ -95,7 +95,7 @@ export default class Main extends AbstractScene {
             } else {
                 player_direction.normalize();
                 player_direction.multiply(400 * dt);
-                exp_drop.sprite.set_position(-player_direction.x, -player_direction.y, true);
+                exp_drop.sprite.set_position(exp_drop.sprite.absolute_x - player_direction.x, exp_drop.sprite.absolute_y - player_direction.y);
             }
         }
 

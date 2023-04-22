@@ -135,7 +135,7 @@ export default class MainRenderer {
 
     public draw_world_timer(): void {
         this.world_timer_group = this.render_context.add_group();
-        this.world_timer_group.set_position(this.render_context.center_x, this.render_context.height - this.render_context.space_buffer);
+        this.world_timer_group.set_position(this.render_context.center_x, this.render_context.height - (this.render_context.space_buffer * 2));
         this.world_timer_group.affix_ui();
         this.world_timer_group.set_depth(AbstractDepth.UI);
 
