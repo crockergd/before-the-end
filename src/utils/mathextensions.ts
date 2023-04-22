@@ -407,6 +407,27 @@ export default class MathExtensions {
         }
     }
 
+    public static rand_within_donut(inner: Vector, outer: Vector): Vector {
+        const rand: number = MathExtensions.random(false);
+
+        if (rand > 0.75) {
+            return new Vector(MathExtensions.rand_int_inclusive(outer.x, outer.z), MathExtensions.rand_int_inclusive(outer.y, inner.y));
+        } else if (rand > 0.5) {
+            return new Vector(MathExtensions.rand_int_inclusive(inner.z, outer.z), MathExtensions.rand_int_inclusive(outer.y, outer.w));
+        } else if (rand > 0.25) {
+            return new Vector(MathExtensions.rand_int_inclusive(outer.x, outer.z), MathExtensions.rand_int_inclusive(inner.w, outer.w));
+        } else {
+            return new Vector(MathExtensions.rand_int_inclusive(outer.x, inner.x), MathExtensions.rand_int_inclusive(outer.y, outer.w));
+        }
+    }
+
+    public static rand_within_donut_from_point(point: Vector, inner_distance: number, outer_distance: number): Vector {
+        const inner_bounds: Vector = new Vector(point.x - inner_distance, point.y - inner_distance, point.x + inner_distance, point.y + inner_distance);
+        const outer_bounds: Vector = new Vector(point.x - outer_distance, point.y - outer_distance, point.x + outer_distance, point.y + outer_distance);
+
+        return MathExtensions.rand_within_donut(inner_bounds, outer_bounds);
+    }
+
     public static bresenham(p0: Vector, p1: Vector): Array<Vector> {
         const points: Array<Vector> = new Array<Vector>();
 

@@ -115,9 +115,9 @@ export default class Main extends AbstractScene {
     public spawn_enemy(count: number = 1): void {
         for (let i: number = 0; i < count; i++) {
             const initial_position: Vector = new Vector(Math.floor(this.player.x), Math.floor(this.player.y));
-            const distance: number = 300;
-            const bounds: Vector = new Vector(initial_position.x - distance, initial_position.y - distance, initial_position.x + distance, initial_position.y + distance);
-            const enemy_position: Vector = MathExtensions.rand_within_bounds(bounds);
+            const inner_distance: number = 200;
+            const outer_distance: number = 350;
+            const enemy_position: Vector = MathExtensions.rand_within_donut_from_point(initial_position, inner_distance, outer_distance);
 
             const enemy: Entity = EntityFactory.create_enemy(EntityFactory.random_enemy_key(), 3 + this.enemies_defeated);
             this.scene_renderer.draw_enemy(enemy_position.x, enemy_position.y, enemy);
@@ -130,6 +130,12 @@ export default class Main extends AbstractScene {
         }
 
         this.enemies = this.enemies.filter(enemy => enemy.alive);
+    }
+
+    public spawn_exp(enemy: Entity): void {
+        const exp_drop: ExpDrop = new ExpDrop();
+        this.scene_renderer.draw_exp_drop(exp_drop, this.player, enemy);
+        this.exp_drops.push(exp_drop);
     }
 
     public click(): void {
@@ -155,32 +161,29 @@ export default class Main extends AbstractScene {
 
         if (player.power >= enemy.power) {
             collision.isActive = false;
+            collision.bodyA.gameObject.setVelocity(0);
             collision.bodyB.gameObject.setVelocity(0);
-            collision.bodyB.gameObject.setCollidesWith(this.physics_context.collision_none);
             this.matter.world.remove(collision.bodyA.gameObject);
             this.matter.world.remove(collision.bodyB.gameObject);
 
-            this.render_context.camera.shake(200, 0.003);
+            if (enemy.alive) {
+                this.render_context.camera.shake(200, 0.003);
 
-            this.enemies_defeated++;
-            this.timer.extend_time(0.5);
-            this.scene_renderer.flash_enemy_death(enemy);
-            this.drop_exp(enemy);
+                this.enemies_defeated++;
+                this.timer.extend_time(0.5);
+                enemy.battle_info.alive = false;
+                this.scene_renderer.flash_enemy_death(enemy);
+                this.spawn_exp(enemy);
 
-            this.player.physics.setVelocity(0);
-            this.render_context.delay(50, () => {
-                this.player.sprite.set_position(enemy.x, enemy.y);
-            }, this);
+                this.render_context.delay(50, () => {
+                    this.player.sprite.set_position(enemy.x, enemy.y);
+                    this.player.physics.setVelocity(0);
+                }, this);
+            }
 
         } else {
             enemy.battle_info.power -= this.player.power;
         }
-    }
-
-    public drop_exp(enemy: Entity): void {
-        const exp_drop: ExpDrop = new ExpDrop();
-        this.scene_renderer.draw_exp_drop(exp_drop, this.player, enemy);
-        this.exp_drops.push(exp_drop);
     }
 
     public add_exp(experience: number): void {

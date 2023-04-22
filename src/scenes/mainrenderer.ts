@@ -1,4 +1,3 @@
-import exp from 'constants';
 import AbstractDepth from '../abstracts/abstractdepth';
 import AbstractGroup from '../abstracts/abstractgroup';
 import AbstractSprite from '../abstracts/abstractsprite';
@@ -35,8 +34,8 @@ export default class MainRenderer {
 
         player.physics.setBody({
             type: 'rectangle',
-            width: 60,
-            height: 80
+            width: 80,
+            height: 100
         });
         player.physics.setFixedRotation();
         player.physics.setFriction(0.4, 0.1);
@@ -99,8 +98,11 @@ export default class MainRenderer {
     }
 
     public draw_exp_drop(exp_drop: ExpDrop, player: Entity, enemy: Entity): void {
-        const drop_distance: number = 100;
-        const drop_location: Vector = new Vector(enemy.x + MathExtensions.rand_int_inclusive(-drop_distance, drop_distance), enemy.y + MathExtensions.rand_int_inclusive(-drop_distance, drop_distance));
+        const initial_position: Vector = new Vector(Math.floor(enemy.x), Math.floor(enemy.y));
+        const inner_distance: number = 90;
+        const outer_distance: number = 150;
+        const drop_location: Vector = MathExtensions.rand_within_donut_from_point(initial_position, inner_distance, outer_distance);
+
         exp_drop.sprite = this.render_context.add_sprite(enemy.x, enemy.y, 'exp_drop', undefined, undefined, true);
         exp_drop.sprite.set_anchor(0.5, 0.5);
 
@@ -165,6 +167,7 @@ export default class MainRenderer {
             alpha: 0,
             duration: duration,
             on_complete: new CallbackBinding(() => {
+                player.battle_info.alive = false;
                 player.destroy();
             }, this)
         });

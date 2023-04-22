@@ -39,7 +39,6 @@ export default class Entity {
     }
 
     public destroy(): void {
-        this.battle_info.alive = false;
         this.sprite.destroy();
     }
 }
