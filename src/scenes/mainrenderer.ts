@@ -133,7 +133,7 @@ export default class MainRenderer {
         const game_over_text: AbstractText = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y, 'Game Over');
         game_over_text.set_anchor(0.5, 0.5);
         game_over_text.affix_ui();
-        game_over_text.set_scale(5, 5);
+        game_over_text.set_scale(3, 3);
         game_over_text.set_depth(AbstractDepth.UI);
         game_over_text.set_alpha(0);
 

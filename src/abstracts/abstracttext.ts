@@ -76,7 +76,7 @@ export default class AbstractText extends AbstractBaseType {
     }
 
     public set_scale(x: number, y: number): void {
-        this.framework_object.setScale(x, y);
+        this.framework_object.setScale(x * this.renderer.base_scale_factor, y * this.renderer.base_scale_factor);
     }
 
     public set_font_size(font_size: number, alt?: boolean, no_resize?: boolean): void {

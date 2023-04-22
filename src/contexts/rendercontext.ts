@@ -94,11 +94,11 @@ export default class RenderContext {
     }
 
     public get base_scale_factor(): number {
-        return (Math.min((this.width / this.baseline_x), (this.height / this.baseline_y)));
+        return Math.max(Math.min((this.width / this.baseline_x), (this.height / this.baseline_y)), 1);
     }
 
     public get outer_scale_factor(): number {
-        return (Math.max((this.width / this.baseline_x), (this.height / this.baseline_y)));
+        return Math.max(Math.max((this.width / this.baseline_x), (this.height / this.baseline_y)), 1);
     }
 
     public get inner_scale_factor(): number {
