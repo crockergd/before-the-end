@@ -4,7 +4,7 @@ import UID from '../utils/uid';
 import Team from './team';
 import BattleInfo from './battleinfo';
 import ObjectExtensions from '../utils/objectextensions';
-import { Constants } from '../utils/constants';
+import Constants from '../utils/constants';
 import LevelInfo from './levelinfo';
 import EntityState from './entitystate';
 

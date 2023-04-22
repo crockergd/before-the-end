@@ -2,22 +2,20 @@ import AbstractDepth from '../abstracts/abstractdepth';
 import AbstractGroup from '../abstracts/abstractgroup';
 import AbstractSprite from '../abstracts/abstractsprite';
 import AbstractText from '../abstracts/abstracttext';
-import PhysicsContext from '../contexts/physicscontext';
 import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
-import CallbackBinding from '../utils/callbackbinding';
-import Vector from '../utils/vector';
-import WorldTimer from '../world/worldtimer';
-import MathExtensions from '../utils/mathextensions';
 import ExpDrop from '../entities/expdrop';
-import AbstractScene from '../abstracts/abstractscene';
+import CallbackBinding from '../utils/callbackbinding';
+import MathExtensions from '../utils/mathextensions';
+import WorldTimer from '../world/worldtimer';
+import Main from './main';
 
 export default class MainRenderer {
     public world_timer_group: AbstractGroup;
     public world_timer_bar: AbstractSprite;
     public world_timer_frame: AbstractSprite;
 
-    constructor(readonly scene: AbstractScene, readonly render_context: RenderContext, readonly physics_context: PhysicsContext, readonly timer: WorldTimer) {
+    constructor(readonly scene: Main, readonly render_context: RenderContext, readonly timer: WorldTimer) {
         this.draw_world_timer();
     }
 
@@ -66,16 +64,6 @@ export default class MainRenderer {
         player.sprite.set_depth(AbstractDepth.FIELD);
         player.sprite.play('idle_' + player.sprite_key);
 
-        player.physics.setBody({
-            type: 'rectangle',
-            width: 80,
-            height: 100
-        });
-        player.physics.setFixedRotation();
-        player.physics.setFriction(0.4, 0.1);
-        player.physics.setCollisionCategory(this.physics_context.collision_player);
-        player.physics.setCollidesWith(this.physics_context.collision_drop);
-
         this.render_context.camera.startFollow(player.sprite.framework_object, true, 0.6, 0.6);
     }
 
@@ -87,114 +75,35 @@ export default class MainRenderer {
         if (player.x < enemy.x) {
             enemy.sprite.flip_x();
         }
-
-        enemy.physics.setBody({
-            type: 'rectangle',
-            width: 60,
-            height: 80
-        });
-        enemy.physics.setFixedRotation();
-        enemy.physics.setStatic(true);
-        enemy.physics.setBounce(0.8);
-        enemy.physics.setCollisionCategory(this.physics_context.collision_enemy);
-        enemy.physics.setCollidesWith(this.physics_context.collision_attack);
     }
 
-    public draw_attack(player: Entity, angle: number): void {
-        const effect: AbstractSprite = this.render_context.add_sprite(player.x, player.y, 'stab', undefined, undefined, true);
-        effect.set_depth(AbstractDepth.FIELD);
-        effect.set_rotation(angle);
+    public draw_dagger(player: Entity, angle: number): AbstractSprite {
+        const dagger: AbstractSprite = this.render_context.add_sprite(player.x, player.y, 'stab', undefined, undefined, true);
+        dagger.set_depth(AbstractDepth.FIELD);
+        dagger.set_rotation(angle);
 
-        effect.physics_body.setName(effect.uid);
-        // effect.physics_body.setFixedRotation();
-        effect.physics_body.setCollisionCategory(this.physics_context.collision_attack);
-        effect.physics_body.setCollidesWith(this.physics_context.collision_enemy);
-
-        const constraint: MatterJS.ConstraintType = this.render_context.scene.matter.add.constraint((player.physics as any), (effect.physics_body as any));
-
-        effect.physics_body.setOnCollide((collision: any) => {
-            // collision.isActive = false;
-            // effect.physics_body.setCollidesWith(this.physics_context.collision_none);
-            this.physics_context.matter.world.remove(constraint);
-            effect.physics_body.setBounce(0.6);
-            effect.physics_body.setFriction(0.4, 0.2);
-
-            // this.physics_context.matter.world.remove(effect.physics_body);
-            // effect.physics_body.setVelocity(0);
-            // this.render_context.untween(effect.framework_object);
-            // effect.destroy();
-        });
-
-        this.render_context.tween({
-            targets: [effect.framework_object],
-            alpha: 0,
-            on_complete: new CallbackBinding(() => {
-                this.physics_context.matter.world.remove(constraint);
-                effect.destroy();
-            }, this)
-        });
+        return dagger;
     }
 
     public draw_fan(player: Entity, angle: number): AbstractSprite {
-        const effect: AbstractSprite = this.render_context.add_sprite(player.x, player.y, 'stab', undefined, undefined, true);
-        effect.set_depth(AbstractDepth.FIELD);
-        effect.set_rotation(angle);
-
-        effect.physics_body.setFriction(0.4, 0.1);
-        effect.physics_body.setName(effect.uid);
-        // effect.physics_body.setFixedRotation();
-        effect.physics_body.setCollisionCategory(this.physics_context.collision_attack);
-        effect.physics_body.setCollidesWith(this.physics_context.collision_enemy);
-
-        effect.physics_body.setOnCollide((collision: any) => {
-
-        });
+        const fan: AbstractSprite = this.render_context.add_sprite(player.x, player.y, 'stab', undefined, undefined, true);
+        fan.set_depth(AbstractDepth.FIELD);
+        fan.set_rotation(angle);
 
         this.render_context.tween({
-            targets: [effect.framework_object],
+            targets: [fan.framework_object],
             alpha: 0,
             on_complete: new CallbackBinding(() => {
-                effect.destroy();
+                fan.destroy();
             }, this)
         });
 
-        return effect;
+        return fan;
     }
 
     public draw_exp_drop(exp_drop: ExpDrop, player: Entity, enemy: Entity): void {
-        const initial_position: Vector = new Vector(Math.floor(enemy.x), Math.floor(enemy.y));
-        const inner_distance: number = 90;
-        const outer_distance: number = 150;
-        const drop_location: Vector = MathExtensions.rand_within_donut_from_point(initial_position, inner_distance, outer_distance);
-
         exp_drop.sprite = this.render_context.add_sprite(enemy.x, enemy.y, 'exp_drop', undefined, undefined, true);
         exp_drop.sprite.set_anchor(0.5, 0.5);
-
-        this.render_context.tween({
-            targets: [exp_drop.sprite.framework_object],
-            duration: 200,
-            x: drop_location.x,
-            y: drop_location.y,
-            on_complete: new CallbackBinding(() => {
-                this.render_context.tween({
-                    targets: [exp_drop.sprite.framework_object],
-                    duration: 200,
-                    y: exp_drop.sprite.framework_object.y + this.render_context.literal(4),
-                    yoyo: true,
-                    repeat: -1
-                });
-
-                exp_drop.sprite.physics_body.setCollisionCategory(this.physics_context.collision_drop);
-                exp_drop.sprite.physics_body.setCollidesWith(this.physics_context.collision_player);
-                exp_drop.sprite.physics_body.setSensor(true);
-
-                exp_drop.sprite.physics_body.setOnCollideWith(player.physics, () => {
-                    exp_drop.collected = true;
-                    this.render_context.untween(exp_drop.sprite.framework_object);
-                    this.physics_context.matter.world.remove(exp_drop.sprite.physics_body);
-                });
-            }, this)
-        });
     }
 
     public draw_world_timer(): void {

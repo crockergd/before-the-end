@@ -10,15 +10,17 @@ import Fan from '../entities/equipment/fan';
 import ExpDrop from '../entities/expdrop';
 import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
-import { Constants } from '../utils/constants';
+import Constants from '../utils/constants';
 import MathExtensions from '../utils/mathextensions';
 import StringExtensions from '../utils/stringextensions';
 import Vector from '../utils/vector';
 import WorldTimer from '../world/worldtimer';
+import MainPhysics from './mainphysics';
 import MainRenderer from './mainrenderer';
 
 export default class Main extends AbstractScene {
     public scene_renderer: MainRenderer;
+    public scene_physics: MainPhysics;
 
     public timer: WorldTimer;
     public player: Entity;
@@ -35,7 +37,8 @@ export default class Main extends AbstractScene {
         this.physics_context.set_scene(this);
 
         this.timer = new WorldTimer(this.render_context.now, 600);
-        this.scene_renderer = new MainRenderer(this, this.render_context, this.physics_context, this.timer);
+        this.scene_renderer = new MainRenderer(this, this.render_context, this.timer);
+        this.scene_physics = new MainPhysics(this, this.render_context, this.physics_context);
 
         this.matter.world.disableGravity();
         this.enemies_defeated = 0;
@@ -107,9 +110,10 @@ export default class Main extends AbstractScene {
     public spawn_player(): void {
         this.player = EntityFactory.create_player('bandit');
         this.scene_renderer.draw_player(this.player);
+        this.scene_physics.ready_player(this.player);
 
-        this.player.add_equipment(new Dagger(this.player, this.scene_renderer, this.render_context));
-        this.player.add_equipment(new Fan(this.player, this.scene_renderer, this.render_context));
+        this.player.add_equipment(new Dagger(this, this.render_context));
+        this.player.add_equipment(new Fan(this, this.render_context));
 
         this.input.on(Constants.UP_EVENT, this.click, this);
     }
@@ -123,9 +127,10 @@ export default class Main extends AbstractScene {
 
             const enemy: Entity = EntityFactory.create_enemy(EntityFactory.random_enemy_key(), 3 + this.enemies_defeated);
             this.scene_renderer.draw_enemy(enemy_position.x, enemy_position.y, enemy, this.player);
+            this.scene_physics.ready_enemy(enemy);
 
             enemy.physics.setOnCollide((collision: any) => {
-                this.collide(this.player, enemy, collision);
+                // this.collide(this.player, enemy, collision);
             });
 
             this.enemies.push(enemy);
@@ -138,6 +143,29 @@ export default class Main extends AbstractScene {
         const exp_drop: ExpDrop = new ExpDrop();
         this.scene_renderer.draw_exp_drop(exp_drop, this.player, enemy);
         this.exp_drops.push(exp_drop);
+
+        const initial_position: Vector = new Vector(Math.floor(enemy.x), Math.floor(enemy.y));
+        const inner_distance: number = 90;
+        const outer_distance: number = 150;
+        const drop_location: Vector = MathExtensions.rand_within_donut_from_point(initial_position, inner_distance, outer_distance);
+
+        this.render_context.tween({
+            targets: [exp_drop.sprite.framework_object],
+            duration: 200,
+            x: drop_location.x,
+            y: drop_location.y,
+            on_complete: new CallbackBinding(() => {
+                this.render_context.tween({
+                    targets: [exp_drop.sprite.framework_object],
+                    duration: 200,
+                    y: exp_drop.sprite.framework_object.y + this.render_context.literal(4),
+                    yoyo: true,
+                    repeat: -1
+                });
+
+                this.scene_physics.ready_exp_drop(this.player, exp_drop);
+            }, this)
+        });
     }
 
     public click(): void {
@@ -152,7 +180,7 @@ export default class Main extends AbstractScene {
         }
 
         for (const equipment of this.player.equipment) {
-            equipment.attack();
+            equipment.attack(this.player);
         }
 
         this.player.set_state(EntityState.ATTACKING);
@@ -161,11 +189,11 @@ export default class Main extends AbstractScene {
         }, this);
     }
 
-    public collide(player: Entity, enemy: Entity, collision: any): void {
-        this.scene_renderer.flash_combat_text(enemy.x, enemy.y - enemy.sprite.height_half + this.render_context.literal(20), StringExtensions.numeric(player.power));
+    public collide(enemy: Entity, collision: any): boolean {
+        this.scene_renderer.flash_combat_text(enemy.x, enemy.y - enemy.sprite.height_half + this.render_context.literal(20), StringExtensions.numeric(this.player.power));
         this.scene_renderer.flash_combat_hit(enemy);
 
-        if (player.power >= enemy.power) {
+        if (this.player.power >= enemy.power) {
             collision.isActive = false;
             collision.bodyA.gameObject.setVelocity(0);
             collision.bodyB.gameObject.setVelocity(0);
@@ -181,14 +209,15 @@ export default class Main extends AbstractScene {
                 this.scene_renderer.flash_enemy_death(enemy);
                 this.spawn_exp(enemy);
 
-                this.render_context.delay(50, () => {
-                    this.player.sprite.set_position(enemy.x, enemy.y);
-                    this.player.physics.setVelocity(0);
-                }, this);
+                return true;
             }
+
+            return false;
 
         } else {
             enemy.battle_info.power -= this.player.power;
+
+            return false;
         }
     }
 

@@ -1,11 +1,10 @@
 import { GameObjects } from 'phaser';
 import RenderContext from '../contexts/rendercontext';
 import CallbackBinding from '../utils/callbackbinding';
-import MathExtensions from '../utils/mathextensions';
+import Constants from '../utils/constants';
 import AbstractBaseType from './abstractbasetype';
 import { AbstractCollectionType } from './abstractcollectiontype';
 import AbstractScene from './abstractscene';
-import { Constants } from '../utils/constants';
 
 export default class AbstractSprite extends AbstractBaseType {
     public framework_object: GameObjects.Sprite;

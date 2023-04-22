@@ -3,7 +3,7 @@ import AbstractSprite from '../abstracts/abstractsprite';
 import SceneContext from '../contexts/scenecontext';
 import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
-import { Constants } from '../utils/constants';
+import Constants from '../utils/constants';
 import Cache from './cache';
 import Main from './main';
 import Menu from './menu';

@@ -13,7 +13,7 @@ import Cache from '../scenes/cache';
 import TextType from '../ui/texttype';
 import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
-import { Constants } from '../utils/constants';
+import Constants from '../utils/constants';
 import MathExtensions from '../utils/mathextensions';
 import TweenConfig from '../utils/tweenconfig';
 import UpdateBinding from '../utils/updatebinding';

@@ -1,4 +1,4 @@
-export abstract class Constants {
+export default abstract class Constants {
     public static readonly TAP_EVENT: string = 'tap';
     public static readonly DOWN_EVENT: string = 'pointerdown';
     public static readonly UP_EVENT: string = 'pointerup';

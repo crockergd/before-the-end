@@ -1,11 +1,11 @@
-import { Display, GameObjects } from 'phaser';
+import { GameObjects } from 'phaser';
 import RenderContext from '../contexts/rendercontext';
 import CallbackBinding from '../utils/callbackbinding';
+import Constants from '../utils/constants';
 import UID from '../utils/uid';
 import Vector from '../utils/vector';
 import AbstractGroup from './abstractgroup';
 import AbstractMask from './abstractmask';
-import { Constants } from '../utils/constants';
 
 export type AbstractFrameworkType = GameObjects.Sprite | GameObjects.Text | GameObjects.BitmapText | GameObjects.Graphics;
 

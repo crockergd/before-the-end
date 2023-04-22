@@ -21,6 +21,10 @@ export default class Entity {
         return this.sprite.physics_body;
     }
 
+    public get key(): string {
+        return this.identifier_info.key;
+    }
+
     public get sprite_key(): string {
         return this.identifier_info.sprite_key;
     }

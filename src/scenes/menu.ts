@@ -3,7 +3,7 @@ import AbstractText from '../abstracts/abstracttext';
 import SceneData from '../contexts/scenedata';
 import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
-import { Constants } from '../utils/constants';
+import Constants from '../utils/constants';
 
 export default class Menu extends AbstractScene {
 

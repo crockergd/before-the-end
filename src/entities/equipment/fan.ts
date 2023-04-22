@@ -1,31 +1,23 @@
 import AbstractSprite from '../../abstracts/abstractsprite';
-import RenderContext from '../../contexts/rendercontext';
-import MainRenderer from '../../scenes/mainrenderer';
 import MathExtensions from '../../utils/mathextensions';
 import Vector from '../../utils/vector';
 import Entity from '../entity';
 import Equipment from './equipment';
 
 export default class Fan extends Equipment {
-    constructor(readonly player: Entity, readonly scene_renderer: MainRenderer, readonly render_context: RenderContext) {
-        super();
-    }
-
-    public attack(): void {
+    public attack(player: Entity): void {
         const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
-        const cursor_direction_l: Vector = new Vector((pointer.worldX - 100) - this.player.x, pointer.worldY - this.player.y);
+        const cursor_direction_l: Vector = new Vector((pointer.worldX - 100) - player.x, pointer.worldY - player.y);
         const angle_l: number = MathExtensions.vector_to_degrees(cursor_direction_l);
 
-        const cursor_direction_r: Vector = new Vector((pointer.worldX + 100) - this.player.x, pointer.worldY - this.player.y);
+        const cursor_direction_r: Vector = new Vector((pointer.worldX + 100) - player.x, pointer.worldY - player.y);
         const angle_r: number = MathExtensions.vector_to_degrees(cursor_direction_l);
 
-        const fan_l: AbstractSprite = this.scene_renderer.draw_fan(this.player, angle_l);
-        const fan_r: AbstractSprite = this.scene_renderer.draw_fan(this.player, angle_r);
-
-        const normalized_direction_l: Vector = cursor_direction_l.normalize().multiply(0.4);
-        fan_l.physics_body.applyForce(normalized_direction_l.pv2);
-
-        const normalized_direction_r: Vector = cursor_direction_r.normalize().multiply(0.4);
-        fan_r.physics_body.applyForce(normalized_direction_r.pv2);
+        const fan_l: AbstractSprite = this.scene_renderer.draw_fan(player, angle_l);
+        const fan_r: AbstractSprite = this.scene_renderer.draw_fan(player, angle_r);
+        this.scene_physics.ready_fan(fan_l);
+        this.scene_physics.ready_fan(fan_r);
+        this.scene_physics.apply_force(fan_l, cursor_direction_l, 0.4);
+        this.scene_physics.apply_force(fan_r, cursor_direction_r, 0.4);
     }
 }

@@ -1,23 +1,17 @@
-import RenderContext from '../../contexts/rendercontext';
-import MainRenderer from '../../scenes/mainrenderer';
+import AbstractSprite from '../../abstracts/abstractsprite';
 import MathExtensions from '../../utils/mathextensions';
 import Vector from '../../utils/vector';
 import Entity from '../entity';
 import Equipment from './equipment';
 
 export default class Dagger extends Equipment {
-    constructor(readonly player: Entity, readonly scene_renderer: MainRenderer, readonly render_context: RenderContext) {
-        super();
-    }
-
-    public attack(): void {
+    public attack(player: Entity): void {
         const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
-        const cursor_direction: Vector = new Vector(pointer.worldX - this.player.x, pointer.worldY - this.player.y);
+        const cursor_direction: Vector = new Vector(pointer.worldX - player.x, pointer.worldY - player.y);
         const angle: number = MathExtensions.vector_to_degrees(cursor_direction);
 
-        this.scene_renderer.draw_attack(this.player, angle);
-
-        const normalized_direction: Vector = cursor_direction.normalize();
-        this.player.physics.applyForce(normalized_direction.pv2);
+        const dagger: AbstractSprite = this.scene_renderer.draw_dagger(player, angle);
+        this.scene_physics.ready_dagger(player, dagger);
+        this.scene_physics.apply_force(player.sprite, cursor_direction);
     }
 }
