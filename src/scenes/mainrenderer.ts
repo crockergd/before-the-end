@@ -15,6 +15,8 @@ export default class MainRenderer {
     public world_timer_bar: AbstractSprite;
     public world_timer_frame: AbstractSprite;
 
+    public enemy_layer: AbstractGroup;
+
     constructor(readonly scene: Main, readonly render_context: RenderContext, readonly timer: WorldTimer) {
         this.draw_world_timer();
     }
@@ -68,9 +70,15 @@ export default class MainRenderer {
     }
 
     public draw_enemy(x: number, y: number, enemy: Entity, player: Entity): void {
-        enemy.sprite = this.render_context.add_sprite(x, y, enemy.sprite_key, undefined, undefined, true);
+        if (!this.enemy_layer) {
+            this.enemy_layer = this.render_context.add_group();
+            this.enemy_layer.set_layer();
+        }
+
+        enemy.sprite = this.render_context.add_sprite(x, y, enemy.sprite_key, this.enemy_layer, undefined, true);
         enemy.sprite.set_anchor(0.5, 0.5);
         enemy.sprite.play('idle_' + enemy.sprite_key);
+        enemy.sprite.set_depth(Math.round(y), true);
 
         if (player.x < enemy.x) {
             enemy.sprite.flip_x();
@@ -204,6 +212,7 @@ export default class MainRenderer {
             duration: 100,
             on_complete: new CallbackBinding(() => {
                 enemy.destroy();
+                this.enemy_layer.clean();
             }, this)
         });
     }

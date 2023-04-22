@@ -1,4 +1,3 @@
-import AbstractSprite from '../../abstracts/abstractsprite';
 import MathExtensions from '../../utils/mathextensions';
 import Vector from '../../utils/vector';
 import Attack from '../attacks/attack';
@@ -7,21 +6,26 @@ import Equipment from './equipment';
 
 export default class Fan extends Equipment {
     public attack(player: Entity): void {
-        const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
-        const cursor_direction_l: Vector = new Vector((pointer.worldX - 100) - player.x, pointer.worldY - player.y);
-        const angle_l: number = MathExtensions.vector_to_degrees(cursor_direction_l);
+        this.render_context.delay(100, () => {
+            const velocity_scalar: number = 0.35;
+            const attack_angle: number = 30;
 
-        const cursor_direction_r: Vector = new Vector((pointer.worldX + 100) - player.x, pointer.worldY - player.y);
-        const angle_r: number = MathExtensions.vector_to_degrees(cursor_direction_l);
+            const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
+            const cursor_direction: Vector = new Vector(pointer.worldX - player.x, pointer.worldY - player.y);
 
-        const fan_l: Attack = new Attack(this.power);
-        fan_l.sprite = this.scene_renderer.draw_fan(player, angle_l);
-        const fan_r: Attack = new Attack(this.power);
-        fan_r.sprite = this.scene_renderer.draw_fan(player, angle_r);
+            const angle_l: number = MathExtensions.vector_to_degrees(cursor_direction) - attack_angle;
+            const direction_l: Phaser.Math.Vector2 = cursor_direction.pv2.setAngle(Phaser.Math.DegToRad(angle_l));
+            const fan_l: Attack = new Attack(this.power);
+            fan_l.sprite = this.scene_renderer.draw_fan(player, angle_l);
+            this.scene_physics.ready_fan(fan_l);
+            this.scene_physics.apply_force(fan_l.sprite, new Vector(direction_l.x, direction_l.y), velocity_scalar);
 
-        this.scene_physics.ready_fan(fan_l);
-        this.scene_physics.ready_fan(fan_r);
-        this.scene_physics.apply_force(fan_l.sprite, cursor_direction_l, 0.4);
-        this.scene_physics.apply_force(fan_r.sprite, cursor_direction_r, 0.4);
+            const angle_r: number = MathExtensions.vector_to_degrees(cursor_direction) + attack_angle;
+            const direction_r: Phaser.Math.Vector2 = cursor_direction.pv2.setAngle(Phaser.Math.DegToRad(angle_r));
+            const fan_r: Attack = new Attack(this.power);
+            fan_r.sprite = this.scene_renderer.draw_fan(player, angle_r);
+            this.scene_physics.ready_fan(fan_r);
+            this.scene_physics.apply_force(fan_r.sprite, new Vector(direction_r.x, direction_r.y), velocity_scalar);
+        }, this);
     }
 }

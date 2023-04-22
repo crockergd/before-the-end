@@ -112,6 +112,7 @@ export default class MainPhysics {
 
     public apply_force(sprite: AbstractSprite, direction: Vector, intensity: number = 1): void {
         const scaled_direction: Vector = direction.normalize().multiply(intensity);
+        scaled_direction.multiply(this.render_context.base_scale_factor);
         sprite.physics_body.applyForce(scaled_direction.pv2);
     }
 }
