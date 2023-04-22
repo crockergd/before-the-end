@@ -12,7 +12,7 @@ export abstract class Constants {
     public static readonly EVENT_RECAST: string = '-recast';
 
     public static readonly CLASS_KEYS: Array<string> = ['bandit'];
-    public static readonly ENEMY_KEYS: Array<string> = ['baron', 'huntsman', 'forester'];
+    public static readonly ENEMY_KEYS: Array<string> = ['servant', 'baron'];
 
     public static readonly IDLE_ANIMATION_RATE: number = 4;
 
