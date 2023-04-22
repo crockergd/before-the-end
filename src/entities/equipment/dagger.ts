@@ -1,3 +1,5 @@
+import RenderContext from '../../contexts/rendercontext';
+import Main from '../../scenes/main';
 import MathExtensions from '../../utils/mathextensions';
 import Vector from '../../utils/vector';
 import Attack from '../attacks/attack';
@@ -5,6 +7,19 @@ import Entity from '../entity';
 import Equipment from './equipment';
 
 export default class Dagger extends Equipment {
+    constructor(readonly scene: Main, readonly render_context: RenderContext) {
+        super(scene, render_context);
+
+        this.info = {
+            type: 'Dagger',
+            key: 'dagger',
+            name: 'Dagger',
+            level: 0
+        };
+
+        this.type = 'Dagger';
+    }
+
     public attack(player: Entity): void {
         const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
         const cursor_direction: Vector = new Vector(pointer.worldX - player.x, pointer.worldY - player.y);

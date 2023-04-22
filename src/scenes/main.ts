@@ -63,6 +63,26 @@ export default class Main extends AbstractScene {
         this.debug = this.render_context.add_text(this.render_context.space_buffer, this.render_context.space_buffer, '');
         this.debug.set_depth(AbstractDepth.UI);
         this.debug.affix_ui();
+
+        this.input.on(Constants.UP_EVENT, this.click, this);
+        // this.input.off(Constants.UP_EVENT);
+
+        // this.render_context.cache.loot_selection_cache.present(this.player, [{
+        //     type: 'Dagger',
+        //     key: 'dagger',
+        //     name: 'Dagger',
+        //     level: 0
+        // }, {
+        //     type: 'Fan',
+        //     key: 'fan',
+        //     name: 'Fan',
+        //     level: 0
+        // }], new CallbackBinding(() => {
+        //     this.render_context.camera.postFX.clear();
+        //     this.input.on(Constants.UP_EVENT, this.click, this);
+        // }, this));
+        // this.render_context.camera.postFX.addBlur();
+        // this.render_context.camera.postFX.addGradient(0x000, 0x000, 0.6);
     }
 
     public update(time: number, dt_ms: number): void {
@@ -115,8 +135,6 @@ export default class Main extends AbstractScene {
 
         this.player.add_equipment(new Dagger(this, this.render_context));
         this.player.add_equipment(new Fan(this, this.render_context));
-
-        this.input.on(Constants.UP_EVENT, this.click, this);
     }
 
     public spawn_enemy(count: number = 1): void {
@@ -187,10 +205,10 @@ export default class Main extends AbstractScene {
     }
 
     public collide(attack: Attack, enemy: Entity, collision: any): boolean {
-        this.scene_renderer.flash_combat_text(enemy.x, enemy.y - enemy.sprite.height_half + this.render_context.literal(20), StringExtensions.numeric(this.player.power));
-        this.scene_renderer.flash_combat_hit(enemy);
-
         const power: number = attack.power + this.player.power;
+
+        this.scene_renderer.flash_combat_text(enemy.x, enemy.y - enemy.sprite.height_half + this.render_context.literal(20), StringExtensions.numeric(power));
+        this.scene_renderer.flash_combat_hit(enemy);
 
         if (power >= enemy.power) {
             this.scene_physics.reset_collision(collision);

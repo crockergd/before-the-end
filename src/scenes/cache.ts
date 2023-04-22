@@ -1,17 +1,18 @@
 import AbstractScene from '../abstracts/abstractscene';
 import AbstractText from '../abstracts/abstracttext';
 import SceneData from '../contexts/scenedata';
+import LootSelectionCache from './cacheables/lootselectioncache';
 
 export default class Cache extends AbstractScene {
+    public loot_selection_cache: LootSelectionCache;
+
     private debug_text: AbstractText;
 
-    public init(data: SceneData): void {
-        super.init(data);
-
-        this.render_context.set_scene(this);
-    }
-
     public create(): void {
+        this.render_context.set_scene(this);
+
+        this.loot_selection_cache = new LootSelectionCache(this);
+
         // if (Global.settings.dev) {
         //     this.debug_text = this.render_context.add_text(this.render_context.space_buffer, this.render_context.space_buffer, '');
         //     this.debug_text.set_font_size(12);
@@ -47,10 +48,8 @@ export default class Cache extends AbstractScene {
     }
 
     public update_scene(key: string): void {
-        // if (this.combat_group) this.combat_group.set_visible(false);
-
+        if (this.loot_selection_cache) this.loot_selection_cache.hide();
 
         this.render_context.undelay();
-        // this.render_context.unbind_update();
     }
 }

@@ -45,6 +45,10 @@ export default class RenderContext {
         return this.space_buffer / 2;
     }
 
+    public get space_buffer_lg(): number {
+        return this.space_buffer * 2;
+    }
+
     public get frame_buffer(): number {
         return this.literal(10);
     }
@@ -504,11 +508,13 @@ export default class RenderContext {
     }
 
     public validate_controller(object: Phaser.GameObjects.GameObject): boolean {
-        if (object instanceof Phaser.GameObjects.Sprite) {
-            if (object.texture.key.includes('control_')) return true;
-        }
+        return true;
 
-        return false;
+        // if (object instanceof Phaser.GameObjects.Sprite) {
+        //     if (object.texture.key.includes('control_')) return true;
+        // }
+
+        // return false;
     }
 
     public set_scene(scene: AbstractScene): void {

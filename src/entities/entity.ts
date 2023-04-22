@@ -46,7 +46,14 @@ export default class Entity {
     }
 
     public add_equipment(equipment: Equipment): void {
-        this.equipment.push(equipment);
+        const existing: Equipment = this.equipment.find(inner => inner.key === equipment.key);
+
+        if (existing) {
+            existing.info.level++;
+
+        } else {
+            this.equipment.push(equipment);
+        }
     }
 
     public add_exp(experience: number): void {

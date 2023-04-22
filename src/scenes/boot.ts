@@ -80,6 +80,9 @@ export default class Boot extends AbstractScene {
         this.load.spritesheet('huntsman', require_tilesheet('./huntsman.png'), { frameWidth: 126, frameHeight: 76 });
         this.load.spritesheet('forester', require_tilesheet('./forester.png'), { frameWidth: 130, frameHeight: 78 });
         this.load.spritesheet('hit_slash', require_tilesheet('./hit_slash.png'), { frameWidth: 49, frameHeight: 55 });
+        this.load.spritesheet('ability_btn_sm', require_tilesheet('./ability_btn_sm.png'), { frameWidth: 171, frameHeight: 21 });
+        this.load.spritesheet('equipment_slot', require_tilesheet('./equipment_slot.png'), { frameWidth: 30, frameHeight: 30 });
+        this.load.spritesheet('loot_card_stamp', require_tilesheet('./loot_card_stamp.png'), { frameWidth: 45, frameHeight: 71 });
 
         this.load.image('zone_courtyards_transition', require_image('./zone_courtyards_transition.png'));
         this.load.image('world_timer_bar', require_image('./world_timer_bar.png'));
@@ -87,6 +90,12 @@ export default class Boot extends AbstractScene {
         this.load.image('stab', require_image('./stab.png'));
         this.load.image('exp_drop', require_image('./exp_drop.png'));
         this.load.image('floor', require_image('./floor.png'));
+        this.load.image('loot_frame', require_image('./loot_frame.png'));
+        this.load.image('loot_frame_banner', require_image('./loot_frame_banner.png'));
+        this.load.image('loot_frame_portrait', require_image('./loot_frame_portrait.png'));
+        this.load.image('loot_card_bg', require_image('./loot_card_bg.png'));
+        this.load.image('loot_card_frame', require_image('./loot_card_frame.png'));
+        this.load.image('loot_card_frame_mask', require_image('./loot_card_frame_mask.png'));
     }
 
     private load_animations(): void {
@@ -135,6 +144,25 @@ export default class Boot extends AbstractScene {
                 end: 7
             }),
             frameRate: 20
+        });
+
+        this.anims.create({
+            key: 'loot_card_stamp_show',
+            frames: this.anims.generateFrameNumbers('loot_card_stamp', {
+                start: 0,
+                end: 2
+            }),
+            frameRate: 16
+        });
+
+        this.anims.create({
+            key: 'loot_card_stamp_flow',
+            frames: this.anims.generateFrameNumbers('loot_card_stamp', {
+                start: 2,
+                end: 6
+            }),
+            frameRate: 6,
+            repeat: -1
         });
     }
 
