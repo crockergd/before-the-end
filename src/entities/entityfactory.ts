@@ -22,7 +22,8 @@ export default abstract class EntityFactory {
 
         const level_info: LevelInfo = {
             level: 0,
-            experience: 0
+            experience: 0,
+            chart: EntityFactory.generate_exp_chart(99, 30, 40, 0.02)
         };
 
         return new Entity(identifier_info, battle_info, level_info);
@@ -45,5 +46,18 @@ export default abstract class EntityFactory {
 
     public static random_enemy_key(): string {
         return ObjectExtensions.array_rand(Constants.ENEMY_KEYS);
+    }
+
+    public static generate_exp_chart(maximum_level: number, initial_exp_cost: number, initial_step: number, scalar: number): Array<number> {
+        const chart: Array<number> = new Array<number>();
+
+        for (let i: number = 0; i < maximum_level; i++) {
+            let value: number = initial_exp_cost + (initial_step * i);
+            value *= 1 + (scalar * i);
+            value = Math.floor(value);
+            chart.push(value);
+        }
+
+        return chart;
     }
 }

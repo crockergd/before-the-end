@@ -187,10 +187,8 @@ export default class Main extends AbstractScene {
     }
 
     public add_exp(experience: number): void {
-        const chart: Array<number> = [30, 70, 150, 260];
-
         this.player.add_exp(experience);
-        while (this.player.level_info.experience >= chart[this.player.level_info.level]) {
+        while (this.player.level_info.experience >= this.player.level_info.chart[this.player.level_info.level]) {
             this.player.level_info.level++;
             this.player.battle_info.power += 5;
             this.scene_renderer.flash_combat_text(this.player.x, this.player.y, 'LEVEL UP');
