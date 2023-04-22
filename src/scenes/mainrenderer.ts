@@ -10,13 +10,14 @@ import Vector from '../utils/vector';
 import WorldTimer from '../world/worldtimer';
 import MathExtensions from '../utils/mathextensions';
 import ExpDrop from '../entities/expdrop';
+import AbstractScene from '../abstracts/abstractscene';
 
 export default class MainRenderer {
     public world_timer_group: AbstractGroup;
     public world_timer_bar: AbstractSprite;
     public world_timer_frame: AbstractSprite;
 
-    constructor(readonly render_context: RenderContext, readonly physics_context: PhysicsContext, readonly timer: WorldTimer) {
+    constructor(readonly scene: AbstractScene, readonly render_context: RenderContext, readonly physics_context: PhysicsContext, readonly timer: WorldTimer) {
         this.draw_world_timer();
     }
 
@@ -24,6 +25,39 @@ export default class MainRenderer {
         const width: number = 356;
         const height: number = 6;
         this.world_timer_bar.crop(0, 0, width * this.timer.remaining_percentage, height);
+    }
+
+    public draw_tiles(): void {
+        // const transition: AbstractSprite = this.render_context.add_sprite(0, 0, 'zone_courtyards_transition');
+        // transition.set_anchor(0.5, 0.5);
+
+        const map_height: number = 1000;
+        const map_width: number = 1000;
+        const map_data: Array<Array<number>> = new Array<Array<number>>();
+
+        for (let i: number = 0; i < map_height; i++) {
+            const row_data: Array<number> = new Array<number>();
+
+            for (let j: number = 0; j < map_width; j++) {
+                row_data.push(MathExtensions.rand_weighted(false, 3, 1));
+            }
+
+            map_data.push(row_data);
+        }
+
+        const map: Phaser.Tilemaps.Tilemap = this.scene.make.tilemap({
+            data: map_data,
+            tileWidth: 32,
+            tileHeight: 32
+        });
+
+        const tileset: Phaser.Tilemaps.Tileset = map.addTilesetImage('floor');
+        const layer: Phaser.Tilemaps.TilemapLayer = map.createLayer(0, tileset, 0, 0);
+
+        layer.setPosition(-layer.width / 2, -layer.height / 2);
+        layer.setAlpha(0.6);
+
+        // this.render_context.camera.setBackgroundColor(0x003003);
     }
 
     public draw_player(player: Entity): void {
@@ -45,10 +79,14 @@ export default class MainRenderer {
         this.render_context.camera.startFollow(player.sprite.framework_object, true, 0.6, 0.6);
     }
 
-    public draw_enemy(x: number, y: number, enemy: Entity): void {
+    public draw_enemy(x: number, y: number, enemy: Entity, player: Entity): void {
         enemy.sprite = this.render_context.add_sprite(x, y, enemy.sprite_key, undefined, undefined, true);
         enemy.sprite.set_anchor(0.5, 0.5);
         enemy.sprite.play('idle_' + enemy.sprite_key);
+
+        if (player.x < enemy.x) {
+            enemy.sprite.flip_x();
+        }
 
         enemy.physics.setBody({
             type: 'rectangle',

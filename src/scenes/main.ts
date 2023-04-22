@@ -33,7 +33,7 @@ export default class Main extends AbstractScene {
         this.physics_context.set_scene(this);
 
         this.timer = new WorldTimer(this.render_context.now, 600);
-        this.scene_renderer = new MainRenderer(this.render_context, this.physics_context, this.timer);
+        this.scene_renderer = new MainRenderer(this, this.render_context, this.physics_context, this.timer);
 
         this.matter.world.disableGravity();
         this.enemies_defeated = 0;
@@ -45,8 +45,7 @@ export default class Main extends AbstractScene {
     public create(): void {
         this.render_context.transition_scene(TransitionType.IN);
 
-        const transition: AbstractSprite = this.render_context.add_sprite(0, 0, 'zone_courtyards_transition');
-        transition.set_anchor(0.5, 0.5);
+        this.scene_renderer.draw_tiles();
 
         this.spawn_player();
         this.spawn_enemy(3);
@@ -58,8 +57,6 @@ export default class Main extends AbstractScene {
         this.debug = this.render_context.add_text(this.render_context.space_buffer, this.render_context.space_buffer, '');
         this.debug.set_depth(AbstractDepth.UI);
         this.debug.affix_ui();
-
-        this.render_context.camera.setBackgroundColor(0x003003);
     }
 
     public update(time: number, dt_ms: number): void {
@@ -120,7 +117,7 @@ export default class Main extends AbstractScene {
             const enemy_position: Vector = MathExtensions.rand_within_donut_from_point(initial_position, inner_distance, outer_distance);
 
             const enemy: Entity = EntityFactory.create_enemy(EntityFactory.random_enemy_key(), 3 + this.enemies_defeated);
-            this.scene_renderer.draw_enemy(enemy_position.x, enemy_position.y, enemy);
+            this.scene_renderer.draw_enemy(enemy_position.x, enemy_position.y, enemy, this.player);
 
             enemy.physics.setOnCollide((collision: any) => {
                 this.collide(this.player, enemy, collision);
