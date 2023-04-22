@@ -56,6 +56,8 @@ export default class MainRenderer {
 
         layer.setPosition(-layer.width / 2, -layer.height / 2);
         layer.setAlpha(0.6);
+        layer.setScale(this.render_context.base_scale_factor, this.render_context.base_scale_factor);
+        layer.setCullPadding(10, 10);
 
         // this.render_context.camera.setBackgroundColor(0x003003);
     }
@@ -66,7 +68,7 @@ export default class MainRenderer {
         player.sprite.set_depth(AbstractDepth.FIELD);
         player.sprite.play('idle_' + player.sprite_key);
 
-        this.render_context.camera.startFollow(player.sprite.framework_object, true, 0.6, 0.6);
+        this.render_context.camera.startFollow(player.sprite.framework_object, true, 0.5, 0.5);
     }
 
     public draw_enemy(x: number, y: number, enemy: Entity, player: Entity): void {

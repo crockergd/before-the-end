@@ -42,10 +42,10 @@ export default class AbstractScene extends Scene {
     }
 
     public resize(): void {
-        this.children.list.forEach((child: Phaser.GameObjects.GameObject) => {
-            if (child instanceof Phaser.GameObjects.Sprite) {
-                child.setScale(this.render_context.base_scale_factor, this.render_context.base_scale_factor);
-            }
-        }, this);
+        // this.children.list.forEach((child: Phaser.GameObjects.GameObject) => {
+        //     if (child instanceof Phaser.GameObjects.Sprite) {
+        //         child.setScale(this.render_context.base_scale_factor, this.render_context.base_scale_factor);
+        //     }
+        // }, this);
     }
 }
