@@ -2,6 +2,7 @@ import AbstractDepth from '../abstracts/abstractdepth';
 import AbstractScene from '../abstracts/abstractscene';
 import AbstractText from '../abstracts/abstracttext';
 import SceneData from '../contexts/scenedata';
+import Attack from '../entities/attacks/attack';
 import Entity from '../entities/entity';
 import EntityFactory from '../entities/entityfactory';
 import EntityState from '../entities/entitystate';
@@ -129,10 +130,6 @@ export default class Main extends AbstractScene {
             this.scene_renderer.draw_enemy(enemy_position.x, enemy_position.y, enemy, this.player);
             this.scene_physics.ready_enemy(enemy);
 
-            enemy.physics.setOnCollide((collision: any) => {
-                // this.collide(this.player, enemy, collision);
-            });
-
             this.enemies.push(enemy);
         }
 
@@ -189,16 +186,14 @@ export default class Main extends AbstractScene {
         }, this);
     }
 
-    public collide(enemy: Entity, collision: any): boolean {
+    public collide(attack: Attack, enemy: Entity, collision: any): boolean {
         this.scene_renderer.flash_combat_text(enemy.x, enemy.y - enemy.sprite.height_half + this.render_context.literal(20), StringExtensions.numeric(this.player.power));
         this.scene_renderer.flash_combat_hit(enemy);
 
-        if (this.player.power >= enemy.power) {
-            collision.isActive = false;
-            collision.bodyA.gameObject.setVelocity(0);
-            collision.bodyB.gameObject.setVelocity(0);
-            this.matter.world.remove(collision.bodyA.gameObject);
-            this.matter.world.remove(collision.bodyB.gameObject);
+        const power: number = attack.power + this.player.power;
+
+        if (power >= enemy.power) {
+            this.scene_physics.reset_collision(collision);
 
             if (enemy.alive) {
                 this.render_context.camera.shake(200, 0.003);
@@ -215,7 +210,7 @@ export default class Main extends AbstractScene {
             return false;
 
         } else {
-            enemy.battle_info.power -= this.player.power;
+            enemy.battle_info.power -= power;
 
             return false;
         }

@@ -17,7 +17,7 @@ export default class Entity {
         return this.sprite.absolute_y;
     }
 
-    public get physics(): Phaser.Physics.Matter.Sprite {
+    public get physics_body(): Phaser.Physics.Matter.Sprite {
         return this.sprite.physics_body;
     }
 

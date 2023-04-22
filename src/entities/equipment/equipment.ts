@@ -6,6 +6,7 @@ import Entity from '../entity';
 
 export default abstract class Equipment {
     public level: number;
+    public power: number;
 
     public get scene_renderer(): MainRenderer {
         return this.scene.scene_renderer;
@@ -19,5 +20,6 @@ export default abstract class Equipment {
 
     constructor(readonly scene: Main, readonly render_context: RenderContext) {
         this.level = 0;
+        this.power = 0;
     }
 }
