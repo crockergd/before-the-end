@@ -6,6 +6,7 @@ import BattleInfo from './battleinfo';
 import ObjectExtensions from '../utils/objectextensions';
 import { Constants } from '../utils/constants';
 import LevelInfo from './levelinfo';
+import EntityState from './entitystate';
 
 export default abstract class EntityFactory {
     public static create_player(sprite_key: string): Entity {
@@ -17,6 +18,7 @@ export default abstract class EntityFactory {
 
         const battle_info: BattleInfo = {
             alive: true,
+            state: EntityState.IDLE,
             power: 5
         };
 
@@ -38,6 +40,7 @@ export default abstract class EntityFactory {
 
         const battle_info: BattleInfo = {
             alive: true,
+            state: EntityState.IDLE,
             power: power
         };
 

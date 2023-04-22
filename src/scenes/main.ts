@@ -5,6 +5,7 @@ import AbstractText from '../abstracts/abstracttext';
 import SceneData from '../contexts/scenedata';
 import Entity from '../entities/entity';
 import EntityFactory from '../entities/entityfactory';
+import EntityState from '../entities/entitystate';
 import ExpDrop from '../entities/expdrop';
 import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
@@ -136,6 +137,8 @@ export default class Main extends AbstractScene {
     }
 
     public click(): void {
+        if (!this.player.ready) return;
+
         const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
 
         const cursor_direction: Vector = new Vector(pointer.worldX - this.player.x, pointer.worldY - this.player.y);
@@ -150,6 +153,11 @@ export default class Main extends AbstractScene {
 
         const normalized_direction: Vector = cursor_direction.normalize();
         this.player.physics.applyForce(normalized_direction.pv2);
+
+        this.player.set_state(EntityState.ATTACKING);
+        this.render_context.delay(400, () => {
+            this.player.set_state(EntityState.IDLE);
+        }, this);
     }
 
     public collide(player: Entity, enemy: Entity, collision: any): void {

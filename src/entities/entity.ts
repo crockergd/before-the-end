@@ -1,5 +1,6 @@
 import AbstractSprite from '../abstracts/abstractsprite';
 import BattleInfo from './battleinfo';
+import EntityState from './entitystate';
 import IdentifierInfo from './identifierinfo';
 import LevelInfo from './levelinfo';
 
@@ -30,12 +31,20 @@ export default class Entity {
         return this.battle_info.alive;
     }
 
+    public get ready(): boolean {
+        return this.battle_info.state === EntityState.IDLE;
+    }
+
     constructor(readonly identifier_info: IdentifierInfo, readonly battle_info: BattleInfo, readonly level_info?: LevelInfo) {
 
     }
 
     public add_exp(experience: number): void {
         this.level_info.experience += experience;
+    }
+
+    public set_state(state: EntityState): void {
+        this.battle_info.state = state;
     }
 
     public destroy(): void {
