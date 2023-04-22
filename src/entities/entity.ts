@@ -1,11 +1,13 @@
 import AbstractSprite from '../abstracts/abstractsprite';
 import BattleInfo from './battleinfo';
 import EntityState from './entitystate';
+import Equipment from './equipment/equipment';
 import IdentifierInfo from './identifierinfo';
 import LevelInfo from './levelinfo';
 
 export default class Entity {
     public sprite: AbstractSprite;
+    public equipment: Array<Equipment>;
 
     public get x(): number {
         return this.sprite.absolute_x;
@@ -36,7 +38,11 @@ export default class Entity {
     }
 
     constructor(readonly identifier_info: IdentifierInfo, readonly battle_info: BattleInfo, readonly level_info?: LevelInfo) {
+        this.equipment = new Array<Equipment>();
+    }
 
+    public add_equipment(equipment: Equipment): void {
+        this.equipment.push(equipment);
     }
 
     public add_exp(experience: number): void {

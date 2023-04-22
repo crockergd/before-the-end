@@ -1,11 +1,12 @@
 import AbstractDepth from '../abstracts/abstractdepth';
 import AbstractScene from '../abstracts/abstractscene';
-import AbstractSprite from '../abstracts/abstractsprite';
 import AbstractText from '../abstracts/abstracttext';
 import SceneData from '../contexts/scenedata';
 import Entity from '../entities/entity';
 import EntityFactory from '../entities/entityfactory';
 import EntityState from '../entities/entitystate';
+import Dagger from '../entities/equipment/dagger';
+import Fan from '../entities/equipment/fan';
 import ExpDrop from '../entities/expdrop';
 import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
@@ -107,6 +108,9 @@ export default class Main extends AbstractScene {
         this.player = EntityFactory.create_player('bandit');
         this.scene_renderer.draw_player(this.player);
 
+        this.player.add_equipment(new Dagger(this.player, this.scene_renderer, this.render_context));
+        this.player.add_equipment(new Fan(this.player, this.scene_renderer, this.render_context));
+
         this.input.on(Constants.UP_EVENT, this.click, this);
     }
 
@@ -140,7 +144,6 @@ export default class Main extends AbstractScene {
         if (!this.player.ready) return;
 
         const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
-
         const cursor_direction: Vector = new Vector(pointer.worldX - this.player.x, pointer.worldY - this.player.y);
         if (cursor_direction.x > 0) {
             this.player.sprite.flip_x(false);
@@ -148,11 +151,9 @@ export default class Main extends AbstractScene {
             this.player.sprite.flip_x(true);
         }
 
-        const angle: number = MathExtensions.vector_to_degrees(cursor_direction);
-        this.scene_renderer.draw_attack(this.player, angle);
-
-        const normalized_direction: Vector = cursor_direction.normalize();
-        this.player.physics.applyForce(normalized_direction.pv2);
+        for (const equipment of this.player.equipment) {
+            equipment.attack();
+        }
 
         this.player.set_state(EntityState.ATTACKING);
         this.render_context.delay(400, () => {

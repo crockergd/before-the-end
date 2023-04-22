@@ -135,6 +135,32 @@ export default class MainRenderer {
         });
     }
 
+    public draw_fan(player: Entity, angle: number): AbstractSprite {
+        const effect: AbstractSprite = this.render_context.add_sprite(player.x, player.y, 'stab', undefined, undefined, true);
+        effect.set_depth(AbstractDepth.FIELD);
+        effect.set_rotation(angle);
+
+        effect.physics_body.setFriction(0.4, 0.1);
+        effect.physics_body.setName(effect.uid);
+        // effect.physics_body.setFixedRotation();
+        effect.physics_body.setCollisionCategory(this.physics_context.collision_attack);
+        effect.physics_body.setCollidesWith(this.physics_context.collision_enemy);
+
+        effect.physics_body.setOnCollide((collision: any) => {
+
+        });
+
+        this.render_context.tween({
+            targets: [effect.framework_object],
+            alpha: 0,
+            on_complete: new CallbackBinding(() => {
+                effect.destroy();
+            }, this)
+        });
+
+        return effect;
+    }
+
     public draw_exp_drop(exp_drop: ExpDrop, player: Entity, enemy: Entity): void {
         const initial_position: Vector = new Vector(Math.floor(enemy.x), Math.floor(enemy.y));
         const inner_distance: number = 90;
