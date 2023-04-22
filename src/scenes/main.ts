@@ -37,7 +37,7 @@ export default class Main extends AbstractScene {
         this.render_context.set_scene(this);
         this.physics_context.set_scene(this);
 
-        this.timer = new WorldTimer(this.render_context.now, 600);
+        this.timer = new WorldTimer(this.render_context.now, 30);
         this.scene_renderer = new MainRenderer(this, this.render_context, this.timer);
         this.scene_physics = new MainPhysics(this, this.render_context, this.physics_context);
 
@@ -199,7 +199,7 @@ export default class Main extends AbstractScene {
                 this.render_context.camera.shake(200, 0.003);
 
                 this.enemies_defeated++;
-                this.timer.extend_time(0.5);
+                this.timer.extend_time(1);
                 enemy.battle_info.alive = false;
                 this.scene_renderer.flash_enemy_death(enemy);
                 this.spawn_exp(enemy);
@@ -229,12 +229,17 @@ export default class Main extends AbstractScene {
         const enemies_summoned: number = 2 + (Math.floor(this.tick_count / 2));
         this.spawn_enemy(enemies_summoned);
 
-        this.timer.difficulty_scalar += (this.tick_count / 8);
+        this.timer.difficulty_scalar += (this.tick_count / 64);
 
         this.tick_count++;
     }
 
     public end_game(): void {
+        this.input.off(Constants.UP_EVENT);
+        this.render_context.cache.tweens.killAll();
+        this.render_context.camera.stopFollow();
+        this.render_context.unbind_update('world_tick');
+
         this.timer.doomed = true;
         this.scene_renderer.draw_game_over(this.player, new CallbackBinding(() => {
             this.input.once(Constants.UP_EVENT, () => {
@@ -245,9 +250,5 @@ export default class Main extends AbstractScene {
                 }, this));
             }, this);
         }, this));
-        this.input.off(Constants.UP_EVENT);
-
-        this.render_context.camera.stopFollow();
-        this.render_context.unbind_update('world_tick');
     }
 }

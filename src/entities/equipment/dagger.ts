@@ -11,6 +11,7 @@ export default class Dagger extends Equipment {
         const angle: number = MathExtensions.vector_to_degrees(cursor_direction);
 
         const dagger: Attack = new Attack(this.power);
+        dagger.latch = true;
         dagger.sprite = this.scene_renderer.draw_dagger(player, angle);
         this.scene_physics.ready_dagger(player, dagger);
         this.scene_physics.apply_force(player.sprite, cursor_direction);

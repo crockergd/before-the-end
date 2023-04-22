@@ -52,15 +52,8 @@ export default class MainPhysics {
 
         dagger.physics_body.setOnCollide((collision: any) => {
             this.world.remove(constraint);
-
-            let enemy: Entity = this.scene.enemies.find(enemy => enemy.key === collision.bodyA.gameObject.name);
-            if (!enemy) enemy = this.scene.enemies.find(enemy => enemy.key === collision.bodyB.gameObject.name);
-            if (this.scene.collide(dagger, enemy, collision)) {
-                this.render_context.delay(50, () => {
-                    player.sprite.set_position(enemy.x, enemy.y);
-                    player.physics_body.setVelocity(0);
-                }, this);
-            }
+            this.collide_enemy(player, dagger, collision);
+            dagger.latch = false;
         });
 
         this.render_context.tween({
@@ -73,14 +66,15 @@ export default class MainPhysics {
         });
     }
 
-    public ready_fan(fan: Attack): void {
+    public ready_fan(player: Entity, fan: Attack): void {
         fan.physics_body.setFriction(0.4, 0.1);
         fan.physics_body.setName(fan.sprite.uid);
         fan.physics_body.setCollisionCategory(this.physics_context.collision_attack);
         fan.physics_body.setCollidesWith(this.physics_context.collision_enemy);
 
         fan.physics_body.setOnCollide((collision: any) => {
-            this.collide_enemy(fan, collision);
+            fan.physics_body.setFriction(0.2, 0.05);
+            this.collide_enemy(player, fan, collision);
         });
     }
 
@@ -96,10 +90,21 @@ export default class MainPhysics {
         });
     }
 
-    public collide_enemy(attack: Attack, collision: any): boolean {
+    public collide_enemy(player: Entity, attack: Attack, collision: any): boolean {
         let enemy: Entity = this.scene.enemies.find(enemy => enemy.key === collision.bodyA.gameObject.name);
         if (!enemy) enemy = this.scene.enemies.find(enemy => enemy.key === collision.bodyB.gameObject.name);
-        return this.scene.collide(attack, enemy, collision);
+        if (this.scene.collide(attack, enemy, collision)) {
+            if (attack.latch) {
+                this.render_context.delay(50, () => {
+                    player.sprite.set_position(enemy.x, enemy.y);
+                    player.physics_body.setVelocity(0);
+                }, this);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public reset_collision(collision: any): void {

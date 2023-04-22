@@ -24,6 +24,8 @@ export default class AbstractScene extends Scene {
             this.render_context.unbind_update();
             this.render_context.cache.tweens.killAll();
         }, this);
+
+        this.scale.on('resize', this.resize, this);
     }
 
     public start(key: string, data: SceneData): void {
@@ -37,5 +39,13 @@ export default class AbstractScene extends Scene {
 
     public update(time: number, dt_ms: number): void {
 
+    }
+
+    public resize(): void {
+        this.children.list.forEach((child: Phaser.GameObjects.GameObject) => {
+            if (child instanceof Phaser.GameObjects.Sprite) {
+                child.setScale(this.render_context.base_scale_factor, this.render_context.base_scale_factor);
+            }
+        }, this);
     }
 }
