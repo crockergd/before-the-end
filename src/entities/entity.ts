@@ -61,6 +61,16 @@ export default class Entity {
     }
 
     public set_state(state: EntityState): void {
+        switch (state) {
+            case EntityState.IDLE:
+                this.sprite.play('idle_' + this.sprite_key);
+                break;
+            case EntityState.ATTACKING:
+                this.sprite.play('active_' + this.sprite_key);
+                break;
+        }
+
+
         this.battle_info.state = state;
     }
 
