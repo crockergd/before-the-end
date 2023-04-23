@@ -133,7 +133,7 @@ export default class LootSelectionCache extends Cacheable {
 
     public assign_item(player: Entity, card: LootCard): void {
         const equipment_type: any = Object.values(Equips).find(type => type.name === card.equipment_key);
-        const equipment: Equipment = new equipment_type.prototype.constructor(this.scene, this.render_context);
+        const equipment: Equipment = new equipment_type.prototype.constructor(this.render_context.scene, this.render_context);
 
         player.add_equipment(equipment);
     }

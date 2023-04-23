@@ -123,7 +123,6 @@ export default class Main extends AbstractScene {
         this.scene_physics.ready_player(this.player);
 
         this.player.add_equipment(new Dagger(this, this.render_context));
-        this.player.add_equipment(new Fan(this, this.render_context));
     }
 
     public spawn_enemy(count: number = 1): void {
