@@ -85,6 +85,8 @@ export default class MainRenderer {
         if (player.x < enemy.x) {
             enemy.sprite.flip_x();
         }
+
+        // enemy.sprite.framework_object.postFX.addGlow(0x9f2273, 2);
     }
 
     public draw_dagger(player: Entity, angle: number): AbstractSprite {

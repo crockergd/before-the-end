@@ -65,8 +65,9 @@ export default class LootSelectionCache extends Cacheable {
     }
 
     public present(player: Entity, equips: Array<EquipmentInfo>, on_complete?: CallbackBinding): void {
+        this.selected_card = null;
         this.confirm.off();
-        this.confirm.once(Constants.TAP_EVENT, () => {
+        this.confirm.on(Constants.TAP_EVENT, () => {
             if (!this.selected_card) return;
 
             this.assign_item(player, this.selected_card);
