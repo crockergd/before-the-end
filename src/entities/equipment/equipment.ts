@@ -37,6 +37,7 @@ export default abstract class Equipment {
 
     public apply_player_scaling(player: Entity): void {
         this.attack_info.power += player.power;
-        this.attack_info.chain += player.battle_info.chain;
+        this.attack_info.repeat += player.battle_info.repeat;
+        this.attack_info.amount += player.battle_info.amount;
     }
 }

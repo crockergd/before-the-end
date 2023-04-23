@@ -37,24 +37,25 @@ export default class Dagger extends Equipment {
         this.attack_info = {
             power: 0,
             latch: true,
-            chain: 0,
+            repeat: 0,
+            amount: 0,
             velocity: 1.2
         };
 
         this.attack_info.velocity = 1.2;
-        this.attack_info.chain = 0;
+        this.attack_info.repeat = 0;
 
         if (this.level >= 1) {
             this.attack_info.velocity += 0.3;
         }
         if (this.level >= 2) {
-            this.attack_info.chain += 1;
+            this.attack_info.repeat += 1;
         }
         if (this.level >= 3) {
             this.attack_info.velocity += 0.3;
         }
         if (this.level >= 4) {
-            this.attack_info.chain += 1;
+            this.attack_info.repeat += 1;
         }
 
         this.attack_info.power += 3 * this.level;

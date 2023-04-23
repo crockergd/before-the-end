@@ -90,13 +90,13 @@ export default class Main extends AbstractScene {
             'Time Elapsed: ' + Math.ceil(this.timer.elapsed_time); // + Constants.LINE_BREAK +
         // 'Enemies: ' + this.enemies.length;
 
-        // let count: number = 0;
-        // for (const scene of this.game.scene.scenes) {
-        //     count += scene.children.getChildren().filter(child => child.willRender(this.render_context.camera)).length;
-        // }
+        let count: number = 0;
+        for (const scene of this.game.scene.scenes) {
+            count += scene.children.getChildren().length; //.filter(child => child.willRender(this.render_context.camera)).length;
+        }
 
-        // this.debug.text = 'Display List: ' + count.toString();
-        // this.debug.text += Constants.LINE_BREAK + 'FPS: ' + StringExtensions.numeric(this.render_context.scene.game.loop.actualFps);
+        this.debug.text = 'Display List: ' + count.toString();
+        this.debug.text += Constants.LINE_BREAK + 'FPS: ' + StringExtensions.numeric(this.render_context.scene.game.loop.actualFps);
 
         for (const exp_drop of this.exp_drops.filter(exp_drop => exp_drop.collected)) {
             const player_direction: Vector = new Vector(exp_drop.sprite.absolute_x - this.player.x, exp_drop.sprite.absolute_y - this.player.y);
@@ -220,7 +220,7 @@ export default class Main extends AbstractScene {
         }
 
         for (const equipment of this.player.equipment) {
-            if (!chained || equipment.attack_info.chain >= this.attack_depth) equipment.attack(this.player, target);
+            if (!chained || equipment.attack_info.repeat >= this.attack_depth) equipment.attack(this.player, target);
         }
 
         this.attack_depth++;
@@ -246,13 +246,17 @@ export default class Main extends AbstractScene {
 
                 if (attack.attack_info.latch) {
                     this.render_context.delay(50, () => {
+                        if (!this.ready) return;
+
                         this.player.sprite.set_position(enemy.x, enemy.y);
                         this.player.physics_body.setVelocity(0);
                     }, this);
                 }
 
-                if (attack.attack_info.chain >= this.attack_depth) {
+                if (attack.attack_info.repeat >= this.attack_depth) {
                     this.render_context.delay(75, () => {
+                        if (!this.ready) return;
+
                         this.attack(AttackType.NEAREST, true);
                     }, this);
                 }

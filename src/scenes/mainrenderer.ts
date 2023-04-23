@@ -86,7 +86,14 @@ export default class MainRenderer {
             enemy.sprite.flip_x();
         }
 
-        // enemy.sprite.framework_object.postFX.addGlow(0x9f2273, 2);
+        // const glow: Phaser.FX.Glow = enemy.sprite.framework_object.postFX.addGlow(0x9f2273, 0);
+
+        // this.render_context.tween({
+        //     targets: [glow],
+        //     outerStrength: 2,
+        //     yoyo: true,
+        //     repeat: -1
+        // });
     }
 
     public draw_dagger(player: Entity, angle: number): AbstractSprite {

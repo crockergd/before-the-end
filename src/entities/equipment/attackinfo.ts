@@ -1,6 +1,7 @@
 export default interface AttackInfo {
     power: number;
     latch: boolean;
-    chain: number;
+    repeat: number;
+    amount: number;
     velocity: number;
 }

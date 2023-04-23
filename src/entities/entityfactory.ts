@@ -20,7 +20,8 @@ export default abstract class EntityFactory {
             alive: true,
             state: EntityState.IDLE,
             power: 5,
-            chain: 0
+            repeat: 0,
+            amount: 0
         };
 
         const level_info: LevelInfo = {
