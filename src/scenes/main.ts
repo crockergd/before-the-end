@@ -7,6 +7,7 @@ import Entity from '../entities/entity';
 import EntityFactory from '../entities/entityfactory';
 import EntityState from '../entities/entitystate';
 import Dagger from '../entities/equipment/dagger';
+import EquipmentInfo from '../entities/equipment/equipmentinfo';
 import Fan from '../entities/equipment/fan';
 import ExpDrop from '../entities/expdrop';
 import TransitionType from '../ui/transitiontype';
@@ -18,8 +19,10 @@ import Vector from '../utils/vector';
 import WorldTimer from '../world/worldtimer';
 import MainPhysics from './mainphysics';
 import MainRenderer from './mainrenderer';
+import MainState from './mainstate';
 
 export default class Main extends AbstractScene {
+    public state: MainState;
     public scene_renderer: MainRenderer;
     public scene_physics: MainPhysics;
 
@@ -31,6 +34,10 @@ export default class Main extends AbstractScene {
 
     public enemies_defeated: number;
     public tick_count: number;
+
+    public get ready(): boolean {
+        return !this.timer.doomed && this.state === MainState.ACTIVE;
+    }
 
     public init(data: SceneData): void {
         super.init(data);
@@ -64,32 +71,14 @@ export default class Main extends AbstractScene {
         this.debug.set_depth(AbstractDepth.UI);
         this.debug.affix_ui();
 
-        this.input.on(Constants.UP_EVENT, this.click, this);
-        // this.input.off(Constants.UP_EVENT);
-
-        // this.render_context.cache.loot_selection_cache.present(this.player, [{
-        //     type: 'Dagger',
-        //     key: 'dagger',
-        //     name: 'Dagger',
-        //     level: 0
-        // }, {
-        //     type: 'Fan',
-        //     key: 'fan',
-        //     name: 'Fan',
-        //     level: 0
-        // }], new CallbackBinding(() => {
-        //     this.render_context.camera.postFX.clear();
-        //     this.input.on(Constants.UP_EVENT, this.click, this);
-        // }, this));
-        // this.render_context.camera.postFX.addBlur();
-        // this.render_context.camera.postFX.addGradient(0x000, 0x000, 0.6);
+        this.set_state(MainState.ACTIVE);
     }
 
     public update(time: number, dt_ms: number): void {
         super.update(time, dt_ms);
         const dt: number = (dt_ms / 1000);
 
-        if (this.timer.doomed) return;
+        if (!this.ready) return;
 
         this.debug.text = 'Position: ' + Math.floor(this.player.x) + ', ' + Math.floor(this.player.y) + Constants.LINE_BREAK +
             'Enemies Defeated: ' + this.enemies_defeated + Constants.LINE_BREAK +
@@ -170,6 +159,8 @@ export default class Main extends AbstractScene {
             x: drop_location.x,
             y: drop_location.y,
             on_complete: new CallbackBinding(() => {
+                if (this.timer.doomed) return;
+
                 this.render_context.tween({
                     targets: [exp_drop.sprite.framework_object],
                     duration: 200,
@@ -237,9 +228,46 @@ export default class Main extends AbstractScene {
     public add_exp(experience: number): void {
         this.player.add_exp(experience);
         while (this.player.level_info.experience >= this.player.level_info.chart[this.player.level_info.level]) {
-            this.player.level_info.level++;
-            this.player.battle_info.power += 5;
-            this.scene_renderer.flash_combat_text(this.player.x, this.player.y, 'LEVEL UP');
+            this.level_up();
+        }
+    }
+
+    public level_up(): void {
+        this.player.level_info.level++;
+        this.player.battle_info.power += 5;
+        this.scene_renderer.flash_combat_text(this.player.x, this.player.y, 'LEVEL UP');
+
+        const loot: Array<EquipmentInfo> = [{
+            type: 'Dagger',
+            key: 'dagger',
+            name: 'Dagger',
+            level: 0
+        }, {
+            type: 'Fan',
+            key: 'fan',
+            name: 'Fan',
+            level: 0
+        }];
+
+        this.set_state(MainState.PAUSED);
+        this.render_context.cache.loot_selection_cache.present(this.player, loot, new CallbackBinding(() => {
+            this.set_state(MainState.ACTIVE);
+        }, this));
+    }
+
+    public set_state(state: MainState): void {
+        this.state = state;
+
+        switch (state) {
+            case MainState.ACTIVE:
+                this.render_context.camera.postFX.clear();
+                this.input.on(Constants.UP_EVENT, this.click, this);
+                break;
+            case MainState.PAUSED:
+                this.input.off(Constants.UP_EVENT);
+                this.render_context.camera.postFX.addBlur();
+                this.render_context.camera.postFX.addGradient(0x000, 0x000, 0.6);
+                break;
         }
     }
 

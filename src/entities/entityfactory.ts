@@ -25,7 +25,7 @@ export default abstract class EntityFactory {
         const level_info: LevelInfo = {
             level: 0,
             experience: 0,
-            chart: EntityFactory.generate_exp_chart(99, 30, 40, 0.02)
+            chart: EntityFactory.generate_exp_chart(99, 30, 40, 0.2)
         };
 
         return new Entity(identifier_info, battle_info, level_info);

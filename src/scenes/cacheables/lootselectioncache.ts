@@ -65,7 +65,8 @@ export default class LootSelectionCache extends Cacheable {
     }
 
     public present(player: Entity, equips: Array<EquipmentInfo>, on_complete?: CallbackBinding): void {
-        this.confirm.on(Constants.TAP_EVENT, () => {
+        this.confirm.off();
+        this.confirm.once(Constants.TAP_EVENT, () => {
             if (!this.selected_card) return;
 
             this.assign_item(player, this.selected_card);
@@ -108,7 +109,7 @@ export default class LootSelectionCache extends Cacheable {
 
         this.group.set_visible(true);
 
-        this.render_context.transition_component(TransitionType.IN, this.group, new Vector(0, 0), 400, true);
+        this.render_context.transition_component(TransitionType.IN, this.group, new Vector(0, 0), 200, true);
     }
 
     public reorder(count: number): void {

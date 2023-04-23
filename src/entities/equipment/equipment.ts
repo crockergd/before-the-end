@@ -27,6 +27,7 @@ export default abstract class Equipment {
     }
 
     public abstract attack(player: Entity): void;
+    public abstract apply_scaling(): void;
 
     constructor(readonly scene: Main, readonly render_context: RenderContext) {
         this.power = 0;

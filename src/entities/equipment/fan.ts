@@ -22,9 +22,7 @@ export default class Fan extends Equipment {
 
     public attack(player: Entity): void {
         this.render_context.delay(100, () => {
-            if (this.level > 0) {
-                this.power = 30;
-            }
+            this.apply_scaling();
 
             const velocity_scalar: number = 0.35;
             const attack_angle: number = 45;
@@ -46,5 +44,9 @@ export default class Fan extends Equipment {
             this.scene_physics.ready_fan(player, fan_r);
             this.scene_physics.apply_force(fan_r.sprite, new Vector(direction_r.x, direction_r.y), velocity_scalar);
         }, this);
+    }
+
+    public apply_scaling(): void {
+        this.power = 3 * this.level;
     }
 }
