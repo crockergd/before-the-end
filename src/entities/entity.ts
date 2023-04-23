@@ -49,7 +49,7 @@ export default class Entity {
         const existing: Equipment = this.equipment.find(inner => inner.key === equipment.key);
 
         if (existing) {
-            existing.info.level++;
+            existing.equipment_info.level++;
 
         } else {
             this.equipment.push(equipment);

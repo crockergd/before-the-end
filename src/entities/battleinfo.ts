@@ -4,4 +4,5 @@ export default interface BattleInfo {
     alive: boolean;
     state: EntityState;
     power: number;
+    chain?: number;
 }

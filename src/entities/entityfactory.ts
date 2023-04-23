@@ -19,7 +19,8 @@ export default abstract class EntityFactory {
         const battle_info: BattleInfo = {
             alive: true,
             state: EntityState.IDLE,
-            power: 5
+            power: 5,
+            chain: 0
         };
 
         const level_info: LevelInfo = {

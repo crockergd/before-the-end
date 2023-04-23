@@ -4,13 +4,13 @@ import MainPhysics from '../../scenes/mainphysics';
 import MainRenderer from '../../scenes/mainrenderer';
 import Vector from '../../utils/vector';
 import Entity from '../entity';
+import AttackInfo from './attackinfo';
 import EquipmentInfo from './equipmentinfo';
 
 export default abstract class Equipment {
     public type: string;
-    public info: EquipmentInfo;
-    public power: number;
-    public chain: number;
+    public equipment_info: EquipmentInfo;
+    public attack_info: AttackInfo;
 
     public get scene_renderer(): MainRenderer {
         return this.scene.scene_renderer;
@@ -21,20 +21,22 @@ export default abstract class Equipment {
     }
 
     public get level(): number {
-        return this.info.level;
+        return this.equipment_info.level;
     }
 
     public get key(): string {
-        return this.info.key;
+        return this.equipment_info.key;
     }
 
     public abstract attack(player: Entity, target: Vector): void;
     public abstract apply_scaling(): void;
 
     constructor(readonly scene: Main, readonly render_context: RenderContext) {
-        this.power = 0;
-        this.chain = 0;
-
         this.type = 'Equipment';
+    }
+
+    public apply_player_scaling(player: Entity): void {
+        this.attack_info.power += player.power;
+        this.attack_info.chain += player.battle_info.chain;
     }
 }

@@ -1,7 +1,7 @@
 import AbstractSprite from '../abstracts/abstractsprite';
 import PhysicsContext from '../contexts/physicscontext';
 import RenderContext from '../contexts/rendercontext';
-import Attack from '../entities/attacks/attack';
+import Attack from '../entities/equipment/attack';
 import Entity from '../entities/entity';
 import ExpDrop from '../entities/expdrop';
 import CallbackBinding from '../utils/callbackbinding';
@@ -59,7 +59,7 @@ export default class MainPhysics {
         dagger.physics_body.setOnCollide((collision: any) => {
             this.world.remove(constraint);
             this.collide_enemy(player, dagger, collision);
-            dagger.latch = false;
+            dagger.attack_info.latch = false;
         });
 
         this.render_context.tween({

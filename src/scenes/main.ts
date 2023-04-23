@@ -2,7 +2,7 @@ import AbstractDepth from '../abstracts/abstractdepth';
 import AbstractScene from '../abstracts/abstractscene';
 import AbstractText from '../abstracts/abstracttext';
 import SceneData from '../contexts/scenedata';
-import Attack from '../entities/attacks/attack';
+import Attack from '../entities/equipment/attack';
 import AttackType from '../entities/attacktype';
 import Entity from '../entities/entity';
 import EntityFactory from '../entities/entityfactory';
@@ -220,14 +220,14 @@ export default class Main extends AbstractScene {
         }
 
         for (const equipment of this.player.equipment) {
-            if (!chained || equipment.chain >= this.attack_depth) equipment.attack(this.player, target);
+            if (!chained || equipment.attack_info.chain >= this.attack_depth) equipment.attack(this.player, target);
         }
 
         this.attack_depth++;
     }
 
     public collide(attack: Attack, enemy: Entity, collision: any): boolean {
-        const power: number = attack.power + this.player.power;
+        const power: number = attack.attack_info.power + this.player.power;
 
         this.scene_renderer.flash_combat_text(enemy.x, enemy.y - enemy.sprite.height_half + this.render_context.literal(20), StringExtensions.numeric(power));
         this.scene_renderer.flash_combat_hit(enemy);
@@ -244,14 +244,14 @@ export default class Main extends AbstractScene {
                 this.scene_renderer.flash_enemy_death(enemy);
                 this.spawn_exp(enemy);
 
-                if (attack.latch) {
+                if (attack.attack_info.latch) {
                     this.render_context.delay(50, () => {
                         this.player.sprite.set_position(enemy.x, enemy.y);
                         this.player.physics_body.setVelocity(0);
                     }, this);
                 }
 
-                if (attack.chain >= this.attack_depth) {
+                if (attack.attack_info.chain >= this.attack_depth) {
                     this.render_context.delay(75, () => {
                         this.attack(AttackType.NEAREST, true);
                     }, this);
