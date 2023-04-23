@@ -109,6 +109,10 @@ export default class RenderContext {
         return 1 + (this.outer_scale_factor - this.base_scale_factor);
     }
 
+    public get screen_scale_factor(): number {
+        return (this.width / this.baseline_x) * (this.height / this.baseline_y);
+    }
+
     public get width(): number {
         return this.camera.displayWidth;
     }

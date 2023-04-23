@@ -18,10 +18,13 @@ export default class MainPhysics {
     }
 
     public ready_player(player: Entity): void {
+        const body_dimensions: Vector = new Vector(80, 100);
+        body_dimensions.multiply(this.render_context.base_scale_factor);
+
         player.physics_body.setBody({
             type: 'rectangle',
-            width: 80,
-            height: 100
+            width: body_dimensions.x,
+            height: body_dimensions.y
         });
         player.physics_body.setFixedRotation();
         player.physics_body.setFriction(0.4, 0.1);
@@ -30,11 +33,14 @@ export default class MainPhysics {
     }
 
     public ready_enemy(enemy: Entity): void {
+        const body_dimensions: Vector = new Vector(60, 80);
+        body_dimensions.multiply(this.render_context.base_scale_factor);
+
         enemy.physics_body.setName(enemy.key);
         enemy.physics_body.setBody({
             type: 'rectangle',
-            width: 60,
-            height: 80
+            width: body_dimensions.x,
+            height: body_dimensions.y
         });
         enemy.physics_body.setFixedRotation();
         enemy.physics_body.setStatic(true);
@@ -117,7 +123,7 @@ export default class MainPhysics {
 
     public apply_force(sprite: AbstractSprite, direction: Vector, intensity: number = 1): void {
         const scaled_direction: Vector = direction.normalize().multiply(intensity);
-        scaled_direction.multiply(this.render_context.base_scale_factor);
+        scaled_direction.multiply(this.render_context.screen_scale_factor);
         sprite.physics_body.applyForce(scaled_direction.pv2);
     }
 }

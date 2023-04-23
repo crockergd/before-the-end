@@ -23,8 +23,7 @@ export default class Fan extends Equipment {
     public attack(player: Entity): void {
         this.render_context.delay(100, () => {
             this.apply_scaling();
-
-            const velocity_scalar: number = 0.35;
+            const velocity_scalar: number = 0.2;
             const attack_angle: number = 45;
 
             const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;

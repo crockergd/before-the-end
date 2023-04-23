@@ -22,6 +22,7 @@ export default class Dagger extends Equipment {
 
     public attack(player: Entity): void {
         this.apply_scaling();
+        const velocity_scalar: number = 1.2;
 
         const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
         const cursor_direction: Vector = new Vector(pointer.worldX - player.x, pointer.worldY - player.y);
@@ -31,7 +32,7 @@ export default class Dagger extends Equipment {
         dagger.latch = true;
         dagger.sprite = this.scene_renderer.draw_dagger(player, angle);
         this.scene_physics.ready_dagger(player, dagger);
-        this.scene_physics.apply_force(player.sprite, cursor_direction);
+        this.scene_physics.apply_force(player.sprite, cursor_direction, velocity_scalar);
     }
 
     public apply_scaling(): void {
