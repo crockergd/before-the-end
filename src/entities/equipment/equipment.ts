@@ -2,6 +2,7 @@ import RenderContext from '../../contexts/rendercontext';
 import Main from '../../scenes/main';
 import MainPhysics from '../../scenes/mainphysics';
 import MainRenderer from '../../scenes/mainrenderer';
+import Vector from '../../utils/vector';
 import Entity from '../entity';
 import EquipmentInfo from './equipmentinfo';
 
@@ -9,6 +10,7 @@ export default abstract class Equipment {
     public type: string;
     public info: EquipmentInfo;
     public power: number;
+    public chain: number;
 
     public get scene_renderer(): MainRenderer {
         return this.scene.scene_renderer;
@@ -26,11 +28,12 @@ export default abstract class Equipment {
         return this.info.key;
     }
 
-    public abstract attack(player: Entity): void;
+    public abstract attack(player: Entity, target: Vector): void;
     public abstract apply_scaling(): void;
 
     constructor(readonly scene: Main, readonly render_context: RenderContext) {
         this.power = 0;
+        this.chain = 0;
 
         this.type = 'Equipment';
     }

@@ -3,6 +3,7 @@ import AbstractScene from '../abstracts/abstractscene';
 import AbstractText from '../abstracts/abstracttext';
 import SceneData from '../contexts/scenedata';
 import Attack from '../entities/attacks/attack';
+import AttackType from '../entities/attacktype';
 import Entity from '../entities/entity';
 import EntityFactory from '../entities/entityfactory';
 import EntityState from '../entities/entitystate';
@@ -34,6 +35,7 @@ export default class Main extends AbstractScene {
 
     public enemies_defeated: number;
     public tick_count: number;
+    public attack_depth: number;
 
     public get ready(): boolean {
         return !this.timer.doomed && this.state === MainState.ACTIVE;
@@ -53,6 +55,8 @@ export default class Main extends AbstractScene {
         this.tick_count = 0;
         this.enemies = new Array<Entity>();
         this.exp_drops = new Array<ExpDrop>();
+
+        this.attack_depth = 0;
     }
 
     public create(): void {
@@ -184,14 +188,42 @@ export default class Main extends AbstractScene {
             this.player.sprite.flip_x(true);
         }
 
-        for (const equipment of this.player.equipment) {
-            equipment.attack(this.player);
-        }
+        this.attack_depth = 0;
+        this.attack();
 
         this.player.set_state(EntityState.ATTACKING);
         this.render_context.delay(400, () => {
             this.player.set_state(EntityState.IDLE);
         }, this);
+    }
+
+    public attack(type: AttackType = AttackType.CURSOR, chained: boolean = false): void {
+        let target: Vector;
+
+        switch (type) {
+            case AttackType.CURSOR:
+                const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
+                target = new Vector(pointer.worldX, pointer.worldY);
+                break;
+
+            case AttackType.NEAREST:
+                const distance_sorted_enemies: Array<Entity> = this.enemies.filter(enemy => enemy.alive).sort((lhs, rhs) => {
+                    const lhs_dist: number = Phaser.Math.Distance.Between(lhs.x, lhs.y, this.player.x, this.player.y);
+                    const rhs_dist: number = Phaser.Math.Distance.Between(rhs.x, rhs.y, this.player.x, this.player.y);
+                    return lhs_dist - rhs_dist;
+                });
+                if (!distance_sorted_enemies?.length) return;
+
+                const nearest_enemy: Entity = distance_sorted_enemies[0];
+                target = new Vector(nearest_enemy.x, nearest_enemy.y);
+                break;
+        }
+
+        for (const equipment of this.player.equipment) {
+            if (!chained || equipment.chain >= this.attack_depth) equipment.attack(this.player, target);
+        }
+
+        this.attack_depth++;
     }
 
     public collide(attack: Attack, enemy: Entity, collision: any): boolean {
@@ -211,6 +243,19 @@ export default class Main extends AbstractScene {
                 enemy.battle_info.alive = false;
                 this.scene_renderer.flash_enemy_death(enemy);
                 this.spawn_exp(enemy);
+
+                if (attack.latch) {
+                    this.render_context.delay(50, () => {
+                        this.player.sprite.set_position(enemy.x, enemy.y);
+                        this.player.physics_body.setVelocity(0);
+                    }, this);
+                }
+
+                if (attack.chain >= this.attack_depth) {
+                    this.render_context.delay(75, () => {
+                        this.attack(AttackType.NEAREST, true);
+                    }, this);
+                }
 
                 return true;
             }

@@ -20,18 +20,18 @@ export default class Fan extends Equipment {
         this.type = 'Fan';
     }
 
-    public attack(player: Entity): void {
+    public attack(player: Entity, target: Vector): void {
         this.render_context.delay(100, () => {
             this.apply_scaling();
             const velocity_scalar: number = 0.2;
             const attack_angle: number = 45;
 
-            const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
-            const cursor_direction: Vector = new Vector(pointer.worldX - player.x, pointer.worldY - player.y);
+            const cursor_direction: Vector = new Vector(target.x - player.x, target.y - player.y);
 
             const angle_l: number = MathExtensions.vector_to_degrees(cursor_direction) - attack_angle;
             const direction_l: Phaser.Math.Vector2 = cursor_direction.pv2.setAngle(Phaser.Math.DegToRad(angle_l));
             const fan_l: Attack = new Attack(this.power);
+            fan_l.chain = this.chain;
             fan_l.sprite = this.scene_renderer.draw_fan(player, angle_l);
             this.scene_physics.ready_fan(player, fan_l);
             this.scene_physics.apply_force(fan_l.sprite, new Vector(direction_l.x, direction_l.y), velocity_scalar);
@@ -39,6 +39,7 @@ export default class Fan extends Equipment {
             const angle_r: number = MathExtensions.vector_to_degrees(cursor_direction) + attack_angle;
             const direction_r: Phaser.Math.Vector2 = cursor_direction.pv2.setAngle(Phaser.Math.DegToRad(angle_r));
             const fan_r: Attack = new Attack(this.power);
+            fan_r.chain = this.chain;
             fan_r.sprite = this.scene_renderer.draw_fan(player, angle_r + 70);
             this.scene_physics.ready_fan(player, fan_r);
             this.scene_physics.apply_force(fan_r.sprite, new Vector(direction_r.x, direction_r.y), velocity_scalar);
@@ -46,6 +47,8 @@ export default class Fan extends Equipment {
     }
 
     public apply_scaling(): void {
-        this.power = 3 * this.level;
+        this.chain = 0;
+
+        this.power = 0 + (3 * this.level);
     }
 }

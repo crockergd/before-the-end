@@ -22,15 +22,15 @@ export default class Dagger extends Equipment {
         this.type = 'Dagger';
     }
 
-    public attack(player: Entity): void {
+    public attack(player: Entity, target: Vector): void {
         this.apply_scaling();
 
-        const pointer: Phaser.Input.Pointer = this.render_context.scene.input.activePointer;
-        const cursor_direction: Vector = new Vector(pointer.worldX - player.x, pointer.worldY - player.y);
+        const cursor_direction: Vector = new Vector(target.x - player.x, target.y - player.y);
         const angle: number = MathExtensions.vector_to_degrees(cursor_direction);
 
         const dagger: Attack = new Attack(this.power);
         dagger.latch = true;
+        dagger.chain = this.chain;
         dagger.sprite = this.scene_renderer.draw_dagger(player, angle);
         this.scene_physics.ready_dagger(player, dagger);
         this.scene_physics.apply_force(player.sprite, cursor_direction, this.velocity_scalar);
@@ -38,9 +38,24 @@ export default class Dagger extends Equipment {
 
     public apply_scaling(): void {
         this.velocity_scalar = 1.2;
-        if (this.level >= 1) this.velocity_scalar += 0.3;
-        if (this.level >= 3) this.velocity_scalar += 0.3;
+        this.chain = 0;
 
-        this.power = 3 * this.level;
+        if (this.level >= 1) {
+            this.velocity_scalar += 0.3;
+        }
+        if (this.level >= 2) {
+            this.chain += 1;
+        }
+        if (this.level >= 3) {
+            this.velocity_scalar += 0.3;
+        }
+        if (this.level >= 4) {
+            this.chain += 1;
+        }
+        if (this.level >= 5) {
+
+        }
+
+        this.power = 0 + (3 * this.level);
     }
 }

@@ -99,18 +99,7 @@ export default class MainPhysics {
     public collide_enemy(player: Entity, attack: Attack, collision: any): boolean {
         let enemy: Entity = this.scene.enemies.find(enemy => enemy.key === collision.bodyA.gameObject.name);
         if (!enemy) enemy = this.scene.enemies.find(enemy => enemy.key === collision.bodyB.gameObject.name);
-        if (this.scene.collide(attack, enemy, collision)) {
-            if (attack.latch) {
-                this.render_context.delay(50, () => {
-                    player.sprite.set_position(enemy.x, enemy.y);
-                    player.physics_body.setVelocity(0);
-                }, this);
-            }
-
-            return true;
-        }
-
-        return false;
+        return this.scene.collide(attack, enemy, collision);
     }
 
     public reset_collision(collision: any): void {
