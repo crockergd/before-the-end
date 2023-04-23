@@ -272,6 +272,8 @@ export default class Main extends AbstractScene {
     }
 
     public world_tick(): void {
+        if (!this.ready) return;
+
         const enemies_summoned: number = 2 + (Math.floor(this.tick_count / 2));
         this.spawn_enemy(enemies_summoned);
 
