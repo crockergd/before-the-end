@@ -21,6 +21,7 @@ import WorldTimer from '../world/worldtimer';
 import MainPhysics from './mainphysics';
 import MainRenderer from './mainrenderer';
 import MainState from './mainstate';
+import AbstractSprite from '../abstracts/abstractsprite';
 
 export default class Main extends AbstractScene {
     public state: MainState;
@@ -105,10 +106,11 @@ export default class Main extends AbstractScene {
 
             if (distance < 3) {
                 exp_drop.absorbed = true;
-                this.scene_renderer.fill_sprite_cache(exp_drop.sprite);
-                exp_drop.sprite = null;
                 this.exp_drops = this.exp_drops.filter(exp_drop => !exp_drop.absorbed);
                 this.add_exp(10);
+
+                this.destroy(exp_drop.sprite);
+                exp_drop.sprite = null;
 
             } else {
                 player_direction.normalize();
@@ -331,6 +333,11 @@ export default class Main extends AbstractScene {
         this.timer.difficulty_scalar += (this.tick_count / 64);
 
         this.tick_count++;
+    }
+
+    public destroy(sprite: AbstractSprite): void {
+        this.scene_physics.reset_body(sprite);
+        this.scene_renderer.fill_sprite_cache(sprite);
     }
 
     public end_game(): void {

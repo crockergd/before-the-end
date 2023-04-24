@@ -104,21 +104,25 @@ export default class MainPhysics {
         let enemy: Entity = this.scene.enemies.find(enemy => enemy.key === collision.bodyA.gameObject.name);
         if (!enemy) enemy = this.scene.enemies.find(enemy => enemy.key === collision.bodyB.gameObject.name);
         if (!enemy) return false;
-        if (enemy.physics_body.isSensor()) return;
-        return this.scene.collide(attack, enemy, collision);
-    }
 
-    public reset_collision(collision: any): void {
-        collision.isActive = false;
-        collision.bodyA.gameObject.setVelocity(0);
-        collision.bodyB.gameObject.setVelocity(0);
-        collision.bodyA.gameObject.setSensor(true);
-        collision.bodyB.gameObject.setSensor(true);
+        return this.scene.collide(attack, enemy, collision);
     }
 
     public apply_force(sprite: AbstractSprite, direction: Vector, intensity: number = 1): void {
         const scaled_direction: Vector = direction.normalize().multiply(intensity);
         scaled_direction.multiply(this.render_context.screen_scale_factor);
         sprite.physics_body.applyForce(scaled_direction.pv2);
+    }
+
+    public reset_collision(collision: any): void {
+        collision.isActive = false;
+        collision.bodyA.gameObject.setVelocity(0);
+        collision.bodyB.gameObject.setVelocity(0);
+        collision.bodyA.gameObject.setCollidesWith(this.physics_context.collision_none);
+        collision.bodyB.gameObject.setCollidesWith(this.physics_context.collision_none);
+    }
+
+    public reset_body(sprite: AbstractSprite): void {
+        sprite.physics_body.setCollidesWith(this.physics_context.collision_none);
     }
 }

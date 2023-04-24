@@ -19,11 +19,11 @@ import AbstractGame from './abstracts/abstractgame';
         physics: {
             default: 'matter',
             matter: {
-                enableSleeping: true
-                // debug: {
-                //     showBounds: true,
-                //     showVelocity: true
-                // }
+                enableSleeping: true,
+                debug: {
+                    showBounds: true,
+                    showVelocity: true
+                }
             }
         }
     };

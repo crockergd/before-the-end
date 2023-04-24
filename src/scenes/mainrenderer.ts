@@ -112,15 +112,6 @@ export default class MainRenderer {
         fan.set_depth(AbstractDepth.FIELD);
         fan.set_rotation(angle);
 
-        this.render_context.tween({
-            targets: [fan.framework_object],
-            alpha: 0,
-            on_complete: new CallbackBinding(() => {
-
-                this.fill_sprite_cache(fan);
-            }, this)
-        });
-
         return fan;
     }
 

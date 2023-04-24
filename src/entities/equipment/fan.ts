@@ -5,6 +5,7 @@ import Vector from '../../utils/vector';
 import Attack from './attack';
 import Entity from '../entity';
 import Equipment from './equipment';
+import CallbackBinding from '../../utils/callbackbinding';
 
 export default class Fan extends Equipment {
     constructor(readonly scene: Main, readonly render_context: RenderContext) {
@@ -35,6 +36,15 @@ export default class Fan extends Equipment {
                 fan.sprite = this.scene_renderer.draw_fan(player, angle);
                 this.scene_physics.ready_fan(player, fan);
                 this.scene_physics.apply_force(fan.sprite, new Vector(direction.x, direction.y), this.attack_info.velocity);
+
+                this.render_context.tween({
+                    targets: [fan.sprite.framework_object],
+                    alpha: 0,
+                    on_complete: new CallbackBinding(() => {
+                        this.scene.destroy(fan.sprite);
+                        fan.sprite = null;
+                    }, this)
+                });
             }
         }, this);
     }
