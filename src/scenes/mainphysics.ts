@@ -59,7 +59,7 @@ export default class MainPhysics {
         dagger.constraint = this.render_context.scene.matter.add.constraint((player.physics_body as any), (dagger.physics_body as any));
 
         dagger.physics_body.setOnCollide((collision: any) => {
-            this.world.remove(dagger.constraint);
+            this.world.removeConstraint(dagger.constraint);
 
             dagger.physics_body.setFriction(0.4, 0.1);
             if (this.collide_enemy(player, dagger, collision)) {

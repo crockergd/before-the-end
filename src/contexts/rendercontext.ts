@@ -38,8 +38,12 @@ export default class RenderContext {
         return this.scene.scene_context;
     }
 
+    public get internal_scalar(): number {
+        return 2;
+    }
+
     public get space_buffer(): number {
-        return this.literal(10);
+        return this.literal(10) * this.internal_scalar;
     }
 
     public get space_buffer_sm(): number {
@@ -51,7 +55,7 @@ export default class RenderContext {
     }
 
     public get frame_buffer(): number {
-        return this.literal(10);
+        return this.literal(10) * this.internal_scalar;
     }
 
     public get frame_buffer_lg(): number {
@@ -71,11 +75,11 @@ export default class RenderContext {
     }
 
     public get baseline_x(): number {
-        return 640 * 2;
+        return 640 * this.internal_scalar;
     }
 
     public get baseline_y(): number {
-        return 360 * 2;
+        return 360 * this.internal_scalar;
     }
 
     public get inner_x(): number {

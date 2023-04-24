@@ -124,15 +124,15 @@ export default class MainRenderer {
 
     public draw_world_timer(): void {
         this.world_timer_group = this.render_context.add_group();
-        this.world_timer_group.set_position(this.render_context.center_x, this.render_context.height - (this.render_context.space_buffer * 2));
+        this.world_timer_group.set_position(this.render_context.center_x, this.render_context.space_buffer);
         this.world_timer_group.affix_ui();
         this.world_timer_group.set_depth(AbstractDepth.UI);
 
         this.world_timer_frame = this.render_context.add_sprite(0, 0, 'world_timer_frame', this.world_timer_group);
-        this.world_timer_frame.set_anchor(0.5, 1);
+        this.world_timer_frame.set_anchor(0.5, 0);
 
-        this.world_timer_bar = this.render_context.add_sprite(0, - this.render_context.literal(2), 'world_timer_bar', this.world_timer_group);
-        this.world_timer_bar.set_anchor(0.5, 1);
+        this.world_timer_bar = this.render_context.add_sprite(0, this.render_context.literal(2), 'world_timer_bar', this.world_timer_group);
+        this.world_timer_bar.set_anchor(0.5, 0);
     }
 
     public draw_game_over(player: Entity, on_complete: CallbackBinding): void {

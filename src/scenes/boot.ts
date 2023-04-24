@@ -22,7 +22,6 @@ export default class Boot extends AbstractScene {
             const offset_y: number = this.render_context.literal(10);
 
             const logo: AbstractSprite = this.render_context.add_sprite(this.render_context.center_x, this.render_context.center_y - offset_y, 'radbee_logo');
-            logo.set_scale(2, 2);
             logo.set_anchor(0.5, 0.5);
             logo.set_alpha(0);
 

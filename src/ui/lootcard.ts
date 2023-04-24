@@ -30,16 +30,16 @@ export default class LootCard {
         this.frame.set_position(this.bg.width_half, this.bg.height_half, true);
         this.frame.set_anchor(0.5, 0.5);
 
-        this.slot = this.render_context.add_sprite((this.frame.group_x - this.frame.width_half) + this.render_context.space_buffer_lg, (this.frame.group_y - this.frame.height_half) + this.render_context.space_buffer_lg, 'equipment_slot', this.group);
+        this.slot = this.render_context.add_sprite((this.frame.group_x - this.frame.width_half) + this.render_context.space_buffer, (this.frame.group_y - this.frame.height_half) + this.render_context.space_buffer, 'equipment_slot', this.group);
         this.slot.set_scale(2, 2);
 
         //  this.icon = this.render_context.add_sprite(this.slot.group_x, this.slot.group_y, 'equipment_icon', this.group);
 
-        this.title = this.render_context.add_text(this.slot.group_x + this.slot.width + this.render_context.space_buffer_lg, (this.frame.group_y - this.frame.height_half) + this.render_context.space_buffer_lg - this.render_context.literal(4), '', this.group);
+        this.title = this.render_context.add_text(this.slot.group_x + this.slot.width + this.render_context.space_buffer, (this.frame.group_y - this.frame.height_half) + this.render_context.space_buffer - this.render_context.literal(4), '', this.group);
         this.title.set_font_size(12);
         this.title.set_word_wrap(60);
 
-        this.details = this.render_context.add_text(this.slot.group_x, this.slot.group_y + this.slot.height + this.render_context.space_buffer_lg, '', this.group);
+        this.details = this.render_context.add_text(this.slot.group_x, this.slot.group_y + this.slot.height + this.render_context.space_buffer, '', this.group);
         this.details.set_font_size(10);
         this.details.set_word_wrap(100);
 
