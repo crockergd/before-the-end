@@ -75,11 +75,12 @@ export default class Main extends AbstractScene {
         this.scene_renderer.draw_tiles();
 
         this.spawn_player();
-        const spawn_distance: number = this.render_context.literal(100);
-        this.spawn_enemy(1, new Vector(spawn_distance, spawn_distance));
-        this.spawn_enemy(1, new Vector(-spawn_distance, -spawn_distance));
-        this.spawn_enemy(1, new Vector(spawn_distance, -spawn_distance));
+        const spawn_distance: number = this.render_context.literal(140);
+        this.spawn_enemy(1, new Vector(0, -spawn_distance * 1.5));
+        this.spawn_enemy(1, new Vector(-spawn_distance * 1.5, -spawn_distance / 2));
+        this.spawn_enemy(1, new Vector(spawn_distance * 1.5, -spawn_distance / 2));
         this.spawn_enemy(1, new Vector(-spawn_distance, spawn_distance));
+        this.spawn_enemy(1, new Vector(spawn_distance, spawn_distance));
 
         this.debug = this.render_context.add_text(this.render_context.space_buffer, this.render_context.space_buffer, '');
         this.debug.set_depth(AbstractDepth.UI);
@@ -87,11 +88,18 @@ export default class Main extends AbstractScene {
 
         this.set_state(MainState.ACTIVE);
 
-        this.render_context.bind_update('world_tick', new CallbackBinding(() => {
-            this.world_tick();
-        }, this), 3000);
+        const world_tick_delay: number = 3000;
+        this.render_context.delay(world_tick_delay, () => {
+            this.render_context.bind_update('world_tick', new CallbackBinding(() => {
+                if (!this.ready) return;
+
+                this.world_tick();
+            }, this), world_tick_delay);
+        }, this);
 
         this.render_context.bind_update('enemy_face_player', new CallbackBinding(() => {
+            if (!this.ready) return;
+
             for (const enemy of this.enemies.filter(enemy => enemy.alive)) {
                 enemy.sprite.flip_x(this.player.x < enemy.x);
             }
@@ -156,8 +164,8 @@ export default class Main extends AbstractScene {
     public spawn_enemy(count: number = 1, position?: Vector): void {
         for (let i: number = 0; i < count; i++) {
             const initial_position: Vector = new Vector(Math.floor(this.player.x), Math.floor(this.player.y));
-            const inner_distance: number = this.render_context.literal(200);
-            const outer_distance: number = this.render_context.literal(400);
+            const inner_distance: number = this.render_context.literal(150);
+            const outer_distance: number = this.render_context.literal(300);
             const enemy_position: Vector = position ?? MathExtensions.rand_within_donut_from_point(initial_position, inner_distance, outer_distance);
 
             const enemy: Entity = EntityFactory.create_enemy(EntityFactory.random_enemy_key(), 3 + this.enemies_defeated);
@@ -374,8 +382,6 @@ export default class Main extends AbstractScene {
     }
 
     public world_tick(): void {
-        if (!this.ready) return;
-
         const enemies_summoned: number = 2 + (Math.floor(this.tick_count / 2));
         this.spawn_enemy(enemies_summoned);
 
@@ -406,6 +412,7 @@ export default class Main extends AbstractScene {
         this.render_context.cache.tweens.killAll();
         this.render_context.camera.stopFollow();
         this.render_context.unbind_update('world_tick');
+        this.render_context.unbind_update('enemy_face_player');
 
         this.timer.doomed = true;
         this.scene_renderer.draw_game_over(this.player, new CallbackBinding(() => {
