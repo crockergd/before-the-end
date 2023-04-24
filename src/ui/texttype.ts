@@ -1,6 +1,7 @@
 export const enum TextType {
     STANDARD,
-    ITALIC
+    ITALIC,
+    LG
 }
 
 export default TextType;

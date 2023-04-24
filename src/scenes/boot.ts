@@ -81,6 +81,7 @@ export default class Boot extends AbstractScene {
         this.load.spritesheet('hit_slash', require_tilesheet('./hit_slash.png'), { frameWidth: 49, frameHeight: 55 });
         this.load.spritesheet('ability_btn_sm', require_tilesheet('./ability_btn_sm.png'), { frameWidth: 171, frameHeight: 21 });
         this.load.spritesheet('equipment_slot', require_tilesheet('./equipment_slot.png'), { frameWidth: 30, frameHeight: 30 });
+        this.load.spritesheet('equipment_icon', require_tilesheet('./equipment_icon.png'), { frameWidth: 30, frameHeight: 30 });
         this.load.spritesheet('loot_card_stamp', require_tilesheet('./loot_card_stamp.png'), { frameWidth: 45, frameHeight: 71 });
 
         this.load.image('zone_courtyards_transition', require_image('./zone_courtyards_transition.png'));

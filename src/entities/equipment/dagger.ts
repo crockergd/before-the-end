@@ -69,4 +69,21 @@ export default class Dagger extends Equipment {
 
         this.attack_info.power += 3 * this.level;
     }
+
+    public static description(level: number): string {
+        switch (level) {
+            case 0:
+                return 'Stabs forward, flying towards the cursor location.'
+            case 1:
+                return 'Extends the distance travelled.';
+            case 2:
+                return 'Repeats the attack on connection with an enemy.';
+            case 3:
+                return 'Extends the distance travelled even further.';
+            case 4:
+                return 'Repeats the attack a second time on connection with an enemy.';
+            default:
+                return '';
+        }
+    }
 }

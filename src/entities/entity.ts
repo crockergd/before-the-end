@@ -58,6 +58,13 @@ export default class Entity {
         }
     }
 
+    public get_equipment_level(equipment_type: string): number {
+        const equipment: Equipment = this.equipment.find(equipment => equipment.type === equipment_type);
+        if (!equipment) return 0;
+
+        return equipment.level + 1;
+    }
+
     public add_exp(experience: number): void {
         this.level_info.experience += experience;
     }

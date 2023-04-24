@@ -68,6 +68,9 @@ export default class AbstractText extends AbstractBaseType {
             case TextType.ITALIC:
                 font_key = 'pixchicago_i';
                 break;
+            case TextType.LG:
+                font_key = 'pixchicago_lg';
+                break;
         }
 
         this.framework_object.setLetterSpacing(letter_spacing);
@@ -114,8 +117,6 @@ export default class AbstractText extends AbstractBaseType {
     }
 
     public set_fill(fill: string): void {
-
-
         return;
 
         const hex_text: string = '0x' + fill.slice(1);

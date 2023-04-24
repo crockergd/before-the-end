@@ -9,6 +9,7 @@ import * as Equips from '../../entities/equipment';
 import Equipment from '../../entities/equipment/equipment';
 import EquipmentInfo from '../../entities/equipment/equipmentinfo';
 import LootCard from '../../ui/lootcard';
+import TextType from '../../ui/texttype';
 import TransitionType from '../../ui/transitiontype';
 import CallbackBinding from '../../utils/callbackbinding';
 import Constants from '../../utils/constants';
@@ -47,7 +48,7 @@ export default class LootSelectionCache extends Cacheable {
         this.banner.set_scale(2, 2);
         this.banner.set_anchor(0.5, 0);
 
-        this.title = this.render_context.add_text(this.banner.group_x, this.banner.group_y + this.banner.height_half - this.render_context.literal(2), '', this.group);
+        this.title = this.render_context.add_text(this.banner.group_x, this.banner.group_y + this.banner.height_half - this.render_context.literal(2), '', this.group, TextType.LG);
         this.title.set_font_size(12);
         this.title.set_anchor(0.5, 0.5);
 
@@ -84,10 +85,10 @@ export default class LootSelectionCache extends Cacheable {
             const equipment: EquipmentInfo = ObjectExtensions.array_access(equips, i);
             const card: LootCard = ObjectExtensions.array_access(this.cards, i);
 
-            card.sync(equipment);
+            card.sync(player, equipment);
         }
 
-        this.title.text = 'Equipment discovered';
+        this.title.text = 'LEVEL UP';
 
         this.reorder(count);
 
