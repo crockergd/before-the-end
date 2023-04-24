@@ -25,6 +25,7 @@ export default class RenderContext {
     public transitioning_scene: boolean;
     public transitioning_custom: boolean;
     public transitioning_component: boolean;
+    public objects_created: number;
 
     public anim_scale: number;
     private update_bindings: Array<UpdateBinding>;
@@ -181,6 +182,7 @@ export default class RenderContext {
         this.transitioning_scene = false;
         this.transitioning_custom = false;
         this.transitioning_component = false;
+        this.objects_created = 0;
 
         this.anim_scale = 1;
         this.update_bindings = new Array<UpdateBinding>();
@@ -227,6 +229,8 @@ export default class RenderContext {
 
         const sprite_object: AbstractSprite = new AbstractSprite(this, scene, x, y, key, collection, physics);
         sprite_object.set_scale(this.base_scale_factor, this.base_scale_factor);
+
+        this.objects_created++;
 
         return sprite_object;
     }

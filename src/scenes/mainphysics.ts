@@ -73,6 +73,9 @@ export default class MainPhysics {
     }
 
     public ready_fan(player: Entity, fan: Attack): void {
+        fan.physics_body.setSensor(false);
+        fan.physics_body.setVelocity(0);
+        fan.physics_body.setAngularVelocity(1);
         fan.physics_body.setFriction(0.4, 0.1);
         fan.physics_body.setName(fan.sprite.uid);
         fan.physics_body.setCollisionCategory(this.physics_context.collision_attack);
@@ -90,15 +93,18 @@ export default class MainPhysics {
         exp_drop.sprite.physics_body.setSensor(true);
 
         exp_drop.sprite.physics_body.setOnCollideWith(player.physics_body, () => {
+            if (exp_drop.collected) return;
+
             exp_drop.collected = true;
             this.render_context.untween(exp_drop.sprite.framework_object);
-            this.world.remove(exp_drop.sprite.physics_body);
         });
     }
 
     public collide_enemy(player: Entity, attack: Attack, collision: any): boolean {
         let enemy: Entity = this.scene.enemies.find(enemy => enemy.key === collision.bodyA.gameObject.name);
         if (!enemy) enemy = this.scene.enemies.find(enemy => enemy.key === collision.bodyB.gameObject.name);
+        if (!enemy) return false;
+        if (enemy.physics_body.isSensor()) return;
         return this.scene.collide(attack, enemy, collision);
     }
 
@@ -106,8 +112,8 @@ export default class MainPhysics {
         collision.isActive = false;
         collision.bodyA.gameObject.setVelocity(0);
         collision.bodyB.gameObject.setVelocity(0);
-        this.world.remove(collision.bodyA.gameObject);
-        this.world.remove(collision.bodyB.gameObject);
+        collision.bodyA.gameObject.setSensor(true);
+        collision.bodyB.gameObject.setSensor(true);
     }
 
     public apply_force(sprite: AbstractSprite, direction: Vector, intensity: number = 1): void {

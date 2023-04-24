@@ -4,7 +4,6 @@ import AbstractSprite from '../abstracts/abstractsprite';
 import AbstractText from '../abstracts/abstracttext';
 import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
-import ExpDrop from '../entities/expdrop';
 import CallbackBinding from '../utils/callbackbinding';
 import MathExtensions from '../utils/mathextensions';
 import WorldTimer from '../world/worldtimer';
@@ -16,9 +15,11 @@ export default class MainRenderer {
     public world_timer_frame: AbstractSprite;
 
     public enemy_layer: AbstractGroup;
+    private sprite_cache: Array<AbstractSprite>;
 
     constructor(readonly scene: Main, readonly render_context: RenderContext, readonly timer: WorldTimer) {
         this.draw_world_timer();
+        this.sprite_cache = new Array<AbstractSprite>();
     }
 
     public update(dt: number): void {
@@ -105,7 +106,9 @@ export default class MainRenderer {
     }
 
     public draw_fan(player: Entity, angle: number): AbstractSprite {
-        const fan: AbstractSprite = this.render_context.add_sprite(player.x, player.y, 'stab', undefined, undefined, true);
+        const fan: AbstractSprite = this.get_sprite_cache('stab') ?? this.render_context.add_sprite(0, 0, 'stab', undefined, undefined, true);
+        fan.set_position(player.x, player.y);
+        fan.set_anchor(0.5, 0.5);
         fan.set_depth(AbstractDepth.FIELD);
         fan.set_rotation(angle);
 
@@ -113,16 +116,20 @@ export default class MainRenderer {
             targets: [fan.framework_object],
             alpha: 0,
             on_complete: new CallbackBinding(() => {
-                fan.destroy();
+
+                this.fill_sprite_cache(fan);
             }, this)
         });
 
         return fan;
     }
 
-    public draw_exp_drop(exp_drop: ExpDrop, player: Entity, enemy: Entity): void {
-        exp_drop.sprite = this.render_context.add_sprite(enemy.x, enemy.y, 'exp_drop', undefined, undefined, true);
-        exp_drop.sprite.set_anchor(0.5, 0.5);
+    public draw_exp_drop(player: Entity, enemy: Entity): AbstractSprite {
+        const exp_drop: AbstractSprite = this.get_sprite_cache('exp_drop') ?? this.render_context.add_sprite(0, 0, 'exp_drop', undefined, undefined, true);
+        exp_drop.set_position(enemy.x, enemy.y);
+        exp_drop.set_anchor(0.5, 0.5);
+
+        return exp_drop;
     }
 
     public draw_world_timer(): void {
@@ -226,5 +233,21 @@ export default class MainRenderer {
                 this.enemy_layer.clean();
             }, this)
         });
+    }
+
+    public get_sprite_cache(sprite_key: string): AbstractSprite {
+        let sprite: AbstractSprite = this.sprite_cache.find(cached => cached.key === sprite_key);
+        if (sprite) {
+            this.sprite_cache = this.sprite_cache.filter(cached => cached.uid !== sprite.uid);
+            sprite.set_alpha(1);
+            sprite.set_visible(true);
+        }
+
+        return sprite;
+    }
+
+    public fill_sprite_cache(sprite: AbstractSprite): void {
+        this.sprite_cache.push(sprite);
+        sprite.set_visible(false);
     }
 }

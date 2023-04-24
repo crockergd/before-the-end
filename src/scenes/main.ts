@@ -97,6 +97,7 @@ export default class Main extends AbstractScene {
 
         this.debug.text = 'Display List: ' + count.toString();
         this.debug.text += Constants.LINE_BREAK + 'FPS: ' + StringExtensions.numeric(this.render_context.scene.game.loop.actualFps);
+        this.debug.text += Constants.LINE_BREAK + 'Objects Created: ' + this.render_context.objects_created;
 
         for (const exp_drop of this.exp_drops.filter(exp_drop => exp_drop.collected)) {
             const player_direction: Vector = new Vector(exp_drop.sprite.absolute_x - this.player.x, exp_drop.sprite.absolute_y - this.player.y);
@@ -104,7 +105,8 @@ export default class Main extends AbstractScene {
 
             if (distance < 3) {
                 exp_drop.absorbed = true;
-                exp_drop.sprite.destroy();
+                this.scene_renderer.fill_sprite_cache(exp_drop.sprite);
+                exp_drop.sprite = null;
                 this.exp_drops = this.exp_drops.filter(exp_drop => !exp_drop.absorbed);
                 this.add_exp(10);
 
@@ -127,6 +129,7 @@ export default class Main extends AbstractScene {
         this.scene_physics.ready_player(this.player);
 
         this.player.add_equipment(new Dagger(this, this.render_context));
+        // this.player.add_equipment(new Fan(this, this.render_context));
     }
 
     public spawn_enemy(count: number = 1): void {
@@ -148,7 +151,7 @@ export default class Main extends AbstractScene {
 
     public spawn_exp(enemy: Entity): void {
         const exp_drop: ExpDrop = new ExpDrop();
-        this.scene_renderer.draw_exp_drop(exp_drop, this.player, enemy);
+        exp_drop.sprite = this.scene_renderer.draw_exp_drop(this.player, enemy);
         this.exp_drops.push(exp_drop);
 
         const initial_position: Vector = new Vector(Math.floor(enemy.x), Math.floor(enemy.y));
