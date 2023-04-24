@@ -16,7 +16,7 @@ export default class AbstractBaseType {
     public mask: AbstractMask;
 
     protected position: Vector;
-    protected _alpha: number;
+    protected _alpha: Vector;
     public visibility: boolean;
     public uid: string;
     protected round: boolean;
@@ -75,16 +75,15 @@ export default class AbstractBaseType {
         return this.framework_object.depth;
     }
 
-    get alpha(): number {
-        let alpha: number = this._alpha;
+    get alpha(): Vector {
+        let alpha: Vector = Vector.copy(this._alpha);
         if (this.parent) {
-            alpha *= this.parent.alpha;
+            alpha.x *= this.parent.alpha;
+            if (alpha.y) alpha.y *= this.parent.alpha;
+            if (alpha.z) alpha.z *= this.parent.alpha;
+            if (alpha.w) alpha.w *= this.parent.alpha;
         }
         return alpha;
-    }
-
-    set alpha(value: number) {
-        this.set_alpha(value);
     }
 
     get active(): boolean {
@@ -97,7 +96,7 @@ export default class AbstractBaseType {
         this.visibility = true;
         this.round = false;
         this.uid = UID.next('go');
-        this._alpha = 1;
+        this._alpha = new Vector(1, undefined);
     }
 
     public set_framework_object(framework_object: AbstractFrameworkType): void {
@@ -108,14 +107,15 @@ export default class AbstractBaseType {
         this.parent = parent;
     }
 
-    public set_alpha(value: number): void {
-        this._alpha = value;
+    public set_alpha(value: Vector | number): void {
+        if (typeof value === 'number') this._alpha = new Vector(value, undefined);
+        else this._alpha = value;
 
         this.update_alpha();
     }
 
     public update_alpha(): void {
-        this.framework_object.setAlpha(this.alpha);
+        this.framework_object.setAlpha(this.alpha.x, this.alpha.y, this.alpha.z, this.alpha.w);
     }
 
     public offset_absolute(): void {

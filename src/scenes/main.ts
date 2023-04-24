@@ -80,6 +80,12 @@ export default class Main extends AbstractScene {
         this.debug.affix_ui();
 
         this.set_state(MainState.ACTIVE);
+
+        this.render_context.bind_update('enemy_face_player', new CallbackBinding(() => {
+            for (const enemy of this.enemies.filter(enemy => enemy.alive)) {
+                enemy.sprite.flip_x(this.player.x < enemy.x);
+            }
+        }, this), 1000);
     }
 
     public update(time: number, dt_ms: number): void {
@@ -355,6 +361,8 @@ export default class Main extends AbstractScene {
     }
 
     public end_game(): void {
+        return;
+
         this.input.off(Constants.UP_EVENT);
         this.render_context.cache.tweens.killAll();
         this.render_context.camera.stopFollow();

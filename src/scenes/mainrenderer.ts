@@ -6,6 +6,7 @@ import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
 import CallbackBinding from '../utils/callbackbinding';
 import MathExtensions from '../utils/mathextensions';
+import Vector from '../utils/vector';
 import WorldTimer from '../world/worldtimer';
 import Main from './main';
 
@@ -80,18 +81,21 @@ export default class MainRenderer {
         enemy.sprite.set_anchor(0.5, 0.5);
         enemy.sprite.play('idle_' + enemy.sprite_key);
         enemy.sprite.set_depth(Math.round(y), true);
+        enemy.sprite.set_alpha(new Vector(1, 1, 0, 0));
 
         if (player.x < enemy.x) {
             enemy.sprite.flip_x();
         }
 
         // const glow: Phaser.FX.Glow = enemy.sprite.framework_object.postFX.addGlow(0x9f2273, 0);
-
         // this.render_context.tween({
         //     targets: [glow],
         //     outerStrength: 2,
         //     yoyo: true,
-        //     repeat: -1
+        //     on_complete: new CallbackBinding(() => {
+        //         glow.destroy();
+        //         enemy.sprite.framework_object.postFX.clear();
+        //     }, this)
         // });
     }
 
@@ -217,7 +221,10 @@ export default class MainRenderer {
     public flash_enemy_death(enemy: Entity): void {
         this.render_context.tween({
             targets: [enemy.sprite.framework_object],
-            alpha: 0,
+            alphaTopLeft: 0,
+            alphaTopRight: 0,
+            alphaBottomLeft: 0,
+            alphaBottomRight: 0,
             duration: 100,
             on_complete: new CallbackBinding(() => {
                 this.scene.push_cache(enemy.sprite);
