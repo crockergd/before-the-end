@@ -238,8 +238,6 @@ export default class Main extends AbstractScene {
         this.scene_renderer.flash_combat_hit(enemy);
 
         if (power >= enemy.power) {
-            this.scene_physics.reset_collision(collision);
-
             if (enemy.alive) {
                 this.render_context.camera.shake(200, 0.003);
 
@@ -247,6 +245,7 @@ export default class Main extends AbstractScene {
                 this.timer.extend_time(1);
                 enemy.battle_info.alive = false;
                 this.scene_renderer.flash_enemy_death(enemy);
+                this.scene_physics.reset_body(enemy.sprite);
                 this.spawn_exp(enemy);
 
                 if (attack.attack_info.latch) {

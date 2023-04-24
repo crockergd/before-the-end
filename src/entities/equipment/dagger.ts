@@ -5,6 +5,7 @@ import Vector from '../../utils/vector';
 import Attack from './attack';
 import Entity from '../entity';
 import Equipment from './equipment';
+import CallbackBinding from '../../utils/callbackbinding';
 
 export default class Dagger extends Equipment {
     constructor(readonly scene: Main, readonly render_context: RenderContext) {
@@ -31,6 +32,16 @@ export default class Dagger extends Equipment {
         dagger.sprite = this.scene_renderer.draw_dagger(player, angle);
         this.scene_physics.ready_dagger(player, dagger);
         this.scene_physics.apply_force(player.sprite, cursor_direction, this.attack_info.velocity);
+
+        this.render_context.tween({
+            targets: [dagger.sprite.framework_object],
+            alpha: 0,
+            on_complete: new CallbackBinding(() => {
+                this.scene_physics.world.remove(dagger.constraint);
+                this.scene.destroy(dagger.sprite);
+                dagger.sprite = null;
+            }, this)
+        });
     }
 
     public apply_scaling(): void {

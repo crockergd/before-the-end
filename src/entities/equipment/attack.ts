@@ -3,6 +3,7 @@ import AttackInfo from './attackinfo';
 
 export default class Attack {
     public sprite: AbstractSprite;
+    public constraint: MatterJS.ConstraintType;
 
     public get physics_body(): Phaser.Physics.Matter.Sprite {
         return this.sprite.physics_body;

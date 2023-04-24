@@ -50,30 +50,24 @@ export default class MainPhysics {
     }
 
     public ready_dagger(player: Entity, dagger: Attack): void {
+        dagger.physics_body.setFriction(0.1, 0.01);
+        dagger.physics_body.setVelocity(0);
+        dagger.physics_body.setAngularVelocity(0);
         dagger.physics_body.setName(dagger.sprite.uid);
         dagger.physics_body.setCollisionCategory(this.physics_context.collision_attack);
         dagger.physics_body.setCollidesWith(this.physics_context.collision_enemy);
 
-        const constraint: MatterJS.ConstraintType = this.render_context.scene.matter.add.constraint((player.physics_body as any), (dagger.physics_body as any));
+        dagger.constraint = this.render_context.scene.matter.add.constraint((player.physics_body as any), (dagger.physics_body as any));
 
         dagger.physics_body.setOnCollide((collision: any) => {
-            this.world.remove(constraint);
+            this.world.remove(dagger.constraint);
+            dagger.physics_body.setFriction(0.4, 0.1);
             this.collide_enemy(player, dagger, collision);
             dagger.attack_info.latch = false;
-        });
-
-        this.render_context.tween({
-            targets: [dagger.sprite.framework_object],
-            alpha: 0,
-            on_complete: new CallbackBinding(() => {
-                this.world.remove(constraint);
-                dagger.destroy();
-            }, this)
         });
     }
 
     public ready_fan(player: Entity, fan: Attack): void {
-        fan.physics_body.setSensor(false);
         fan.physics_body.setVelocity(0);
         fan.physics_body.setAngularVelocity(1);
         fan.physics_body.setFriction(0.4, 0.1);
@@ -82,7 +76,7 @@ export default class MainPhysics {
         fan.physics_body.setCollidesWith(this.physics_context.collision_enemy);
 
         fan.physics_body.setOnCollide((collision: any) => {
-            fan.physics_body.setFriction(0.2, 0.05);
+            fan.physics_body.setFriction(0.4, 0.1);
             this.collide_enemy(player, fan, collision);
         });
     }
@@ -112,14 +106,6 @@ export default class MainPhysics {
         const scaled_direction: Vector = direction.normalize().multiply(intensity);
         scaled_direction.multiply(this.render_context.screen_scale_factor);
         sprite.physics_body.applyForce(scaled_direction.pv2);
-    }
-
-    public reset_collision(collision: any): void {
-        collision.isActive = false;
-        collision.bodyA.gameObject.setVelocity(0);
-        collision.bodyB.gameObject.setVelocity(0);
-        collision.bodyA.gameObject.setCollidesWith(this.physics_context.collision_none);
-        collision.bodyB.gameObject.setCollidesWith(this.physics_context.collision_none);
     }
 
     public reset_body(sprite: AbstractSprite): void {
