@@ -46,15 +46,13 @@ export default class Dagger extends Equipment {
 
     public apply_scaling(): void {
         this.attack_info = {
+            equipment_key: this.key,
             power: 0,
             latch: true,
             repeat: 0,
             amount: 0,
             velocity: 1.2
         };
-
-        this.attack_info.velocity = 1.2;
-        this.attack_info.repeat = 0;
 
         if (this.level >= 1) {
             this.attack_info.velocity += 0.3;

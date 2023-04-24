@@ -153,6 +153,7 @@ export default class AbstractGroup {
         for (const child of this.framework_object) {
             if (!(child instanceof AbstractGroup || child instanceof AbstractBaseType)) continue;
 
+            if (child instanceof AbstractSprite && child.physics_body?.body) return;
             child.update_position();
         }
     }

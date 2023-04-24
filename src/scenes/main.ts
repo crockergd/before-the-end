@@ -22,6 +22,8 @@ import MainPhysics from './mainphysics';
 import MainRenderer from './mainrenderer';
 import MainState from './mainstate';
 import AbstractSprite from '../abstracts/abstractsprite';
+import ObjectExtensions from '../utils/objectextensions';
+import RepeatTracker from '../entities/repeatinfo';
 
 export default class Main extends AbstractScene {
     public state: MainState;
@@ -36,7 +38,7 @@ export default class Main extends AbstractScene {
 
     public enemies_defeated: number;
     public tick_count: number;
-    public attack_depth: number;
+    public repeat_tracker: RepeatTracker;
 
     private sprite_cache: Array<AbstractSprite>;
 
@@ -59,8 +61,12 @@ export default class Main extends AbstractScene {
         this.enemies = new Array<Entity>();
         this.exp_drops = new Array<ExpDrop>();
 
-        this.attack_depth = 0;
         this.sprite_cache = new Array<AbstractSprite>();
+        this.repeat_tracker = {
+            count: 0,
+            attacks: new Array<Attack>,
+            targets: new Array<Entity>
+        };
     }
 
     public create(): void {
@@ -69,17 +75,21 @@ export default class Main extends AbstractScene {
         this.scene_renderer.draw_tiles();
 
         this.spawn_player();
-        this.spawn_enemy(3);
-
-        this.render_context.bind_update('world_tick', new CallbackBinding(() => {
-            this.world_tick();
-        }, this), 3000);
+        const spawn_distance: number = this.render_context.literal(100);
+        this.spawn_enemy(1, new Vector(spawn_distance, spawn_distance));
+        this.spawn_enemy(1, new Vector(-spawn_distance, -spawn_distance));
+        this.spawn_enemy(1, new Vector(spawn_distance, -spawn_distance));
+        this.spawn_enemy(1, new Vector(-spawn_distance, spawn_distance));
 
         this.debug = this.render_context.add_text(this.render_context.space_buffer, this.render_context.space_buffer, '');
         this.debug.set_depth(AbstractDepth.UI);
         this.debug.affix_ui();
 
         this.set_state(MainState.ACTIVE);
+
+        this.render_context.bind_update('world_tick', new CallbackBinding(() => {
+            this.world_tick();
+        }, this), 3000);
 
         this.render_context.bind_update('enemy_face_player', new CallbackBinding(() => {
             for (const enemy of this.enemies.filter(enemy => enemy.alive)) {
@@ -143,12 +153,12 @@ export default class Main extends AbstractScene {
         // this.player.add_equipment(new Fan(this, this.render_context));
     }
 
-    public spawn_enemy(count: number = 1): void {
+    public spawn_enemy(count: number = 1, position?: Vector): void {
         for (let i: number = 0; i < count; i++) {
             const initial_position: Vector = new Vector(Math.floor(this.player.x), Math.floor(this.player.y));
-            const inner_distance: number = 200;
-            const outer_distance: number = 350;
-            const enemy_position: Vector = MathExtensions.rand_within_donut_from_point(initial_position, inner_distance, outer_distance);
+            const inner_distance: number = this.render_context.literal(200);
+            const outer_distance: number = this.render_context.literal(400);
+            const enemy_position: Vector = position ?? MathExtensions.rand_within_donut_from_point(initial_position, inner_distance, outer_distance);
 
             const enemy: Entity = EntityFactory.create_enemy(EntityFactory.random_enemy_key(), 3 + this.enemies_defeated);
             this.scene_renderer.draw_enemy(enemy_position.x, enemy_position.y, enemy, this.player);
@@ -202,7 +212,16 @@ export default class Main extends AbstractScene {
             this.player.sprite.flip_x(true);
         }
 
-        this.attack_depth = 0;
+        this.repeat_tracker = {
+            count: 0,
+            targets: new Array<Entity>,
+            attacks: new Array<Attack>
+        };
+        this.enemies = this.enemies.filter(enemy => enemy.alive);
+        for (const enemy of this.enemies) {
+            enemy.reset_hits();
+        }
+
         this.attack();
 
         this.player.set_state(EntityState.ATTACKING);
@@ -211,7 +230,7 @@ export default class Main extends AbstractScene {
         }, this);
     }
 
-    public attack(type: AttackType = AttackType.CURSOR, chained: boolean = false): void {
+    public attack(type: AttackType = AttackType.CURSOR, chained: boolean = false, last_enemy?: Entity): void {
         let target: Vector;
 
         switch (type) {
@@ -221,7 +240,10 @@ export default class Main extends AbstractScene {
                 break;
 
             case AttackType.NEAREST:
-                const distance_sorted_enemies: Array<Entity> = this.enemies.filter(enemy => enemy.alive).sort((lhs, rhs) => {
+                this.repeat_tracker.targets.push(last_enemy);
+
+                const target_enemies: Array<Entity> = this.enemies.filter(enemy => !this.repeat_tracker.targets.filter(depth => depth.sprite.uid === enemy.sprite.uid).length).filter(enemy => enemy.alive);
+                const distance_sorted_enemies: Array<Entity> = target_enemies.sort((lhs, rhs) => {
                     const lhs_dist: number = Phaser.Math.Distance.Between(lhs.x, lhs.y, this.player.x, this.player.y);
                     const rhs_dist: number = Phaser.Math.Distance.Between(rhs.x, rhs.y, this.player.x, this.player.y);
                     return lhs_dist - rhs_dist;
@@ -229,19 +251,25 @@ export default class Main extends AbstractScene {
                 if (!distance_sorted_enemies?.length) return;
 
                 const nearest_enemy: Entity = distance_sorted_enemies[0];
+                const nearest_distance: number = Phaser.Math.Distance.Between(nearest_enemy.x, nearest_enemy.y, this.player.x, this.player.y);
+                if (nearest_distance > this.render_context.literal(350)) return;
+
+
                 target = new Vector(nearest_enemy.x, nearest_enemy.y);
                 break;
         }
 
         for (const equipment of this.player.equipment) {
-            if (!chained || equipment.attack_info.repeat >= this.attack_depth) equipment.attack(this.player, target);
+            if (!chained || equipment.attack_info.repeat >= this.repeat_tracker.count) equipment.attack(this.player, target);
         }
 
-        this.attack_depth++;
+        this.repeat_tracker.count++;
     }
 
     public collide(attack: Attack, enemy: Entity, collision: any): boolean {
         const power: number = attack.attack_info.power + this.player.power;
+
+        if (attack.constraint) this.matter.world.removeConstraint(attack.constraint);
 
         this.scene_renderer.flash_combat_text(enemy.x, enemy.y - enemy.sprite.height_half + this.render_context.literal(20), StringExtensions.numeric(power));
         this.scene_renderer.flash_combat_hit(enemy);
@@ -261,18 +289,12 @@ export default class Main extends AbstractScene {
                     this.render_context.delay(50, () => {
                         if (!this.ready) return;
 
-                        this.player.sprite.set_position(enemy.x, enemy.y);
                         this.player.physics_body.setVelocity(0);
+                        this.player.sprite.set_position(enemy.x, enemy.y);
                     }, this);
                 }
 
-                if (attack.attack_info.repeat >= this.attack_depth) {
-                    this.render_context.delay(75, () => {
-                        if (!this.ready) return;
-
-                        this.attack(AttackType.NEAREST, true);
-                    }, this);
-                }
+                this.collide_repeat(attack, enemy);
 
                 return true;
             }
@@ -282,8 +304,27 @@ export default class Main extends AbstractScene {
         } else {
             enemy.battle_info.power -= power;
 
+            enemy.register_hit(attack.attack_info.equipment_key);
+            this.collide_repeat(attack, enemy);
+
             return false;
         }
+    }
+
+    public collide_repeat(attack: Attack, enemy: Entity): void {
+        if (this.repeat_tracker.attacks.filter(repeat => repeat?.sprite?.uid === attack.sprite.uid).length) return;
+        this.repeat_tracker.attacks.push(attack);
+
+        if (attack.attack_info.repeat < this.repeat_tracker.count) return;
+
+        this.render_context.delay(75, () => {
+            if (!this.ready) return;
+
+            this.player.physics_body.setVelocity(0);
+            this.attack(AttackType.NEAREST, true, enemy);
+
+
+        }, this);
     }
 
     public add_exp(experience: number): void {
@@ -361,8 +402,6 @@ export default class Main extends AbstractScene {
     }
 
     public end_game(): void {
-        return;
-
         this.input.off(Constants.UP_EVENT);
         this.render_context.cache.tweens.killAll();
         this.render_context.camera.stopFollow();

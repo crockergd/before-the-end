@@ -51,6 +51,7 @@ export default class Fan extends Equipment {
 
     public apply_scaling(): void {
         this.attack_info = {
+            equipment_key: this.key,
             power: 0,
             latch: false,
             repeat: 0,

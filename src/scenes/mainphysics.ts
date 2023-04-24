@@ -42,8 +42,9 @@ export default class MainPhysics {
             height: body_dimensions.y
         });
         enemy.physics_body.setFixedRotation();
-        enemy.physics_body.setStatic(true);
+        // enemy.physics_body.setStatic(true);
         enemy.physics_body.setBounce(0.8);
+        enemy.physics_body.setFriction(0.4, 0.2);
         enemy.physics_body.setCollisionCategory(this.physics_context.collision_enemy);
         enemy.physics_body.setCollidesWith(this.physics_context.collision_attack);
     }
@@ -59,14 +60,15 @@ export default class MainPhysics {
         dagger.constraint = this.render_context.scene.matter.add.constraint((player.physics_body as any), (dagger.physics_body as any));
 
         dagger.physics_body.setOnCollide((collision: any) => {
-            this.world.removeConstraint(dagger.constraint);
+            if (!this.validate_collision(player, dagger, collision)) return;
 
+            dagger.physics_body.setVelocity(0);
+            dagger.physics_body.setAngularVelocity(0);
             dagger.physics_body.setFriction(0.4, 0.1);
-            if (this.collide_enemy(player, dagger, collision)) {
-                this.deactivate_body(dagger.sprite);
-                dagger.physics_body.setVelocity(0);
-                dagger.physics_body.setAngularVelocity(0);
-            }
+
+            this.world.removeConstraint(dagger.constraint);
+            this.deactivate_body(dagger.sprite);
+            this.collide_enemy(player, dagger, collision);
 
             dagger.attack_info.latch = false;
         });
@@ -81,6 +83,8 @@ export default class MainPhysics {
         fan.physics_body.setCollidesWith(this.physics_context.collision_enemy);
 
         fan.physics_body.setOnCollide((collision: any) => {
+            if (!this.validate_collision(player, fan, collision)) return;
+
             fan.physics_body.setFriction(0.4, 0.1);
             this.collide_enemy(player, fan, collision);
         });
@@ -97,6 +101,19 @@ export default class MainPhysics {
             exp_drop.collected = true;
             this.render_context.untween(exp_drop.sprite.framework_object);
         });
+    }
+
+    public validate_collision(player: Entity, attack: Attack, collision: any): boolean {
+        let enemy: Entity = this.scene.enemies.find(enemy => enemy.key === collision.bodyA.gameObject.name);
+        if (!enemy) enemy = this.scene.enemies.find(enemy => enemy.key === collision.bodyB.gameObject.name);
+        if (!enemy) return false;
+
+        if (enemy.confirm_hit(attack.attack_info.equipment_key)) {
+            collision.isActive = false;
+            return false;
+        }
+
+        return true;
     }
 
     public collide_enemy(player: Entity, attack: Attack, collision: any): boolean {
