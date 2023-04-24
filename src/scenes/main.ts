@@ -38,6 +38,8 @@ export default class Main extends AbstractScene {
     public tick_count: number;
     public attack_depth: number;
 
+    private sprite_cache: Array<AbstractSprite>;
+
     public get ready(): boolean {
         return !this.timer.doomed && this.state === MainState.ACTIVE;
     }
@@ -58,6 +60,7 @@ export default class Main extends AbstractScene {
         this.exp_drops = new Array<ExpDrop>();
 
         this.attack_depth = 0;
+        this.sprite_cache = new Array<AbstractSprite>();
     }
 
     public create(): void {
@@ -109,7 +112,7 @@ export default class Main extends AbstractScene {
                 this.exp_drops = this.exp_drops.filter(exp_drop => !exp_drop.absorbed);
                 this.add_exp(10);
 
-                this.destroy(exp_drop.sprite);
+                this.push_cache(exp_drop.sprite);
                 exp_drop.sprite = null;
 
             } else {
@@ -245,7 +248,7 @@ export default class Main extends AbstractScene {
                 this.timer.extend_time(1);
                 enemy.battle_info.alive = false;
                 this.scene_renderer.flash_enemy_death(enemy);
-                this.scene_physics.reset_body(enemy.sprite);
+                this.scene_physics.deactivate_body(enemy.sprite);
                 this.spawn_exp(enemy);
 
                 if (attack.attack_info.latch) {
@@ -334,9 +337,21 @@ export default class Main extends AbstractScene {
         this.tick_count++;
     }
 
-    public destroy(sprite: AbstractSprite): void {
-        this.scene_physics.reset_body(sprite);
-        this.scene_renderer.fill_sprite_cache(sprite);
+    public retrieve_cache(sprite_key: string): AbstractSprite {
+        let sprite: AbstractSprite = this.sprite_cache.find(cached => cached.key === sprite_key);
+        if (sprite) {
+            this.sprite_cache = this.sprite_cache.filter(cached => cached.uid !== sprite.uid);
+            this.scene_renderer.reactivate_sprite(sprite);
+            this.scene_physics.reactivate_body(sprite);
+        }
+
+        return sprite;
+    }
+
+    public push_cache(sprite: AbstractSprite): void {
+        this.scene_physics.deactivate_body(sprite);
+        this.scene_renderer.deactivate_sprite(sprite);
+        this.sprite_cache.push(sprite);
     }
 
     public end_game(): void {

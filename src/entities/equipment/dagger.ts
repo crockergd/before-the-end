@@ -38,7 +38,7 @@ export default class Dagger extends Equipment {
             alpha: 0,
             on_complete: new CallbackBinding(() => {
                 this.scene_physics.world.remove(dagger.constraint);
-                this.scene.destroy(dagger.sprite);
+                this.scene.push_cache(dagger.sprite);
                 dagger.sprite = null;
             }, this)
         });

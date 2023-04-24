@@ -13,13 +13,10 @@ export default class MainRenderer {
     public world_timer_group: AbstractGroup;
     public world_timer_bar: AbstractSprite;
     public world_timer_frame: AbstractSprite;
-
     public enemy_layer: AbstractGroup;
-    private sprite_cache: Array<AbstractSprite>;
 
     constructor(readonly scene: Main, readonly render_context: RenderContext, readonly timer: WorldTimer) {
         this.draw_world_timer();
-        this.sprite_cache = new Array<AbstractSprite>();
     }
 
     public update(dt: number): void {
@@ -78,7 +75,8 @@ export default class MainRenderer {
             this.enemy_layer.set_layer();
         }
 
-        enemy.sprite = this.render_context.add_sprite(x, y, enemy.sprite_key, this.enemy_layer, undefined, true);
+        enemy.sprite = this.scene.retrieve_cache(enemy.sprite_key) ?? this.render_context.add_sprite(0, 0, enemy.sprite_key, this.enemy_layer, undefined, true);
+        enemy.sprite.set_position(x, y);
         enemy.sprite.set_anchor(0.5, 0.5);
         enemy.sprite.play('idle_' + enemy.sprite_key);
         enemy.sprite.set_depth(Math.round(y), true);
@@ -98,7 +96,7 @@ export default class MainRenderer {
     }
 
     public draw_dagger(player: Entity, angle: number): AbstractSprite {
-        const dagger: AbstractSprite = this.get_sprite_cache('stab') ?? this.render_context.add_sprite(0, 0, 'stab', undefined, undefined, true);
+        const dagger: AbstractSprite = this.scene.retrieve_cache('stab') ?? this.render_context.add_sprite(0, 0, 'stab', undefined, undefined, true);
         dagger.set_position(player.x, player.y);
         dagger.set_depth(AbstractDepth.FIELD);
         dagger.set_rotation(angle);
@@ -107,7 +105,7 @@ export default class MainRenderer {
     }
 
     public draw_fan(player: Entity, angle: number): AbstractSprite {
-        const fan: AbstractSprite = this.get_sprite_cache('stab') ?? this.render_context.add_sprite(0, 0, 'stab', undefined, undefined, true);
+        const fan: AbstractSprite = this.scene.retrieve_cache('stab') ?? this.render_context.add_sprite(0, 0, 'stab', undefined, undefined, true);
         fan.set_position(player.x, player.y);
         fan.set_anchor(0.5, 0.5);
         fan.set_depth(AbstractDepth.FIELD);
@@ -117,7 +115,7 @@ export default class MainRenderer {
     }
 
     public draw_exp_drop(player: Entity, enemy: Entity): AbstractSprite {
-        const exp_drop: AbstractSprite = this.get_sprite_cache('exp_drop') ?? this.render_context.add_sprite(0, 0, 'exp_drop', undefined, undefined, true);
+        const exp_drop: AbstractSprite = this.scene.retrieve_cache('exp_drop') ?? this.render_context.add_sprite(0, 0, 'exp_drop', undefined, undefined, true);
         exp_drop.set_position(enemy.x, enemy.y);
         exp_drop.set_anchor(0.5, 0.5);
 
@@ -211,6 +209,7 @@ export default class MainRenderer {
             yoyo: true,
             on_complete: new CallbackBinding(() => {
                 glow.destroy();
+                enemy.sprite.framework_object.postFX.clear();
             }, this)
         });
     }
@@ -221,25 +220,19 @@ export default class MainRenderer {
             alpha: 0,
             duration: 100,
             on_complete: new CallbackBinding(() => {
-                enemy.destroy();
-                this.enemy_layer.clean();
+                this.scene.push_cache(enemy.sprite);
             }, this)
         });
     }
 
-    public get_sprite_cache(sprite_key: string): AbstractSprite {
-        let sprite: AbstractSprite = this.sprite_cache.find(cached => cached.key === sprite_key);
-        if (sprite) {
-            this.sprite_cache = this.sprite_cache.filter(cached => cached.uid !== sprite.uid);
-            sprite.set_alpha(1);
-            sprite.set_visible(true);
-        }
-
-        return sprite;
+    public reactivate_sprite(sprite: AbstractSprite): void {
+        sprite.set_alpha(1);
+        sprite.set_visible(true);
     }
 
-    public fill_sprite_cache(sprite: AbstractSprite): void {
-        this.sprite_cache.push(sprite);
+    public deactivate_sprite(sprite: AbstractSprite): void {
         sprite.set_visible(false);
+        sprite.stop();
+        sprite.framework_object.postFX.clear();
     }
 }

@@ -1,10 +1,9 @@
 import AbstractSprite from '../abstracts/abstractsprite';
 import PhysicsContext from '../contexts/physicscontext';
 import RenderContext from '../contexts/rendercontext';
-import Attack from '../entities/equipment/attack';
 import Entity from '../entities/entity';
+import Attack from '../entities/equipment/attack';
 import ExpDrop from '../entities/expdrop';
-import CallbackBinding from '../utils/callbackbinding';
 import Vector from '../utils/vector';
 import Main from './main';
 
@@ -61,8 +60,14 @@ export default class MainPhysics {
 
         dagger.physics_body.setOnCollide((collision: any) => {
             this.world.remove(dagger.constraint);
+
             dagger.physics_body.setFriction(0.4, 0.1);
-            this.collide_enemy(player, dagger, collision);
+            if (this.collide_enemy(player, dagger, collision)) {
+                this.deactivate_body(dagger.sprite);
+                dagger.physics_body.setVelocity(0);
+                dagger.physics_body.setAngularVelocity(0);
+            }
+
             dagger.attack_info.latch = false;
         });
     }
@@ -108,7 +113,11 @@ export default class MainPhysics {
         sprite.physics_body.applyForce(scaled_direction.pv2);
     }
 
-    public reset_body(sprite: AbstractSprite): void {
-        sprite.physics_body.setCollidesWith(this.physics_context.collision_none);
+    public reactivate_body(sprite: AbstractSprite): void {
+        this.physics_context.matter.world.add(sprite.physics_body.body);
+    }
+
+    public deactivate_body(sprite: AbstractSprite): void {
+        this.physics_context.matter.world.remove(sprite.physics_body.body);
     }
 }

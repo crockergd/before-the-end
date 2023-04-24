@@ -41,7 +41,7 @@ export default class Fan extends Equipment {
                     targets: [fan.sprite.framework_object],
                     alpha: 0,
                     on_complete: new CallbackBinding(() => {
-                        this.scene.destroy(fan.sprite);
+                        this.scene.push_cache(fan.sprite);
                         fan.sprite = null;
                     }, this)
                 });
