@@ -330,8 +330,6 @@ export default class Main extends AbstractScene {
 
             this.player.physics_body.setVelocity(0);
             this.attack(AttackType.NEAREST, true, enemy);
-
-
         }, this);
     }
 
@@ -344,7 +342,7 @@ export default class Main extends AbstractScene {
 
     public level_up(): void {
         this.player.level_info.level++;
-        this.player.battle_info.power += 5;
+        this.player.battle_info.power += 2;
         this.scene_renderer.flash_combat_text(this.player.x, this.player.y, 'LEVEL UP');
 
         const loot: Array<EquipmentInfo> = [{

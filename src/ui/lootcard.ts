@@ -40,7 +40,7 @@ export default class LootCard {
         this.icon = this.render_context.add_sprite(this.slot.group_x, this.slot.group_y, 'equipment_icon', this.group);
         this.icon.set_scale(2, 2);
 
-        this.title = this.render_context.add_text(this.slot.group_x + this.slot.width + this.render_context.space_buffer, (this.frame.group_y - this.frame.height_half) + this.render_context.space_buffer - this.render_context.literal(4), '', this.group, TextType.LG);
+        this.title = this.render_context.add_text(this.slot.group_x + this.slot.width + this.render_context.space_buffer, (this.frame.group_y - this.frame.height_half) + this.render_context.space_buffer - this.render_context.literal(4), '', this.group);
         // this.title.set_word_wrap(60);
 
         this.details = this.render_context.add_text(this.slot.group_x, this.slot.group_y + this.slot.height + this.render_context.space_buffer, '', this.group);

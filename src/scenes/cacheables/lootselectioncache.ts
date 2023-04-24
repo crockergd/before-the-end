@@ -48,8 +48,7 @@ export default class LootSelectionCache extends Cacheable {
         this.banner.set_scale(2, 2);
         this.banner.set_anchor(0.5, 0);
 
-        this.title = this.render_context.add_text(this.banner.group_x, this.banner.group_y + this.banner.height_half - this.render_context.literal(2), '', this.group, TextType.LG);
-        this.title.set_font_size(12);
+        this.title = this.render_context.add_text(this.banner.group_x, this.banner.group_y + this.banner.height_half - this.render_context.literal(2), '', this.group);
         this.title.set_anchor(0.5, 0.5);
 
         this.confirm = this.render_context.add_button(this.bg.group_x, this.bg.group_y + this.bg.height_half - this.render_context.literal(3), 'ability_btn_sm', 'Confirm', this.group);
@@ -88,7 +87,7 @@ export default class LootSelectionCache extends Cacheable {
             card.sync(player, equipment);
         }
 
-        this.title.text = 'LEVEL UP';
+        this.title.text = 'Level Up';
 
         this.reorder(count);
 

@@ -102,6 +102,7 @@ export default class MainRenderer {
     public draw_dagger(player: Entity, angle: number): AbstractSprite {
         const dagger: AbstractSprite = this.scene.retrieve_cache('stab') ?? this.render_context.add_sprite(0, 0, 'stab', undefined, undefined, true);
         dagger.set_position(player.x, player.y);
+        dagger.set_anchor(0, 0);
         dagger.set_depth(AbstractDepth.FIELD);
         dagger.set_rotation(angle);
 
