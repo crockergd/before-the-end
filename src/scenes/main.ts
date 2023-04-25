@@ -7,6 +7,7 @@ import AttackType from '../entities/attacktype';
 import Entity from '../entities/entity';
 import EntityFactory from '../entities/entityfactory';
 import EntityState from '../entities/entitystate';
+import Dart from '../entities/equipment/dart';
 import Attack from '../entities/equipment/attack';
 import Cleave from '../entities/equipment/cleave';
 import Dagger from '../entities/equipment/dagger';
@@ -17,6 +18,7 @@ import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
 import Constants from '../utils/constants';
 import MathExtensions from '../utils/mathextensions';
+import ObjectExtensions from '../utils/objectextensions';
 import StringExtensions from '../utils/stringextensions';
 import Vector from '../utils/vector';
 import WorldTimer from '../world/worldtimer';
@@ -159,6 +161,7 @@ export default class Main extends AbstractScene {
         this.player.add_equipment(new Dagger(this, this.render_context));
         // this.player.add_equipment(new Fan(this, this.render_context));
         // this.player.add_equipment(new Cleave(this, this.render_context));
+        // this.player.add_equipment(new Dart(this, this.render_context));
     }
 
     public spawn_enemy(count: number = 1, position?: Vector): void {
@@ -251,17 +254,11 @@ export default class Main extends AbstractScene {
                 this.repeat_tracker.targets.push(last_enemy);
 
                 const target_enemies: Array<Entity> = this.enemies.filter(enemy => !this.repeat_tracker.targets.filter(depth => depth.sprite.uid === enemy.sprite.uid).length).filter(enemy => enemy.alive);
-                const distance_sorted_enemies: Array<Entity> = target_enemies.sort((lhs, rhs) => {
-                    const lhs_dist: number = Phaser.Math.Distance.Between(lhs.x, lhs.y, this.player.x, this.player.y);
-                    const rhs_dist: number = Phaser.Math.Distance.Between(rhs.x, rhs.y, this.player.x, this.player.y);
-                    return lhs_dist - rhs_dist;
-                });
-                if (!distance_sorted_enemies?.length) return;
+                const nearest_enemy: Entity = this.nearest_entity_to(target_enemies, new Vector(this.player.x, this.player.y));
+                if (!nearest_enemy) return;
 
-                const nearest_enemy: Entity = distance_sorted_enemies[0];
                 const nearest_distance: number = Phaser.Math.Distance.Between(nearest_enemy.x, nearest_enemy.y, this.player.x, this.player.y);
                 if (nearest_distance > this.render_context.literal(350)) return;
-
 
                 target = new Vector(nearest_enemy.x, nearest_enemy.y);
                 break;
@@ -386,6 +383,16 @@ export default class Main extends AbstractScene {
         this.timer.difficulty_scalar += (this.tick_count / 64);
 
         this.tick_count++;
+    }
+
+    public nearest_entity_to(entities: Array<Entity>, target: Vector): Entity {
+        entities.sort((lhs, rhs) => {
+            const lhs_dist: number = Phaser.Math.Distance.Between(lhs.x, lhs.y, target.x, target.y);
+            const rhs_dist: number = Phaser.Math.Distance.Between(rhs.x, rhs.y, target.x, target.y);
+            return lhs_dist - rhs_dist;
+        });
+
+        return ObjectExtensions.array_access(entities, 0);
     }
 
     public retrieve_cache(sprite_key: string): AbstractSprite {

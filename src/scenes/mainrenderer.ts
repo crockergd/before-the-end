@@ -129,6 +129,16 @@ export default class MainRenderer {
         return cleave;
     }
 
+    public draw_dart(player: Entity, angle: number): AbstractSprite {
+        const dart: AbstractSprite = this.scene.retrieve_cache('dart') ?? this.render_context.add_sprite(0, 0, 'dart', undefined, undefined, true);
+        dart.set_position(player.x, player.y);
+        dart.set_anchor(0.5, 0.5);
+        dart.set_depth(AbstractDepth.FIELD);
+        dart.set_rotation(angle);
+
+        return dart;
+    }
+
     public draw_exp_drop(player: Entity, enemy: Entity): AbstractSprite {
         const exp_drop: AbstractSprite = this.scene.retrieve_cache('exp_drop') ?? this.render_context.add_sprite(0, 0, 'exp_drop', undefined, undefined, true);
         exp_drop.set_position(enemy.x, enemy.y);

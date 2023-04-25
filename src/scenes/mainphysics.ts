@@ -107,6 +107,23 @@ export default class MainPhysics {
         });
     }
 
+    public ready_dart(player: Entity, dart: Attack): void {
+        dart.physics_body.setVelocity(0);
+        dart.physics_body.setAngularVelocity(0);
+        dart.physics_body.setFriction(0.4, 0.1);
+        dart.physics_body.setName(dart.sprite.uid);
+        dart.physics_body.setCollisionCategory(this.physics_context.collision_attack);
+        dart.physics_body.setCollidesWith(this.physics_context.collision_enemy);
+
+        dart.physics_body.setOnCollide((collision: any) => {
+            // if (!this.validate_collision(player, dart, collision)) return;
+
+            dart.physics_body.setVelocity(0);
+            dart.physics_body.setAngularVelocity(0);
+            this.collide_enemy(player, dart, collision);
+        });
+    }
+
     public ready_exp_drop(player: Entity, exp_drop: ExpDrop): void {
         exp_drop.sprite.physics_body.setCollisionCategory(this.physics_context.collision_drop);
         exp_drop.sprite.physics_body.setCollidesWith(this.physics_context.collision_player);
