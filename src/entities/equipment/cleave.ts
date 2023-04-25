@@ -50,7 +50,7 @@ export default class Cleave extends Equipment {
 
             const cleave: Attack = new Attack(this.attack_info);
             cleave.sprite = this.scene_renderer.draw_cleave(player.x - adjust_sideways.x - adjust_backwards.x, player.y - adjust_sideways.y - adjust_backwards.y, angle);
-            if (flip) cleave.sprite.flip_y((true));
+            if (flip) cleave.sprite.flip_y(true);
 
             this.scene_physics.ready_cleave(player, cleave);
             this.scene_physics.apply_force(cleave.sprite, cursor_direction, this.attack_info.velocity);
@@ -69,7 +69,7 @@ export default class Cleave extends Equipment {
     public apply_scaling(): void {
         this.attack_info = {
             equipment_key: this.key,
-            power: 0,
+            power: 10,
             latch: false,
             repeat: 0,
             amount: 1,
@@ -77,33 +77,25 @@ export default class Cleave extends Equipment {
         };
 
         if (this.level >= 1) {
-            this.attack_info.velocity += 0.3;
+            this.attack_info.amount += 1;
         }
         if (this.level >= 2) {
-            this.attack_info.repeat += 1;
+            this.attack_info.amount += 1;
         }
         if (this.level >= 3) {
-            this.attack_info.velocity += 0.3;
+            this.attack_info.amount += 1;
         }
         if (this.level >= 4) {
-            this.attack_info.repeat += 1;
+            this.attack_info.amount += 1;
         }
 
-        this.attack_info.power += 3 * this.level;
+        this.attack_info.power += 4 * this.level;
     }
 
     public static description(level: number): string {
         switch (level) {
             case 0:
-                return 'Stabs forward, flying towards the cursor location.'
-            case 1:
-                return 'Extends the distance travelled.';
-            case 2:
-                return 'Repeats the attack on connection with an enemy.';
-            case 3:
-                return 'Extends the distance travelled even further.';
-            case 4:
-                return 'Repeats the attack a second time on connection with an enemy.';
+                return 'Cleaves a wide swathe next to the player.';
             default:
                 return '';
         }

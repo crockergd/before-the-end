@@ -47,7 +47,7 @@ export default class Dagger extends Equipment {
     public apply_scaling(): void {
         this.attack_info = {
             equipment_key: this.key,
-            power: 0,
+            power: 7,
             latch: true,
             repeat: 0,
             amount: 0,
@@ -73,15 +73,7 @@ export default class Dagger extends Equipment {
     public static description(level: number): string {
         switch (level) {
             case 0:
-                return 'Stabs forward, flying towards the cursor location.'
-            case 1:
-                return 'Extends the distance travelled.';
-            case 2:
-                return 'Repeats the attack on connection with an enemy.';
-            case 3:
-                return 'Extends the distance travelled even further.';
-            case 4:
-                return 'Repeats the attack a second time on connection with an enemy.';
+                return 'Stabs forward, flying towards the cursor location.';
             default:
                 return '';
         }

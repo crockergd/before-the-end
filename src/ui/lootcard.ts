@@ -3,7 +3,7 @@ import AbstractSprite from '../abstracts/abstractsprite';
 import AbstractText from '../abstracts/abstracttext';
 import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
-import { Dagger, Fan } from '../entities/equipment';
+import { Cleave, Dagger, Dart, Fan } from '../entities/equipment';
 import EquipmentInfo from '../entities/equipment/equipmentinfo';
 import Constants from '../utils/constants';
 import TextType from './texttype';
@@ -71,6 +71,14 @@ export default class LootCard {
                 upgrade += Dagger.description(equipment_level);
                 break;
             case Fan.name:
+                details = Fan.description(0);
+                upgrade += Fan.description(equipment_level);
+                break;
+            case Cleave.name:
+                details = Dagger.description(0);
+                upgrade += Dagger.description(equipment_level);
+                break;
+            case Dart.name:
                 details = Fan.description(0);
                 upgrade += Fan.description(equipment_level);
                 break;

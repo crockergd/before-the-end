@@ -57,7 +57,7 @@ export default class Dart extends Equipment {
     public apply_scaling(): void {
         this.attack_info = {
             equipment_key: this.key,
-            power: 0,
+            power: 3,
             latch: false,
             repeat: 0,
             amount: 1,
@@ -65,35 +65,25 @@ export default class Dart extends Equipment {
         };
 
         if (this.level >= 1) {
-            this.attack_info.velocity += 0.2;
+            this.attack_info.velocity += 0.03;
         }
         if (this.level >= 2) {
             this.attack_info.amount += 1;
         }
         if (this.level >= 3) {
-            this.attack_info.velocity += 0.2;
+            this.attack_info.velocity += 0.03;
         }
         if (this.level >= 4) {
             this.attack_info.amount += 1;
         }
 
-        this.attack_info.power = 1 * this.level;
+        this.attack_info.power += 1 * this.level;
     }
 
     public static description(level: number): string {
         switch (level) {
             case 0:
-                return 'Flings several spinning blades towards the cursor location.'
-            case 1:
-                return 'Increases the velocity of the blades.';
-            case 2:
-                return 'Adds an additional blade.';
-            case 3:
-                return 'Further increases the velocity of the blades.';
-            case 4:
-                return 'Adds another additional blade.';
-            default:
-                return '';
+                return 'Fires a dart at the nearest enemy to the cursor.';
         }
     }
 }

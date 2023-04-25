@@ -272,7 +272,7 @@ export default class Main extends AbstractScene {
     }
 
     public collide(attack: Attack, enemy: Entity, collision: any): boolean {
-        const power: number = attack.attack_info.power + this.player.power;
+        const power: number = attack.attack_info.power;
 
         if (attack.constraint) this.matter.world.removeConstraint(attack.constraint);
 
@@ -342,7 +342,16 @@ export default class Main extends AbstractScene {
         this.player.battle_info.power += 2;
         this.scene_renderer.flash_combat_text(this.player.x, this.player.y, 'LEVEL UP');
 
-        const loot: Array<EquipmentInfo> = [{
+        this.set_state(MainState.PAUSED);
+        this.render_context.cache.loot_selection_cache.present(this.player, this.generate_loot(), new CallbackBinding(() => {
+            this.set_state(MainState.ACTIVE);
+        }, this));
+    }
+
+    public generate_loot(): Array<EquipmentInfo> {
+        const max_loot: number = 3;
+
+        const possibilities: Array<EquipmentInfo> = [{
             type: 'Dagger',
             key: 'dagger',
             name: 'Dagger',
@@ -352,12 +361,25 @@ export default class Main extends AbstractScene {
             key: 'fan',
             name: 'Fan',
             level: 0
+        }, {
+            type: 'Cleave',
+            key: 'cleave',
+            name: 'Cleave',
+            level: 0
+        },
+        {
+            type: 'Dart',
+            key: 'dart',
+            name: 'Dart',
+            level: 0
         }];
 
-        this.set_state(MainState.PAUSED);
-        this.render_context.cache.loot_selection_cache.present(this.player, loot, new CallbackBinding(() => {
-            this.set_state(MainState.ACTIVE);
-        }, this));
+        const loot: Array<EquipmentInfo> = new Array<EquipmentInfo>();
+        for (let i: number = 0; i < max_loot; i++) {
+            loot.push(possibilities[MathExtensions.rand_int_inclusive(0, possibilities.length - 1)]);
+        }
+
+        return loot;
     }
 
     public set_state(state: MainState): void {

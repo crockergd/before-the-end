@@ -52,7 +52,7 @@ export default class Fan extends Equipment {
     public apply_scaling(): void {
         this.attack_info = {
             equipment_key: this.key,
-            power: 0,
+            power: 6,
             latch: false,
             repeat: 0,
             amount: 3,
@@ -72,21 +72,13 @@ export default class Fan extends Equipment {
             this.attack_info.amount += 1;
         }
 
-        this.attack_info.power = 3 * this.level;
+        this.attack_info.power += 2 * this.level;
     }
 
     public static description(level: number): string {
         switch (level) {
             case 0:
-                return 'Flings several spinning blades towards the cursor location.'
-            case 1:
-                return 'Increases the velocity of the blades.';
-            case 2:
-                return 'Adds an additional blade.';
-            case 3:
-                return 'Further increases the velocity of the blades.';
-            case 4:
-                return 'Adds another additional blade.';
+                return 'Flings several spinning blades towards the cursor location.';
             default:
                 return '';
         }

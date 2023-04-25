@@ -116,7 +116,7 @@ export default class LootSelectionCache extends Cacheable {
     public reorder(count: number): void {
         const card_dimensions: Vector = this.render_context.get_dimensions('loot_card_bg', undefined, true);
         card_dimensions.multiply(2);
-        const buffer: number = this.render_context.space_buffer * 2;
+        const buffer: number = this.render_context.space_buffer;
         const width_adj: number = this.render_context.center_x - (((card_dimensions.width * count) / 2) + (buffer * Math.max(0, (count - 1)) / 2));
         const height_adj: number = this.render_context.center_y - (card_dimensions.height / 2) + this.render_context.literal(40);
 
