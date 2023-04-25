@@ -1,16 +1,18 @@
 import AbstractDepth from '../abstracts/abstractdepth';
 import AbstractScene from '../abstracts/abstractscene';
+import AbstractSprite from '../abstracts/abstractsprite';
 import AbstractText from '../abstracts/abstracttext';
 import SceneData from '../contexts/scenedata';
-import Attack from '../entities/equipment/attack';
 import AttackType from '../entities/attacktype';
 import Entity from '../entities/entity';
 import EntityFactory from '../entities/entityfactory';
 import EntityState from '../entities/entitystate';
+import Attack from '../entities/equipment/attack';
+import Cleave from '../entities/equipment/cleave';
 import Dagger from '../entities/equipment/dagger';
 import EquipmentInfo from '../entities/equipment/equipmentinfo';
-import Fan from '../entities/equipment/fan';
 import ExpDrop from '../entities/expdrop';
+import RepeatTracker from '../entities/repeatinfo';
 import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
 import Constants from '../utils/constants';
@@ -21,9 +23,6 @@ import WorldTimer from '../world/worldtimer';
 import MainPhysics from './mainphysics';
 import MainRenderer from './mainrenderer';
 import MainState from './mainstate';
-import AbstractSprite from '../abstracts/abstractsprite';
-import ObjectExtensions from '../utils/objectextensions';
-import RepeatTracker from '../entities/repeatinfo';
 
 export default class Main extends AbstractScene {
     public state: MainState;
@@ -159,6 +158,7 @@ export default class Main extends AbstractScene {
 
         this.player.add_equipment(new Dagger(this, this.render_context));
         // this.player.add_equipment(new Fan(this, this.render_context));
+        // this.player.add_equipment(new Cleave(this, this.render_context));
     }
 
     public spawn_enemy(count: number = 1, position?: Vector): void {
@@ -328,7 +328,7 @@ export default class Main extends AbstractScene {
         this.render_context.delay(75, () => {
             if (!this.ready) return;
 
-            this.player.physics_body.setVelocity(0);
+            // this.player.physics_body.setVelocity(0);
             this.attack(AttackType.NEAREST, true, enemy);
         }, this);
     }

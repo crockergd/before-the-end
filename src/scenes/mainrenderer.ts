@@ -119,6 +119,16 @@ export default class MainRenderer {
         return fan;
     }
 
+    public draw_cleave(x: number, y: number, angle: number): AbstractSprite {
+        const cleave: AbstractSprite = this.scene.retrieve_cache('swing_wide') ?? this.render_context.add_sprite(0, 0, 'swing_wide', undefined, undefined, true);
+        cleave.set_position(x, y);
+        cleave.set_anchor(0.5, 0.5);
+        cleave.set_depth(AbstractDepth.FIELD);
+        cleave.set_rotation(angle);
+
+        return cleave;
+    }
+
     public draw_exp_drop(player: Entity, enemy: Entity): AbstractSprite {
         const exp_drop: AbstractSprite = this.scene.retrieve_cache('exp_drop') ?? this.render_context.add_sprite(0, 0, 'exp_drop', undefined, undefined, true);
         exp_drop.set_position(enemy.x, enemy.y);

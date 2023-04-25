@@ -90,6 +90,23 @@ export default class MainPhysics {
         });
     }
 
+    public ready_cleave(player: Entity, cleave: Attack): void {
+        cleave.physics_body.setVelocity(0);
+        cleave.physics_body.setFriction(0.4, 0.1);
+        cleave.physics_body.setName(cleave.sprite.uid);
+        cleave.physics_body.setCollisionCategory(this.physics_context.collision_attack);
+        cleave.physics_body.setCollidesWith(this.physics_context.collision_enemy);
+        cleave.physics_body.setFixedRotation();
+        cleave.physics_body.setSensor(true);
+
+        cleave.physics_body.setOnCollide((collision: any) => {
+            if (!this.validate_collision(player, cleave, collision)) return;
+
+            cleave.physics_body.setFriction(0.4, 0.1);
+            this.collide_enemy(player, cleave, collision);
+        });
+    }
+
     public ready_exp_drop(player: Entity, exp_drop: ExpDrop): void {
         exp_drop.sprite.physics_body.setCollisionCategory(this.physics_context.collision_drop);
         exp_drop.sprite.physics_body.setCollidesWith(this.physics_context.collision_player);

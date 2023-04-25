@@ -111,8 +111,9 @@ export default class AbstractSprite extends AbstractBaseType {
         else this.framework_object.flipX = !this.framework_object.flipX;
     }
 
-    public flip_y(): void {
-        this.framework_object.flipY = !this.framework_object.flipY;
+    public flip_y(override?: boolean): void {
+        if (override || override === false) this.framework_object.flipY = override;
+        else this.framework_object.flipY = !this.framework_object.flipY;
     }
 
     public ui_scaled(): void {
