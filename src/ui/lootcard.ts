@@ -75,12 +75,12 @@ export default class LootCard {
                 upgrade += Fan.description(equipment_level);
                 break;
             case Cleave.name:
-                details = Dagger.description(0);
-                upgrade += Dagger.description(equipment_level);
+                details = Cleave.description(0);
+                upgrade += Cleave.description(equipment_level);
                 break;
             case Dart.name:
-                details = Fan.description(0);
-                upgrade += Fan.description(equipment_level);
+                details = Dart.description(0);
+                upgrade += Dart.description(equipment_level);
                 break;
         }
 
