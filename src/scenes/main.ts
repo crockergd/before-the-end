@@ -25,6 +25,7 @@ import WorldTimer from '../world/worldtimer';
 import MainPhysics from './mainphysics';
 import MainRenderer from './mainrenderer';
 import MainState from './mainstate';
+import { Fan } from '../entities/equipment';
 
 export default class Main extends AbstractScene {
     public state: MainState;
@@ -109,7 +110,7 @@ export default class Main extends AbstractScene {
             }
         }, this), 1000);
 
-        this.prep_intro_1();
+        this.prep_intro_1(true);
     }
 
     public update(time: number, dt_ms: number): void {
@@ -443,43 +444,49 @@ export default class Main extends AbstractScene {
         this.sprite_cache.push(sprite);
     }
 
-    public prep_intro_1(): void {
-        this.player.sprite.set_alpha(0);
-        for (const enemy of this.enemies) {
-            enemy.sprite.framework_object.setAlpha(0);
+    public prep_intro_1(run_intro: boolean): void {
+        if (run_intro) {
+            this.player.sprite.set_alpha(0);
+            for (const enemy of this.enemies) {
+                enemy.sprite.framework_object.setAlpha(0);
+            }
+            this.scene_renderer.world_timer_group.set_alpha(0);
+            this.scene_renderer.tile_layer.setAlpha(0);
+
+            this.render_context.transition_scene(TransitionType.IN, new CallbackBinding(() => {
+                this.lore_1 = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y - this.render_context.literal(100), 'The final seal is crumbling');
+                this.lore_1.set_anchor(0.5, 0);
+                this.lore_1.affix_ui();
+                this.lore_1.set_alpha(0);
+                this.lore_1.set_depth(AbstractDepth.UI);
+
+                const lore_1_duration: number = 400;
+                this.render_context.tween({
+                    targets: [this.lore_1.framework_object],
+                    alpha: 1,
+                    duration: lore_1_duration / 2,
+                    on_complete: new CallbackBinding(() => {
+                        this.render_context.tween({
+                            targets: this.enemies.map(enemy => enemy.sprite.framework_object),
+                            alphaTopLeft: 1,
+                            alphaTopRight: 1,
+                            alphaBottomLeft: 0,
+                            alphaBottomRight: 0,
+                            duration: lore_1_duration,
+                            on_complete: new CallbackBinding(() => {
+                                this.input.once(Constants.UP_EVENT, () => {
+                                    this.prep_intro_2();
+                                }, this);
+                            }, this)
+                        });
+                    }, this)
+                });
+            }, this));
+
+        } else {
+            this.render_context.transition_scene(TransitionType.IN);
+            this.set_state(MainState.ACTIVE);
         }
-        this.scene_renderer.world_timer_group.set_alpha(0);
-        this.scene_renderer.tile_layer.setAlpha(0);
-
-        this.render_context.transition_scene(TransitionType.IN, new CallbackBinding(() => {
-            this.lore_1 = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y - this.render_context.literal(100), 'The final seal is crumbling');
-            this.lore_1.set_anchor(0.5, 0);
-            this.lore_1.affix_ui();
-            this.lore_1.set_alpha(0);
-            this.lore_1.set_depth(AbstractDepth.UI);
-
-            const lore_1_duration: number = 400;
-            this.render_context.tween({
-                targets: [this.lore_1.framework_object],
-                alpha: 1,
-                duration: lore_1_duration / 2,
-                on_complete: new CallbackBinding(() => {
-                    this.render_context.tween({
-                        targets: this.enemies.map(enemy => enemy.sprite.framework_object),
-                        alphaTopLeft: 1,
-                        alphaTopRight: 1,
-                        alphaBottomLeft: 0,
-                        alphaBottomRight: 0,
-                        duration: lore_1_duration,
-                        on_complete: new CallbackBinding(() => {
-                            this.input.once(Constants.UP_EVENT, () => {
-                                this.prep_intro_2();
-                            }, this);
-                        }, this)
-                    });
-                }, this)
-            });
-        }, this));
     }
 
     public prep_intro_2(): void {
