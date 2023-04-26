@@ -1,8 +1,12 @@
 {
     "name": "before-the-end",
-    "author": "Radical Bumblebee",
+    "author": "George Crocker (Radical Bumblebee) <crockergd@outlook.com>",
     "version": "0.0.3",
-    "private": true,
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/crockergd/before-the-end.git"
+    },
     "dependencies": {
         "localforage": "^1.10.0",
         "phaser": "3.60.0"
