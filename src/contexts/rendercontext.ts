@@ -7,6 +7,7 @@ import AbstractGroup from '../abstracts/abstractgroup';
 import AbstractLight from '../abstracts/abstractlight';
 import AbstractMask from '../abstracts/abstractmask';
 import AbstractScene from '../abstracts/abstractscene';
+import AbstractSound from '../abstracts/abstractsound';
 import AbstractSprite from '../abstracts/abstractsprite';
 import AbstractText from '../abstracts/abstracttext';
 import Cache from '../scenes/cache';
@@ -15,6 +16,8 @@ import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
 import Constants from '../utils/constants';
 import MathExtensions from '../utils/mathextensions';
+import SFXChannel from '../utils/sfxchannel';
+import SFXType from '../utils/sfxtype';
 import TweenConfig from '../utils/tweenconfig';
 import UpdateBinding from '../utils/updatebinding';
 import Vector from '../utils/vector';
@@ -29,6 +32,7 @@ export default class RenderContext {
 
     public anim_scale: number;
     private update_bindings: Array<UpdateBinding>;
+    private sounds: Array<AbstractSound>;
 
     public get transitioning(): boolean {
         return this.transitioning_scene || this.transitioning_custom || this.transitioning_component;
@@ -190,6 +194,7 @@ export default class RenderContext {
 
         this.anim_scale = 1;
         this.update_bindings = new Array<UpdateBinding>();
+        this.sounds = new Array<AbstractSound>();
     }
 
     public update(time: number, dt_ms: number): void {
@@ -312,6 +317,13 @@ export default class RenderContext {
         return light_object;
     }
 
+    public add_sound(key: string, channel: SFXChannel, volume: number = 1, loop: boolean = false): AbstractSound {
+        const sound_object: AbstractSound = new AbstractSound(this, this.scene, key, channel, volume, loop);
+        this.sounds.push(sound_object);
+
+        return sound_object;
+    }
+
     public add_alpha_fill(group?: AbstractGroup): AbstractSprite {
         const alpha_fill: AbstractSprite = this.add_sprite(0, 0, 'alpha_fill', group);
         alpha_fill.set_depth(AbstractDepth.ALPHA_FILL, true);
@@ -430,6 +442,10 @@ export default class RenderContext {
         this.cache.tweens.add(base);
     }
 
+    public untween(object: any): void {
+        this.cache.tweens.killTweensOf(object);
+    }
+
     public particle(x: number, y: number, key: string, config: Phaser.Types.GameObjects.Particles.ParticleEmitterConfig): void {
         const particle: Phaser.GameObjects.Particles.ParticleEmitter = this.cache.add.particles(x, y, key, config);
         particle.setDepth(AbstractDepth.ACTIVE_WINDOW);
@@ -444,8 +460,36 @@ export default class RenderContext {
         }, this);
     }
 
-    public untween(object: any): void {
-        this.cache.tweens.killTweensOf(object);
+    public play(key: SFXType, channel: SFXChannel, volume: number = 1, loop: boolean = false): void {
+        let sound: AbstractSound;
+        switch (channel) {
+            case SFXChannel.FX:
+                sound = this.sounds.find(inner => inner.key === key && !inner.active);
+                if (!sound) sound = this.add_sound(key, channel, volume, loop);
+                sound.play();
+
+                break;
+            case SFXChannel.THEME:
+                sound = this.sounds.find(inner => inner.key === key && inner.active);
+                if (!sound) {
+                    for (const theme of this.sounds.filter(inner => inner.key !== key && inner.channel === channel)) {
+                        theme.stop();
+                    }
+
+                    sound = this.sounds.find(inner => inner.key === key && !inner.active);
+                    if (!sound) sound = this.add_sound(key, channel, volume, loop);
+                    sound.play();
+                }
+
+                break;
+        }
+    }
+
+    public stop(channel: SFXChannel): void {
+        const sounds: Array<AbstractSound> = this.sounds.filter(sound => sound.channel === channel && sound.active);
+        for (const sound of sounds) {
+            sound.stop();
+        }
     }
 
     public bind_event(framework_object: Phaser.GameObjects.GameObject, key: string, callback: Function, context?: any, ...args: Array<any>): string {

@@ -35,6 +35,8 @@ export default class Boot extends AbstractScene {
 
         this.load_scenes();
         this.load_assets();
+
+        this.sound.volume = 0.1;
     }
 
     public create(): void {
@@ -61,7 +63,7 @@ export default class Boot extends AbstractScene {
     private load_assets(): void {
         const require_image: __WebpackModuleApi.RequireContext = require.context('../../assets/images/', true);
         const require_tilesheet: __WebpackModuleApi.RequireContext = require.context('../../assets/tilesheets/', true);
-        // const require_audio: __WebpackModuleApi.RequireContext = require.context('../../assets/audio/', true);
+        const require_audio: __WebpackModuleApi.RequireContext = require.context('../../assets/audio/', true);
         // const require_json: __WebpackModuleApi.RequireContext = require.context('../../assets/json/', true);
         const require_bitmap: __WebpackModuleApi.RequireContext = require.context('../../assets/bitmap/', true);
 
@@ -99,6 +101,12 @@ export default class Boot extends AbstractScene {
         this.load.image('loot_card_bg', require_image('./loot_card_bg.png'));
         this.load.image('loot_card_frame', require_image('./loot_card_frame.png'));
         this.load.image('loot_card_frame_mask', require_image('./loot_card_frame_mask.png'));
+
+        this.load.audio('yes', require_audio('./yes.ogg'));
+        this.load.audio('footstep', require_audio('./footstep.ogg'));
+        this.load.audio('impact', require_audio('./impact.wav'));
+        this.load.audio('impact_alt', require_audio('./impact_alt.wav'));
+        this.load.audio('title_theme', require_audio('./title_theme.ogg'));
     }
 
     private load_animations(): void {

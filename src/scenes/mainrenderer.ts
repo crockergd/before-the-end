@@ -6,6 +6,8 @@ import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
 import CallbackBinding from '../utils/callbackbinding';
 import MathExtensions from '../utils/mathextensions';
+import SFXChannel from '../utils/sfxchannel';
+import SFXType from '../utils/sfxtype';
 import Vector from '../utils/vector';
 import WorldTimer from '../world/worldtimer';
 import Main from './main';
@@ -287,6 +289,13 @@ export default class MainRenderer {
         // hit.play('hit_slash', undefined, undefined, new CallbackBinding(() => {
         //     hit.destroy();
         // }, this));
+
+        if (MathExtensions.coin_flip()) {
+            this.render_context.play(SFXType.IMPACT, SFXChannel.FX, 0.7);
+
+        } else {
+            this.render_context.play(SFXType.IMPACT_ALT, SFXChannel.FX, 0.7);
+        }
 
         const glow: Phaser.FX.Glow = enemy.sprite.framework_object.postFX.addGlow(0x7f062e, 0, 0);
 

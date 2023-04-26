@@ -28,6 +28,8 @@ import MainState from './mainstate';
 import { Fan } from '../entities/equipment';
 import WorldState from '../world/worldstate';
 import StatType from '../entities/equipment/stattype';
+import SFXType from '../utils/sfxtype';
+import SFXChannel from '../utils/sfxchannel';
 
 export default class Main extends AbstractScene {
     public state: MainState;
@@ -424,7 +426,9 @@ export default class Main extends AbstractScene {
             case MainState.ACTIVE:
                 this.render_context.camera.postFX.clear();
                 this.input.on(Constants.UP_EVENT, this.click, this);
+                this.render_context.play(SFXType.THEME_TITLE, SFXChannel.THEME);
                 break;
+
             case MainState.PAUSED:
                 this.input.off(Constants.UP_EVENT);
                 this.render_context.camera.postFX.addBlur();
@@ -562,6 +566,7 @@ export default class Main extends AbstractScene {
             alpha: 1,
             duration: lore_3_duration / 2,
             on_complete: new CallbackBinding(() => {
+                this.render_context.play(SFXType.FOOTSTEP, SFXChannel.FX);
 
                 this.render_context.tween({
                     targets: [this.player.sprite.framework_object],

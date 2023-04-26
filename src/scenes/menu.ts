@@ -4,6 +4,8 @@ import SceneData from '../contexts/scenedata';
 import TransitionType from '../ui/transitiontype';
 import CallbackBinding from '../utils/callbackbinding';
 import Constants from '../utils/constants';
+import SFXChannel from '../utils/sfxchannel';
+import SFXType from '../utils/sfxtype';
 
 export default class Menu extends AbstractScene {
 
@@ -23,6 +25,8 @@ export default class Menu extends AbstractScene {
         text.set_anchor(0.5, 0.5);
 
         this.input.once(Constants.UP_EVENT, () => {
+            this.render_context.play(SFXType.UI_YES, SFXChannel.FX);
+
             this.render_context.transition_scene(TransitionType.OUT, new CallbackBinding(() => {
                 this.start('main', {
                     scene_context: this.scene_context
