@@ -47,13 +47,13 @@ export default abstract class EntityFactory {
         };
 
         if (sprite_key === 'huntsman') {
-            battle_info.power *= 1.8;
+            battle_info.power *= 1.4;
 
         } else if (sprite_key === 'forester') {
-            battle_info.power *= 2.3;
+            battle_info.power *= 1.9;
 
         } else if (sprite_key === 'mercenary') {
-            battle_info.power *= 3.5;
+            battle_info.power *= 3.0;
 
         } else if (sprite_key === 'baron') {
             battle_info.power *= 15.0;

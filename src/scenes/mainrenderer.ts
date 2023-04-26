@@ -5,6 +5,7 @@ import AbstractText from '../abstracts/abstracttext';
 import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
 import CallbackBinding from '../utils/callbackbinding';
+import Constants from '../utils/constants';
 import MathExtensions from '../utils/mathextensions';
 import SFXChannel from '../utils/sfxchannel';
 import SFXType from '../utils/sfxtype';
@@ -221,18 +222,25 @@ export default class MainRenderer {
         this.world_timer_glow = this.world_timer_bar.framework_object.postFX.addGlow(0xffffff, 0, 0);
     }
 
-    public draw_game_over(player: Entity, enemies: Array<Entity>, world_timer: WorldTimer, on_complete: CallbackBinding): void {
-        const game_over_text: AbstractText = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y, 'Time survived: ' + world_timer.elapsed_time.toFixed(1) + 's');
+    public draw_game_over(victory: boolean, player: Entity, enemies: Array<Entity>, world_timer: WorldTimer, on_complete: CallbackBinding): void {
+        const game_over_text: AbstractText = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y - this.render_context.literal(80), victory ? 'Victory' : 'Defeat');
         game_over_text.set_anchor(0.5, 0.5);
         game_over_text.affix_ui();
         game_over_text.set_scale(2, 2);
         game_over_text.set_depth(AbstractDepth.UI);
         game_over_text.set_alpha(0);
 
+        const time_survived_text: AbstractText = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y, 'Time survived: ' + world_timer.elapsed_time.toFixed(1) + 's');
+        time_survived_text.set_anchor(0.5, 0.5);
+        time_survived_text.affix_ui();
+        time_survived_text.set_scale(2, 2);
+        time_survived_text.set_depth(AbstractDepth.UI);
+        time_survived_text.set_alpha(0);
+
         const duration: number = 200;
 
         this.render_context.tween({
-            targets: [game_over_text.framework_object],
+            targets: [time_survived_text.framework_object, game_over_text.framework_object],
             alpha: 1,
             duration: duration
         });

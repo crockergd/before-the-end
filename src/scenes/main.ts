@@ -158,7 +158,7 @@ export default class Main extends AbstractScene {
         }
 
         if (!this.timer.update(dt)) {
-            this.end_game();
+            this.end_game(false);
         }
         this.scene_renderer.update(dt);
     }
@@ -371,16 +371,23 @@ export default class Main extends AbstractScene {
 
         if (power >= enemy.power) {
             if (enemy.alive) {
-                this.render_context.camera.shake(200, 0.003);
 
-                this.enemies_defeated++;
-                this.timer.extend_time(1);
-                enemy.battle_info.alive = false;
-                this.scene_renderer.flash_enemy_death(enemy);
-                this.scene_physics.deactivate_body(enemy.sprite);
-                this.spawn_exp(enemy);
+                if (enemy.sprite_key === 'baron') {
+                    this.end_game(true);
+                    return false;
 
-                this.collide_repeat(attack, enemy);
+                } else {
+                    this.render_context.camera.shake(200, 0.003);
+
+                    this.enemies_defeated++;
+                    this.timer.extend_time(1);
+                    enemy.battle_info.alive = false;
+                    this.scene_renderer.flash_enemy_death(enemy);
+                    this.scene_physics.deactivate_body(enemy.sprite);
+                    this.spawn_exp(enemy);
+
+                    this.collide_repeat(attack, enemy);
+                }
 
                 return true;
             }
@@ -519,7 +526,7 @@ export default class Main extends AbstractScene {
             this.spawn_enemy(enemies_summoned);
         }
 
-        this.timer.difficulty_scalar += (this.tick_count / 64);
+        this.timer.difficulty_scalar += (this.tick_count / 100);
 
         this.tick_count++;
     }
@@ -678,7 +685,7 @@ export default class Main extends AbstractScene {
         });
     }
 
-    public end_game(): void {
+    public end_game(victory: boolean): void {
         this.input.off(Constants.UP_EVENT);
         this.render_context.cache.tweens.killAll();
         this.render_context.camera.stopFollow();
@@ -689,7 +696,7 @@ export default class Main extends AbstractScene {
         this.render_context.play(SFXType.CLASH, SFXChannel.FX);
 
         this.timer.doomed = true;
-        this.scene_renderer.draw_game_over(this.player, this.enemies, this.timer, new CallbackBinding(() => {
+        this.scene_renderer.draw_game_over(victory, this.player, this.enemies, this.timer, new CallbackBinding(() => {
             this.input.once(Constants.UP_EVENT, () => {
                 this.render_context.transition_scene(TransitionType.OUT, new CallbackBinding(() => {
                     this.start('menu', {
