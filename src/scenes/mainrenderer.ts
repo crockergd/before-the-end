@@ -197,6 +197,15 @@ export default class MainRenderer {
         return exp_drop;
     }
 
+    public draw_treasure(x: number, y: number): AbstractSprite {
+        const treasure: AbstractSprite = this.scene.retrieve_cache('treasure') ?? this.render_context.add_sprite(0, 0, 'treasure', undefined, undefined, true);
+        treasure.set_position(x, y);
+        treasure.set_anchor(0.5, 0.5);
+        treasure.set_frame(0);
+
+        return treasure;
+    }
+
     public draw_world_timer(): void {
         this.world_timer_group = this.render_context.add_group();
         this.world_timer_group.set_position(this.render_context.center_x, this.render_context.space_buffer);

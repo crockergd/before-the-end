@@ -63,7 +63,7 @@ export default class Main extends AbstractScene {
 
         this.state = MainState.NONE;
 
-        this.timer = new WorldTimer(this.render_context.now, 3);
+        this.timer = new WorldTimer(this.render_context.now, 30);
         this.scene_renderer = new MainRenderer(this, this.render_context, this.timer);
         this.scene_physics = new MainPhysics(this, this.render_context, this.physics_context);
 
@@ -220,6 +220,77 @@ export default class Main extends AbstractScene {
                 this.scene_physics.ready_exp_drop(this.player, exp_drop);
             }, this)
         });
+
+        if (MathExtensions.coin_flip(0.05)) {
+            this.spawn_treasure(enemy);
+        }
+    }
+
+    public spawn_treasure(enemy: Entity): void {
+        const initial_position: Vector = new Vector(Math.floor(enemy.x), Math.floor(enemy.y));
+        const inner_distance: number = 120;
+        const outer_distance: number = 200;
+        const drop_location: Vector = MathExtensions.rand_within_donut_from_point(initial_position, inner_distance, outer_distance);
+
+        const treasure: AbstractSprite = this.scene_renderer.draw_treasure(drop_location.x, drop_location.y);
+        treasure.set_alpha(0);
+
+        this.render_context.tween({
+            targets: [treasure.framework_object],
+            alpha: 1,
+            on_complete: new CallbackBinding(() => {
+                this.scene_physics.ready_treasure(this.player, treasure, new CallbackBinding(() => {
+                    this.trigger_treasure(treasure);
+                }, this));
+            }, this)
+        });
+    }
+
+    public trigger_treasure(treasure: AbstractSprite): void {
+        this.render_context.play(SFXType.SHOP, SFXChannel.FX);
+
+        treasure.play('interact_treasure', undefined, undefined, new CallbackBinding(() => {
+            if (MathExtensions.coin_flip()) {
+                this.scene_renderer.flash_combat_text(treasure.x, treasure.y - treasure.height_half, 'VACCUUM');
+                this.vaccuum();
+
+            } else {
+                this.scene_renderer.flash_combat_text(treasure.x, treasure.y - treasure.height_half, 'FREEZE');
+                this.freeze();
+            }
+
+            this.render_context.tween({
+                targets: [treasure.framework_object],
+                alpha: 0,
+                on_complete: new CallbackBinding(() => {
+                    this.push_cache(treasure);
+                }, this)
+            })
+        }, this));
+    }
+
+    public vaccuum(): void {
+        for (const exp_drop of this.exp_drops.filter(exp_drop => !exp_drop.collected)) {
+            this.scene_physics.collect_exp_drop(exp_drop);
+        }
+
+        for (const enemy of this.enemies.filter(enemy => enemy.alive)) {
+            const player_direction: Vector = new Vector(this.player.x - enemy.x, this.player.y - enemy.y);
+            const angle: number = MathExtensions.vector_to_degrees(player_direction); // - MathExtensions.rand_int_inclusive(-attack_angle, attack_angle);
+            const direction: Phaser.Math.Vector2 = player_direction.pv2.setAngle(Phaser.Math.DegToRad(angle));
+
+            this.scene_physics.apply_force(enemy.sprite, new Vector(direction.x, direction.y), 0.5);
+        }
+    }
+
+    public freeze(): void {
+        this.timer.frozen = true;
+        this.scene_renderer.world_timer_bar.framework_object.setTint(0x96a8ff);
+
+        this.render_context.delay(5000, () => {
+            this.scene_renderer.world_timer_bar.framework_object.clearTint();
+            this.timer.frozen = false;
+        }, this);
     }
 
     public click(): void {

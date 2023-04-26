@@ -86,6 +86,7 @@ export default class Boot extends AbstractScene {
         this.load.spritesheet('equipment_slot', require_tilesheet('./equipment_slot.png'), { frameWidth: 30, frameHeight: 30 });
         this.load.spritesheet('equipment_icon', require_tilesheet('./equipment_icon.png'), { frameWidth: 30, frameHeight: 30 });
         this.load.spritesheet('loot_card_stamp', require_tilesheet('./loot_card_stamp.png'), { frameWidth: 45, frameHeight: 71 });
+        this.load.spritesheet('treasure', require_tilesheet('./treasure.png'), { frameWidth: 32, frameHeight: 33 });
 
         this.load.image('zone_courtyards_transition', require_image('./zone_courtyards_transition.png'));
         this.load.image('world_timer_bar', require_image('./world_timer_bar.png'));
@@ -108,6 +109,7 @@ export default class Boot extends AbstractScene {
         this.load.audio('impact_alt', require_audio('./impact_alt.wav'));
         this.load.audio('title_theme', require_audio('./title_theme.ogg'));
         this.load.audio('clash', require_audio('./clash.wav'));
+        this.load.audio('shop', require_audio('./shop.ogg'));
     }
 
     private load_animations(): void {
@@ -175,6 +177,15 @@ export default class Boot extends AbstractScene {
             }),
             frameRate: 6,
             repeat: -1
+        });
+
+        this.anims.create({
+            key: 'interact_treasure',
+            frames: this.anims.generateFrameNumbers('treasure', {
+                start: 0,
+                end: 5
+            }),
+            frameRate: 16
         });
     }
 

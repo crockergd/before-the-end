@@ -33,7 +33,6 @@ export default class Dart extends Equipment {
                 const closest: Entity = this.scene.nearest_entity_to(this.scene.enemies, target);
                 if (closest) target = new Vector(closest.x, closest.y);
 
-                const attack_angle: number = 90;
                 const cursor_direction: Vector = new Vector(target.x - player.x, target.y - player.y);
 
                 const angle: number = MathExtensions.vector_to_degrees(cursor_direction); // - MathExtensions.rand_int_inclusive(-attack_angle, attack_angle);

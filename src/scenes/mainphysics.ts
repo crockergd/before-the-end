@@ -4,6 +4,7 @@ import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
 import Attack from '../entities/equipment/attack';
 import ExpDrop from '../entities/expdrop';
+import CallbackBinding from '../utils/callbackbinding';
 import Vector from '../utils/vector';
 import Main from './main';
 
@@ -132,8 +133,23 @@ export default class MainPhysics {
         exp_drop.sprite.physics_body.setOnCollideWith(player.physics_body, () => {
             if (exp_drop.collected) return;
 
-            exp_drop.collected = true;
-            this.render_context.untween(exp_drop.sprite.framework_object);
+            this.collect_exp_drop(exp_drop);
+        });
+    }
+
+    public collect_exp_drop(exp_drop: ExpDrop): void {
+        exp_drop.collected = true;
+        this.render_context.untween(exp_drop.sprite.framework_object);
+    }
+
+    public ready_treasure(player: Entity, treasure: AbstractSprite, on_collide: CallbackBinding): void {
+        treasure.physics_body.setCollisionCategory(this.physics_context.collision_drop);
+        treasure.physics_body.setCollidesWith(this.physics_context.collision_player);
+        treasure.physics_body.setSensor(true);
+
+        treasure.physics_body.setOnCollideWith(player.physics_body, () => {
+            this.deactivate_body(treasure);
+            on_collide.call();
         });
     }
 

@@ -91,7 +91,7 @@ export default class LootCard {
         }
 
         for (const stat_type of equipment_info.scaling) {
-            upgrade += '+' + StringExtensions.stat_type(stat_type);
+            upgrade += '+' + StringExtensions.stat_type(stat_type) + Constants.LINE_BREAK;
         }
 
         this.details.text = details;

@@ -10,6 +10,7 @@ export default class WorldTimer {
     public difficulty_scalar: number;
     public enemy_weights: Array<EnemyWeight>;
     public state: WorldState;
+    public frozen: boolean;
 
     public get remaining(): number {
         return this.expiry_time;
@@ -26,6 +27,7 @@ export default class WorldTimer {
         this.difficulty_scalar = 1;
         this.enemy_weights = new Array<EnemyWeight>();
         this.state = WorldState.STANDARD;
+        this.frozen = false;
 
         for (const enemy of Constants.ENEMY_KEYS) {
             this.enemy_weights.push({
@@ -40,7 +42,7 @@ export default class WorldTimer {
     public update(dt: number): boolean {
         const previous_time: number = this.elapsed_time;
 
-        this.expiry_time -= (dt * this.difficulty_scalar);
+        if (!this.frozen) this.expiry_time -= (dt * this.difficulty_scalar);
         this.elapsed_time += dt;
 
         if (this.passed_milestone(7, this.elapsed_time, previous_time)) {

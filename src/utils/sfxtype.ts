@@ -4,7 +4,8 @@ export const enum SFXType {
     FOOTSTEP = 'footstep',
     IMPACT = 'impact',
     IMPACT_ALT = 'impact_alt',
-    CLASH = 'clash'
+    CLASH = 'clash',
+    SHOP = 'shop'
 }
 
 export default SFXType;
