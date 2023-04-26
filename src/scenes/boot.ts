@@ -76,6 +76,7 @@ export default class Boot extends AbstractScene {
         this.load.spritesheet('bandit', require_tilesheet('./bandit.png'), { frameWidth: 84, frameHeight: 70 });
         this.load.spritesheet('servant', require_tilesheet('./servant.png'), { frameWidth: 68, frameHeight: 73 });
         this.load.spritesheet('baron', require_tilesheet('./baron.png'), { frameWidth: 62, frameHeight: 98 });
+        this.load.spritesheet('mercenary', require_tilesheet('./mercenary.png'), { frameWidth: 53, frameHeight: 82 });
         this.load.spritesheet('huntsman', require_tilesheet('./huntsman.png'), { frameWidth: 126, frameHeight: 76 });
         this.load.spritesheet('forester', require_tilesheet('./forester.png'), { frameWidth: 130, frameHeight: 78 });
         this.load.spritesheet('hit_slash', require_tilesheet('./hit_slash.png'), { frameWidth: 49, frameHeight: 55 });

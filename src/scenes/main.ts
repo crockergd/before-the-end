@@ -26,6 +26,7 @@ import MainPhysics from './mainphysics';
 import MainRenderer from './mainrenderer';
 import MainState from './mainstate';
 import { Fan } from '../entities/equipment';
+import WorldState from '../world/worldstate';
 
 export default class Main extends AbstractScene {
     public state: MainState;
@@ -177,7 +178,7 @@ export default class Main extends AbstractScene {
             const outer_distance: number = this.render_context.literal(300);
             const enemy_position: Vector = position ?? MathExtensions.rand_within_donut_from_point(initial_position, inner_distance, outer_distance);
 
-            const enemy: Entity = EntityFactory.create_enemy(EntityFactory.random_enemy_key(), 3 + this.enemies_defeated);
+            const enemy: Entity = EntityFactory.create_enemy(this.timer.generate_enemy(), 3 + this.enemies_defeated);
             this.scene_renderer.draw_enemy(enemy_position.x, enemy_position.y, enemy, this.player);
             this.scene_physics.ready_enemy(enemy);
 
@@ -409,8 +410,16 @@ export default class Main extends AbstractScene {
     }
 
     public world_tick(): void {
-        const enemies_summoned: number = 2 + (Math.floor(this.tick_count / 2));
-        this.spawn_enemy(enemies_summoned);
+        if (this.timer.state === WorldState.BOSS_ACTIVE) {
+
+        } else if (this.timer.state === WorldState.BOSS_SPAWNING) {
+            this.spawn_enemy(1);
+            this.timer.state = WorldState.BOSS_ACTIVE;
+
+        } else {
+            const enemies_summoned: number = 2 + (Math.floor(this.tick_count / 2));
+            this.spawn_enemy(enemies_summoned);
+        }
 
         this.timer.difficulty_scalar += (this.tick_count / 64);
 

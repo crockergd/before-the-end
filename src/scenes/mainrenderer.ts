@@ -120,16 +120,19 @@ export default class MainRenderer {
             enemy.sprite.flip_x();
         }
 
-        // const glow: Phaser.FX.Glow = enemy.sprite.framework_object.postFX.addGlow(0x9f2273, 0);
-        // this.render_context.tween({
-        //     targets: [glow],
-        //     outerStrength: 2,
-        //     yoyo: true,
-        //     on_complete: new CallbackBinding(() => {
-        //         glow.destroy();
-        //         enemy.sprite.framework_object.postFX.clear();
-        //     }, this)
-        // });
+        if (enemy.sprite_key === 'baron') {
+            // const glow: Phaser.FX.Glow = enemy.sprite.framework_object.postFX.addGlow(0x9f2273, 0);
+            const glow: Phaser.FX.Glow = enemy.sprite.framework_object.postFX.addGlow(0x18172f, 0);
+            this.render_context.tween({
+                targets: [glow],
+                outerStrength: 8,
+                yoyo: true,
+                on_complete: new CallbackBinding(() => {
+                    glow.destroy();
+                    enemy.sprite.framework_object.postFX.clear();
+                }, this)
+            });
+        }
     }
 
     public draw_dagger(player: Entity, angle: number): AbstractSprite {
@@ -203,7 +206,7 @@ export default class MainRenderer {
         // this.world_timer_frame = this.render_context.add_sprite(0, 0, 'world_timer_frame', this.world_timer_group);
         // this.world_timer_frame.set_anchor(0.5, 0);
 
-        this.world_timer_bar = this.render_context.add_sprite(0, this.render_context.literal(2), 'world_timer_bar', this.world_timer_group);
+        this.world_timer_bar = this.render_context.add_sprite(0, 0, 'world_timer_bar', this.world_timer_group);
         this.world_timer_bar.set_anchor(0.5, 0);
 
         this.world_timer_glow = this.world_timer_bar.framework_object.postFX.addGlow(0xffffff, 0, 0);
