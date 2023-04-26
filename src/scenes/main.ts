@@ -63,7 +63,7 @@ export default class Main extends AbstractScene {
 
         this.state = MainState.NONE;
 
-        this.timer = new WorldTimer(this.render_context.now, 30);
+        this.timer = new WorldTimer(this.render_context.now, 3);
         this.scene_renderer = new MainRenderer(this, this.render_context, this.timer);
         this.scene_physics = new MainPhysics(this, this.render_context, this.physics_context);
 
@@ -426,7 +426,6 @@ export default class Main extends AbstractScene {
             case MainState.ACTIVE:
                 this.render_context.camera.postFX.clear();
                 this.input.on(Constants.UP_EVENT, this.click, this);
-                this.render_context.play(SFXType.THEME_TITLE, SFXChannel.THEME);
                 break;
 
             case MainState.PAUSED:
@@ -521,6 +520,7 @@ export default class Main extends AbstractScene {
             }, this));
 
         } else {
+            this.render_context.play(SFXType.THEME_TITLE, SFXChannel.THEME);
             this.render_context.transition_scene(TransitionType.IN);
             this.set_state(MainState.ACTIVE);
         }
@@ -600,6 +600,8 @@ export default class Main extends AbstractScene {
                 this.lore_1 = null;
                 this.lore_2 = null;
                 this.lore_3 = null;
+
+                this.render_context.play(SFXType.THEME_TITLE, SFXChannel.THEME);
                 this.set_state(MainState.ACTIVE);
             }, this)
         });
@@ -612,6 +614,7 @@ export default class Main extends AbstractScene {
         this.render_context.unbind_update('world_tick');
         this.render_context.unbind_update('enemy_face_player');
 
+        this.render_context.stop(SFXChannel.THEME);
         this.render_context.play(SFXType.CLASH, SFXChannel.FX);
 
         this.timer.doomed = true;
