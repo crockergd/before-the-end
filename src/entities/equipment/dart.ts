@@ -84,6 +84,8 @@ export default class Dart extends Equipment {
         switch (level) {
             case 0:
                 return 'Fires a dart at the nearest enemy to the cursor.';
+            default:
+                return '';
         }
     }
 }
