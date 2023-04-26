@@ -116,7 +116,7 @@ export default class MainPhysics {
         dart.physics_body.setCollidesWith(this.physics_context.collision_enemy);
 
         dart.physics_body.setOnCollide((collision: any) => {
-            // if (!this.validate_collision(player, dart, collision)) return;
+            if (!this.validate_collision(player, dart, collision)) return;
 
             dart.physics_body.setVelocity(0);
             dart.physics_body.setAngularVelocity(0);
@@ -142,7 +142,7 @@ export default class MainPhysics {
         if (!enemy) enemy = this.scene.enemies.find(enemy => enemy.key === collision.bodyB.gameObject.name);
         if (!enemy) return false;
 
-        if (enemy.confirm_hit(attack.attack_info.equipment_key)) {
+        if (enemy.confirm_hit(attack.uid, attack.attack_info.latch ? attack.attack_info.equipment_key : '')) {
             collision.isActive = false;
             return false;
         }

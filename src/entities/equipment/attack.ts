@@ -9,6 +9,10 @@ export default class Attack {
         return this.sprite.physics_body;
     }
 
+    public get uid(): string {
+        return this.sprite.uid;
+    }
+
     constructor(readonly attack_info: AttackInfo) {
 
     }

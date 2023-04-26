@@ -260,7 +260,7 @@ export default class Main extends AbstractScene {
             case AttackType.NEAREST:
                 this.repeat_tracker.targets.push(last_enemy);
 
-                const target_enemies: Array<Entity> = this.enemies.filter(enemy => !this.repeat_tracker.targets.filter(depth => depth.sprite.uid === enemy.sprite.uid).length).filter(enemy => enemy.alive);
+                const target_enemies: Array<Entity> = this.enemies.filter(enemy => this.repeat_tracker.targets.filter(depth => depth.sprite.uid === enemy.sprite.uid).length <= 0).filter(enemy => enemy.alive);
                 const nearest_enemy: Entity = this.nearest_entity_to(target_enemies, new Vector(this.player.x, this.player.y));
                 if (!nearest_enemy) return;
 
@@ -286,6 +286,15 @@ export default class Main extends AbstractScene {
         this.scene_renderer.flash_combat_text(enemy.x, enemy.y - enemy.sprite.height_half + this.render_context.literal(20), StringExtensions.numeric(power));
         this.scene_renderer.flash_combat_hit(enemy);
 
+        if (attack.attack_info.latch) {
+            this.render_context.delay(50, () => {
+                if (!this.ready) return;
+
+                this.player.physics_body.setVelocity(0);
+                this.player.sprite.set_position(enemy.x, enemy.y);
+            }, this);
+        }
+
         if (power >= enemy.power) {
             if (enemy.alive) {
                 this.render_context.camera.shake(200, 0.003);
@@ -297,15 +306,6 @@ export default class Main extends AbstractScene {
                 this.scene_physics.deactivate_body(enemy.sprite);
                 this.spawn_exp(enemy);
 
-                if (attack.attack_info.latch) {
-                    this.render_context.delay(50, () => {
-                        if (!this.ready) return;
-
-                        this.player.physics_body.setVelocity(0);
-                        this.player.sprite.set_position(enemy.x, enemy.y);
-                    }, this);
-                }
-
                 this.collide_repeat(attack, enemy);
 
                 return true;
@@ -316,7 +316,7 @@ export default class Main extends AbstractScene {
         } else {
             enemy.battle_info.power -= power;
 
-            enemy.register_hit(attack.attack_info.equipment_key);
+            enemy.register_hit(attack.uid, attack.attack_info.equipment_key);
             this.collide_repeat(attack, enemy);
 
             return false;

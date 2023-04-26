@@ -8,7 +8,8 @@ import LevelInfo from './levelinfo';
 export default class Entity {
     public sprite: AbstractSprite;
     public equipment: Array<Equipment>;
-    public hit_by: Array<string>;
+    public hit_by_equipment: Array<string>;
+    public hit_by_attack: Array<string>;
 
     public get x(): number {
         return this.sprite.absolute_x;
@@ -44,7 +45,8 @@ export default class Entity {
 
     constructor(readonly identifier_info: IdentifierInfo, readonly battle_info: BattleInfo, readonly level_info?: LevelInfo) {
         this.equipment = new Array<Equipment>();
-        this.hit_by = new Array<string>();
+        this.hit_by_attack = new Array<string>();
+        this.hit_by_equipment = new Array<string>();
     }
 
     public add_equipment(equipment: Equipment): void {
@@ -69,16 +71,22 @@ export default class Entity {
         this.level_info.experience += experience;
     }
 
-    public confirm_hit(equipment_key: string): boolean {
-        return this.hit_by.filter(hit => hit === equipment_key).length > 0;
+    public confirm_hit(attack_uid: string, equipment_key?: string): boolean {
+        if (this.hit_by_attack.filter(hit => hit === attack_uid).length > 0) return true;
+        if (!equipment_key) return false;
+
+        if (this.hit_by_equipment.filter(hit => hit === equipment_key).length > 0) return true;
+        return false;
     }
 
-    public register_hit(equipment_key: string): void {
-        this.hit_by.push(equipment_key);
+    public register_hit(attack_uid: string, equipment_key: string): void {
+        this.hit_by_attack.push(attack_uid);
+        this.hit_by_equipment.push(equipment_key);
     }
 
     public reset_hits(): void {
-        this.hit_by = new Array<string>();
+        this.hit_by_attack = new Array<string>();
+        this.hit_by_equipment = new Array<string>();
     }
 
     public set_state(state: EntityState): void {
