@@ -446,7 +446,7 @@ export default class Main extends AbstractScene {
         this.render_context.unbind_update('enemy_face_player');
 
         this.timer.doomed = true;
-        this.scene_renderer.draw_game_over(this.player, new CallbackBinding(() => {
+        this.scene_renderer.draw_game_over(this.player, this.timer, new CallbackBinding(() => {
             this.input.once(Constants.UP_EVENT, () => {
                 this.render_context.transition_scene(TransitionType.OUT, new CallbackBinding(() => {
                     this.start('menu', {

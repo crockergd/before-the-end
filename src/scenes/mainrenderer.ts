@@ -4,8 +4,10 @@ import AbstractSprite from '../abstracts/abstractsprite';
 import AbstractText from '../abstracts/abstracttext';
 import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
+import ExpDrop from '../entities/expdrop';
 import CallbackBinding from '../utils/callbackbinding';
 import MathExtensions from '../utils/mathextensions';
+import StringExtensions from '../utils/stringextensions';
 import Vector from '../utils/vector';
 import WorldTimer from '../world/worldtimer';
 import Main from './main';
@@ -16,6 +18,7 @@ export default class MainRenderer {
     public world_timer_frame: AbstractSprite;
     public world_timer_glow: Phaser.FX.Glow;
     public enemy_layer: AbstractGroup;
+    public tile_layer: Phaser.Tilemaps.TilemapLayer;
 
     public last_timer_percentage: number;
 
@@ -51,7 +54,7 @@ export default class MainRenderer {
 
         this.last_timer_percentage = remaining_percentage;
 
-        const color_percentage: number = 255 * (1 - remaining_percentage);
+        const color_percentage: number = 255 * Math.max(0.7 - remaining_percentage, 0);
         const color: any = new Phaser.Display.Color(color_percentage, color_percentage, color_percentage);
         this.render_context.camera.setBackgroundColor(color);
     }
@@ -81,12 +84,12 @@ export default class MainRenderer {
         });
 
         const tileset: Phaser.Tilemaps.Tileset = map.addTilesetImage('floor');
-        const layer: Phaser.Tilemaps.TilemapLayer = map.createLayer(0, tileset, 0, 0);
+        this.tile_layer = map.createLayer(0, tileset, 0, 0);
 
-        layer.setPosition(-layer.width / 2, -layer.height / 2);
-        layer.setAlpha(0.7);
-        layer.setScale(this.render_context.base_scale_factor, this.render_context.base_scale_factor);
-        layer.setCullPadding(10, 10);
+        this.tile_layer.setPosition(-this.tile_layer.width / 2, -this.tile_layer.height / 2);
+        this.tile_layer.setAlpha(0.7);
+        this.tile_layer.setScale(this.render_context.base_scale_factor, this.render_context.base_scale_factor);
+        this.tile_layer.setCullPadding(10, 10);
 
         // this.render_context.camera.setBackgroundColor(0x003003);
     }
@@ -206,11 +209,11 @@ export default class MainRenderer {
         this.world_timer_glow = this.world_timer_bar.framework_object.postFX.addGlow(0xffffff, 0, 0);
     }
 
-    public draw_game_over(player: Entity, on_complete: CallbackBinding): void {
-        const game_over_text: AbstractText = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y, 'Game Over');
+    public draw_game_over(player: Entity, world_timer: WorldTimer, on_complete: CallbackBinding): void {
+        const game_over_text: AbstractText = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y, 'Time survived: ' + world_timer.elapsed_time.toFixed(1) + 's');
         game_over_text.set_anchor(0.5, 0.5);
         game_over_text.affix_ui();
-        game_over_text.set_scale(3, 3);
+        game_over_text.set_scale(2, 2);
         game_over_text.set_depth(AbstractDepth.UI);
         game_over_text.set_alpha(0);
 
@@ -223,8 +226,17 @@ export default class MainRenderer {
         });
 
         this.render_context.tween({
-            targets: [player.sprite.framework_object],
+            targets: [this.tile_layer],
             alpha: 0,
+            duration: duration * 3
+        });
+
+        this.render_context.tween({
+            targets: [player.sprite.framework_object],
+            alphaTopLeft: 0,
+            alphaTopRight: 0,
+            alphaBottomLeft: 0,
+            alphaBottomRight: 0,
             duration: duration,
             on_complete: new CallbackBinding(() => {
                 player.battle_info.alive = false;
@@ -232,14 +244,14 @@ export default class MainRenderer {
             }, this)
         });
 
-        const vignette: Phaser.FX.Vignette = this.render_context.camera.postFX.addVignette(undefined, undefined, 1, 0);
+        // const vignette: Phaser.FX.Vignette = this.render_context.camera.postFX.addVignette(undefined, undefined, 1, 0);
 
-        this.render_context.scene.tweens.add({
-            targets: [vignette],
-            radius: 0.5,
-            strength: 0.5,
-            duration: duration
-        });
+        // this.render_context.scene.tweens.add({
+        //     targets: [vignette],
+        //     radius: 0.5,
+        //     strength: 0.5,
+        //     duration: duration
+        // });
 
         this.render_context.delay(1000, () => {
             on_complete.call();
