@@ -14,24 +14,50 @@ export default class MainRenderer {
     public world_timer_group: AbstractGroup;
     public world_timer_bar: AbstractSprite;
     public world_timer_frame: AbstractSprite;
+    public world_timer_glow: Phaser.FX.Glow;
     public enemy_layer: AbstractGroup;
+
+    public last_timer_percentage: number;
 
     constructor(readonly scene: Main, readonly render_context: RenderContext, readonly timer: WorldTimer) {
         this.draw_world_timer();
     }
 
     public update(dt: number): void {
+        const remaining_percentage: number = this.timer.remaining_percentage;
+
         const width: number = 356;
         const height: number = 6;
-        this.world_timer_bar.crop(0, 0, width * this.timer.remaining_percentage, height);
+        this.world_timer_bar.crop(0, 0, width * remaining_percentage, height);
+        this.world_timer_bar.set_position(width * (1 - remaining_percentage), 0);
+
+        this.world_timer_glow.outerStrength = 4 * (1 - remaining_percentage);
+        this.world_timer_glow.innerStrength = 2 * (1 - remaining_percentage);
+
+        const danger_percentage: number = 0.2;
+        if (remaining_percentage < danger_percentage && this.last_timer_percentage >= danger_percentage) {
+            this.render_context.tween({
+                targets: [this.world_timer_bar.framework_object],
+                alpha: 0.3,
+                duration: 200,
+                yoyo: true,
+                repeat: -1
+            });
+
+        } else if (remaining_percentage > danger_percentage && this.last_timer_percentage <= danger_percentage) {
+            this.render_context.untween(this.world_timer_bar.framework_object);
+            this.world_timer_bar.set_alpha(1);
+        }
+
+        this.last_timer_percentage = remaining_percentage;
     }
 
     public draw_tiles(): void {
         // const transition: AbstractSprite = this.render_context.add_sprite(0, 0, 'zone_courtyards_transition');
         // transition.set_anchor(0.5, 0.5);
 
-        const map_height: number = 1000;
-        const map_width: number = 1000;
+        const map_height: number = 600;
+        const map_width: number = 600;
         const map_data: Array<Array<number>> = new Array<Array<number>>();
 
         for (let i: number = 0; i < map_height; i++) {
@@ -106,6 +132,20 @@ export default class MainRenderer {
         dagger.set_depth(AbstractDepth.FIELD);
         dagger.set_rotation(angle);
 
+        // this.render_context.particle(player.x, player.y, 'stab', {
+        //     speed: 100,
+        //     lifespan: 400,
+        //     scaleX: this.render_context.base_scale_factor - (this.render_context.base_scale_factor * 2),
+        //     scaleY: this.render_context.base_scale_factor,
+        //     accelerationY: -200,
+        //     accelerationX: -200,
+        //     alpha: {
+        //         start: 0.6,
+        //         end: 0
+        //     },
+        //     maxParticles: 20
+        // });
+
         return dagger;
     }
 
@@ -153,11 +193,13 @@ export default class MainRenderer {
         this.world_timer_group.affix_ui();
         this.world_timer_group.set_depth(AbstractDepth.UI);
 
-        this.world_timer_frame = this.render_context.add_sprite(0, 0, 'world_timer_frame', this.world_timer_group);
-        this.world_timer_frame.set_anchor(0.5, 0);
+        // this.world_timer_frame = this.render_context.add_sprite(0, 0, 'world_timer_frame', this.world_timer_group);
+        // this.world_timer_frame.set_anchor(0.5, 0);
 
         this.world_timer_bar = this.render_context.add_sprite(0, this.render_context.literal(2), 'world_timer_bar', this.world_timer_group);
         this.world_timer_bar.set_anchor(0.5, 0);
+
+        this.world_timer_glow = this.world_timer_bar.framework_object.postFX.addGlow(0xffffff, 0, 0);
     }
 
     public draw_game_over(player: Entity, on_complete: CallbackBinding): void {
