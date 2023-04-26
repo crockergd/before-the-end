@@ -50,6 +50,10 @@ export default class MainRenderer {
         }
 
         this.last_timer_percentage = remaining_percentage;
+
+        const color_percentage: number = 255 * (1 - remaining_percentage);
+        const color: any = new Phaser.Display.Color(color_percentage, color_percentage, color_percentage);
+        this.render_context.camera.setBackgroundColor(color);
     }
 
     public draw_tiles(): void {
@@ -80,7 +84,7 @@ export default class MainRenderer {
         const layer: Phaser.Tilemaps.TilemapLayer = map.createLayer(0, tileset, 0, 0);
 
         layer.setPosition(-layer.width / 2, -layer.height / 2);
-        layer.setAlpha(0.6);
+        layer.setAlpha(0.7);
         layer.setScale(this.render_context.base_scale_factor, this.render_context.base_scale_factor);
         layer.setCullPadding(10, 10);
 
