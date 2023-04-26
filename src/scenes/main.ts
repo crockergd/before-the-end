@@ -43,6 +43,10 @@ export default class Main extends AbstractScene {
 
     private sprite_cache: Array<AbstractSprite>;
 
+    private lore_1: AbstractText;
+    private lore_2: AbstractText;
+    private lore_3: AbstractText;
+
     public get ready(): boolean {
         return !this.timer.doomed && this.state === MainState.ACTIVE;
     }
@@ -51,6 +55,8 @@ export default class Main extends AbstractScene {
         super.init(data);
         this.render_context.set_scene(this);
         this.physics_context.set_scene(this);
+
+        this.state = MainState.NONE;
 
         this.timer = new WorldTimer(this.render_context.now, 30);
         this.scene_renderer = new MainRenderer(this, this.render_context, this.timer);
@@ -71,8 +77,6 @@ export default class Main extends AbstractScene {
     }
 
     public create(): void {
-        this.render_context.transition_scene(TransitionType.IN);
-
         this.scene_renderer.draw_tiles();
 
         this.spawn_player();
@@ -86,8 +90,7 @@ export default class Main extends AbstractScene {
         this.debug = this.render_context.add_text(this.render_context.space_buffer, this.render_context.space_buffer, '');
         this.debug.set_depth(AbstractDepth.UI);
         this.debug.affix_ui();
-
-        this.set_state(MainState.ACTIVE);
+        this.debug.set_visible(false);
 
         const world_tick_delay: number = 3000;
         this.render_context.delay(world_tick_delay, () => {
@@ -105,6 +108,8 @@ export default class Main extends AbstractScene {
                 enemy.sprite.flip_x(this.player.x < enemy.x);
             }
         }, this), 1000);
+
+        this.prep_intro_1();
     }
 
     public update(time: number, dt_ms: number): void {
@@ -438,6 +443,123 @@ export default class Main extends AbstractScene {
         this.sprite_cache.push(sprite);
     }
 
+    public prep_intro_1(): void {
+        this.player.sprite.set_alpha(0);
+        for (const enemy of this.enemies) {
+            enemy.sprite.framework_object.setAlpha(0);
+        }
+        this.scene_renderer.world_timer_group.set_alpha(0);
+        this.scene_renderer.tile_layer.setAlpha(0);
+
+        this.render_context.transition_scene(TransitionType.IN, new CallbackBinding(() => {
+            this.lore_1 = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y - this.render_context.literal(100), 'The final seal is crumbling');
+            this.lore_1.set_anchor(0.5, 0);
+            this.lore_1.affix_ui();
+            this.lore_1.set_alpha(0);
+            this.lore_1.set_depth(AbstractDepth.UI);
+
+            const lore_1_duration: number = 400;
+            this.render_context.tween({
+                targets: [this.lore_1.framework_object],
+                alpha: 1,
+                duration: lore_1_duration / 2,
+                on_complete: new CallbackBinding(() => {
+                    this.render_context.tween({
+                        targets: this.enemies.map(enemy => enemy.sprite.framework_object),
+                        alphaTopLeft: 1,
+                        alphaTopRight: 1,
+                        alphaBottomLeft: 0,
+                        alphaBottomRight: 0,
+                        duration: lore_1_duration,
+                        on_complete: new CallbackBinding(() => {
+                            this.input.once(Constants.UP_EVENT, () => {
+                                this.prep_intro_2();
+                            }, this);
+                        }, this)
+                    });
+                }, this)
+            });
+        }, this));
+    }
+
+    public prep_intro_2(): void {
+        this.lore_2 = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y - this.render_context.literal(0), 'This world won\'t last much longer');
+        this.lore_2.set_anchor(0.5, 0);
+        this.lore_2.affix_ui();
+        this.lore_2.set_alpha(0);
+        this.lore_2.set_depth(AbstractDepth.UI);
+
+        const lore_2_duration: number = 400;
+        this.render_context.tween({
+            targets: [this.lore_2.framework_object],
+            alpha: 1,
+            duration: lore_2_duration / 2,
+            on_complete: new CallbackBinding(() => {
+                this.render_context.tween({
+                    targets: [this.scene_renderer.world_timer_group],
+                    alpha: 1,
+                    duration: lore_2_duration,
+                    on_complete: new CallbackBinding(() => {
+                        this.input.once(Constants.UP_EVENT, () => {
+                            this.prep_intro_3();
+                        }, this);
+                    }, this)
+                });
+            }, this)
+        });
+    }
+
+    public prep_intro_3(): void {
+        this.lore_3 = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y + this.render_context.literal(100), 'You are our last hope');
+        this.lore_3.set_anchor(0.5, 0);
+        this.lore_3.affix_ui();
+        this.lore_3.set_alpha(0);
+        this.lore_3.set_depth(AbstractDepth.UI);
+
+        const lore_3_duration: number = 400;
+        this.render_context.tween({
+            targets: [this.lore_3.framework_object],
+            alpha: 1,
+            duration: lore_3_duration / 2,
+            on_complete: new CallbackBinding(() => {
+
+                this.render_context.tween({
+                    targets: [this.player.sprite.framework_object],
+                    alpha: 1,
+                    duration: lore_3_duration,
+                    on_complete: new CallbackBinding(() => {
+                        this.input.once(Constants.UP_EVENT, () => {
+                            this.start_intro();
+                        }, this);
+                    }, this)
+                });
+            }, this)
+        });
+    }
+
+    public start_intro(): void {
+        this.render_context.tween({
+            targets: [this.scene_renderer.tile_layer],
+            alpha: 0.7,
+            duration: 1000
+        });
+
+        this.render_context.tween({
+            targets: [this.lore_1.framework_object, this.lore_2.framework_object, this.lore_3.framework_object],
+            alpha: 0,
+            duration: 2000,
+            on_complete: new CallbackBinding(() => {
+                this.lore_1.destroy();
+                this.lore_2.destroy();
+                this.lore_3.destroy();
+                this.lore_1 = null;
+                this.lore_2 = null;
+                this.lore_3 = null;
+                this.set_state(MainState.ACTIVE);
+            }, this)
+        });
+    }
+
     public end_game(): void {
         this.input.off(Constants.UP_EVENT);
         this.render_context.cache.tweens.killAll();
@@ -446,7 +568,7 @@ export default class Main extends AbstractScene {
         this.render_context.unbind_update('enemy_face_player');
 
         this.timer.doomed = true;
-        this.scene_renderer.draw_game_over(this.player, this.timer, new CallbackBinding(() => {
+        this.scene_renderer.draw_game_over(this.player, this.enemies, this.timer, new CallbackBinding(() => {
             this.input.once(Constants.UP_EVENT, () => {
                 this.render_context.transition_scene(TransitionType.OUT, new CallbackBinding(() => {
                     this.start('menu', {

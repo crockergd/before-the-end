@@ -32,7 +32,7 @@ export default class MainRenderer {
         const width: number = 356;
         const height: number = 6;
         this.world_timer_bar.crop(0, 0, width * remaining_percentage, height);
-        this.world_timer_bar.set_position(width * (1 - remaining_percentage), 0);
+        this.world_timer_bar.set_position(this.render_context.literal((width * (1 - remaining_percentage)) / 2), 0);
 
         this.world_timer_glow.outerStrength = 4 * (1 - remaining_percentage);
         this.world_timer_glow.innerStrength = 2 * (1 - remaining_percentage);
@@ -209,7 +209,7 @@ export default class MainRenderer {
         this.world_timer_glow = this.world_timer_bar.framework_object.postFX.addGlow(0xffffff, 0, 0);
     }
 
-    public draw_game_over(player: Entity, world_timer: WorldTimer, on_complete: CallbackBinding): void {
+    public draw_game_over(player: Entity, enemies: Array<Entity>, world_timer: WorldTimer, on_complete: CallbackBinding): void {
         const game_over_text: AbstractText = this.render_context.add_text(this.render_context.center_x, this.render_context.center_y, 'Time survived: ' + world_timer.elapsed_time.toFixed(1) + 's');
         game_over_text.set_anchor(0.5, 0.5);
         game_over_text.affix_ui();
@@ -243,6 +243,10 @@ export default class MainRenderer {
                 player.destroy();
             }, this)
         });
+
+        for (const enemy of enemies) {
+            enemy.sprite.stop();
+        }
 
         // const vignette: Phaser.FX.Vignette = this.render_context.camera.postFX.addVignette(undefined, undefined, 1, 0);
 
