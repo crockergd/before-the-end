@@ -351,7 +351,7 @@ export default class Main extends AbstractScene {
     public generate_loot(): Array<EquipmentInfo> {
         const max_loot: number = 3;
 
-        const possibilities: Array<EquipmentInfo> = [{
+        let possibilities: Array<EquipmentInfo> = [{
             type: 'Dagger',
             key: 'dagger',
             name: 'Dagger',
@@ -374,12 +374,16 @@ export default class Main extends AbstractScene {
             level: 0
         }];
 
-        const loot: Array<EquipmentInfo> = new Array<EquipmentInfo>();
-        for (let i: number = 0; i < max_loot; i++) {
-            loot.push(possibilities[MathExtensions.rand_int_inclusive(0, possibilities.length - 1)]);
-        }
+        const slot_1_type: string = this.player.equipment.map(equipment => equipment.type)[MathExtensions.rand_int_inclusive(0, this.player.equipment.length - 1)];
+        const slot_1: EquipmentInfo = possibilities.find(possibility => possibility.type === slot_1_type);
 
-        return loot;
+        possibilities = possibilities.filter(possibility => possibility.type !== slot_1.type);
+        const slot_2: EquipmentInfo = possibilities[MathExtensions.rand_int_inclusive(0, possibilities.length - 1)];
+
+        possibilities = possibilities.filter(possibility => possibility.type !== slot_2.type);
+        const slot_3: EquipmentInfo = possibilities[MathExtensions.rand_int_inclusive(0, possibilities.length - 1)];
+
+        return [slot_1, slot_2, slot_3];
     }
 
     public set_state(state: MainState): void {
