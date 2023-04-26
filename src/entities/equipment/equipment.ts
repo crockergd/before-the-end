@@ -6,11 +6,13 @@ import Vector from '../../utils/vector';
 import Entity from '../entity';
 import AttackInfo from './attackinfo';
 import EquipmentInfo from './equipmentinfo';
+import StatType from './stattype';
 
 export default abstract class Equipment {
     public type: string;
     public equipment_info: EquipmentInfo;
     public attack_info: AttackInfo;
+    public upgrades: Array<StatType>;
 
     public get scene_renderer(): MainRenderer {
         return this.scene.scene_renderer;
@@ -33,6 +35,7 @@ export default abstract class Equipment {
 
     constructor(readonly scene: Main, readonly render_context: RenderContext) {
         this.type = 'Equipment';
+        this.upgrades = new Array<StatType>();
     }
 
     public apply_player_scaling(player: Entity): void {

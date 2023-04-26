@@ -6,8 +6,11 @@ import Attack from './attack';
 import Entity from '../entity';
 import Equipment from './equipment';
 import CallbackBinding from '../../utils/callbackbinding';
+import StatType from './stattype';
 
 export default class Dart extends Equipment {
+    public static scaling: Array<StatType> = [StatType.POWER, StatType.VELOCITY, StatType.REPEAT, StatType.AMOUNT];
+
     constructor(readonly scene: Main, readonly render_context: RenderContext) {
         super(scene, render_context);
 
@@ -64,17 +67,21 @@ export default class Dart extends Equipment {
             velocity: 0.06
         };
 
-        if (this.level >= 1) {
-            this.attack_info.velocity += 0.03;
-        }
-        if (this.level >= 2) {
-            this.attack_info.amount += 1;
-        }
-        if (this.level >= 3) {
-            this.attack_info.velocity += 0.03;
-        }
-        if (this.level >= 4) {
-            this.attack_info.amount += 1;
+        for (const upgrade of this.upgrades) {
+            switch (upgrade) {
+                case StatType.POWER:
+                    this.attack_info.power += 4;
+                    break;
+                case StatType.VELOCITY:
+                    this.attack_info.amount += 0.03;
+                    break;
+                case StatType.AMOUNT:
+                    this.attack_info.amount += 1;
+                    break;
+                case StatType.REPEAT:
+                    this.attack_info.repeat += 1;
+                    break;
+            }
         }
 
         this.attack_info.power += 1 * this.level;

@@ -27,6 +27,7 @@ import MainRenderer from './mainrenderer';
 import MainState from './mainstate';
 import { Fan } from '../entities/equipment';
 import WorldState from '../world/worldstate';
+import StatType from '../entities/equipment/stattype';
 
 export default class Main extends AbstractScene {
     public state: MainState;
@@ -356,8 +357,6 @@ export default class Main extends AbstractScene {
     }
 
     public generate_loot(): Array<EquipmentInfo> {
-        const max_loot: number = 3;
-
         let possibilities: Array<EquipmentInfo> = [{
             type: 'Dagger',
             key: 'dagger',
@@ -383,14 +382,39 @@ export default class Main extends AbstractScene {
 
         const slot_1_type: string = this.player.equipment.map(equipment => equipment.type)[MathExtensions.rand_int_inclusive(0, this.player.equipment.length - 1)];
         const slot_1: EquipmentInfo = possibilities.find(possibility => possibility.type === slot_1_type);
+        this.generate_scaling(slot_1);
 
         possibilities = possibilities.filter(possibility => possibility.type !== slot_1.type);
         const slot_2: EquipmentInfo = possibilities[MathExtensions.rand_int_inclusive(0, possibilities.length - 1)];
+        this.generate_scaling(slot_2);
 
         possibilities = possibilities.filter(possibility => possibility.type !== slot_2.type);
         const slot_3: EquipmentInfo = possibilities[MathExtensions.rand_int_inclusive(0, possibilities.length - 1)];
+        this.generate_scaling(slot_3);
 
         return [slot_1, slot_2, slot_3];
+    }
+
+    public generate_scaling(loot: EquipmentInfo): void {
+        loot.scaling = new Array<StatType>();
+
+        const properties: number = MathExtensions.rand_weighted(false, 5, 1) + 1;
+        for (let i: number = 0; i < properties; i++) {
+            switch (loot.type) {
+                case Dagger.name:
+                    loot.scaling.push(MathExtensions.array_rand(Dagger.scaling));
+                    break;
+                case Fan.name:
+                    loot.scaling.push(MathExtensions.array_rand(Fan.scaling));
+                    break;
+                case Cleave.name:
+                    loot.scaling.push(MathExtensions.array_rand(Cleave.scaling));
+                    break;
+                case Dart.name:
+                    loot.scaling.push(MathExtensions.array_rand(Dart.scaling));
+                    break;
+            }
+        }
     }
 
     public set_state(state: MainState): void {

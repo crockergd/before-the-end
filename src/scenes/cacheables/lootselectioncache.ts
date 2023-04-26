@@ -136,7 +136,7 @@ export default class LootSelectionCache extends Cacheable {
         const equipment_type: any = Object.values(Equips).find(type => type.name === card.equipment_key);
         const equipment: Equipment = new equipment_type.prototype.constructor(this.render_context.scene, this.render_context);
 
-        player.add_equipment(equipment);
+        player.add_equipment(equipment, card.upgrades);
     }
 
     public hide(): void {

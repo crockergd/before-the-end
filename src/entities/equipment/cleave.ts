@@ -6,8 +6,11 @@ import Vector from '../../utils/vector';
 import Entity from '../entity';
 import Attack from './attack';
 import Equipment from './equipment';
+import StatType from './stattype';
 
 export default class Cleave extends Equipment {
+    public static scaling: Array<StatType> = [StatType.POWER, StatType.VELOCITY, StatType.REPEAT, StatType.AMOUNT];
+
     constructor(readonly scene: Main, readonly render_context: RenderContext) {
         super(scene, render_context);
 
@@ -76,17 +79,21 @@ export default class Cleave extends Equipment {
             velocity: 0.45
         };
 
-        if (this.level >= 1) {
-            this.attack_info.amount += 1;
-        }
-        if (this.level >= 2) {
-            this.attack_info.amount += 1;
-        }
-        if (this.level >= 3) {
-            this.attack_info.amount += 1;
-        }
-        if (this.level >= 4) {
-            this.attack_info.amount += 1;
+        for (const upgrade of this.upgrades) {
+            switch (upgrade) {
+                case StatType.POWER:
+                    this.attack_info.power += 10;
+                    break;
+                case StatType.VELOCITY:
+                    this.attack_info.amount += 0.15;
+                    break;
+                case StatType.AMOUNT:
+                    this.attack_info.amount += 1;
+                    break;
+                case StatType.REPEAT:
+                    this.attack_info.repeat += 1;
+                    break;
+            }
         }
 
         this.attack_info.power += 4 * this.level;

@@ -6,8 +6,11 @@ import Attack from './attack';
 import Entity from '../entity';
 import Equipment from './equipment';
 import CallbackBinding from '../../utils/callbackbinding';
+import StatType from './stattype';
 
 export default class Dagger extends Equipment {
+    public static scaling: Array<StatType> = [StatType.POWER, StatType.VELOCITY, StatType.REPEAT];
+
     constructor(readonly scene: Main, readonly render_context: RenderContext) {
         super(scene, render_context);
 
@@ -54,17 +57,18 @@ export default class Dagger extends Equipment {
             velocity: 1.2
         };
 
-        if (this.level >= 1) {
-            this.attack_info.velocity += 0.3;
-        }
-        if (this.level >= 2) {
-            this.attack_info.repeat += 1;
-        }
-        if (this.level >= 3) {
-            this.attack_info.velocity += 0.3;
-        }
-        if (this.level >= 4) {
-            this.attack_info.repeat += 1;
+        for (const upgrade of this.upgrades) {
+            switch (upgrade) {
+                case StatType.POWER:
+                    this.attack_info.power += 7;
+                    break;
+                case StatType.VELOCITY:
+                    this.attack_info.amount += 0.3;
+                    break;
+                case StatType.REPEAT:
+                    this.attack_info.repeat += 1;
+                    break;
+            }
         }
 
         this.attack_info.power += 3 * this.level;

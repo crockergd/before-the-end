@@ -2,6 +2,7 @@ import AbstractSprite from '../abstracts/abstractsprite';
 import BattleInfo from './battleinfo';
 import EntityState from './entitystate';
 import Equipment from './equipment/equipment';
+import StatType from './equipment/stattype';
 import IdentifierInfo from './identifierinfo';
 import LevelInfo from './levelinfo';
 
@@ -49,11 +50,18 @@ export default class Entity {
         this.hit_by_equipment = new Array<string>();
     }
 
-    public add_equipment(equipment: Equipment): void {
+    public has_equipment(equipment_type: string): boolean {
+        return this.equipment.filter(equipment => equipment.type === equipment_type).length > 0;
+    }
+
+    public add_equipment(equipment: Equipment, upgrades?: Array<StatType>): void {
         const existing: Equipment = this.equipment.find(inner => inner.key === equipment.key);
 
         if (existing) {
             existing.equipment_info.level++;
+            for (const upgrade of upgrades) {
+                existing.upgrades.push(upgrade);
+            }
 
         } else {
             this.equipment.push(equipment);

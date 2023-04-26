@@ -5,7 +5,9 @@ import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
 import { Cleave, Dagger, Dart, Fan } from '../entities/equipment';
 import EquipmentInfo from '../entities/equipment/equipmentinfo';
+import StatType from '../entities/equipment/stattype';
 import Constants from '../utils/constants';
+import StringExtensions from '../utils/stringextensions';
 import TextType from './texttype';
 
 export default class LootCard {
@@ -20,6 +22,7 @@ export default class LootCard {
     public stamp: AbstractSprite;
 
     public equipment_key: string;
+    public upgrades: Array<StatType>;
 
     constructor(readonly render_context: RenderContext, parent?: AbstractGroup) {
         this.group = this.render_context.add_group(parent);
@@ -56,15 +59,18 @@ export default class LootCard {
     }
 
     public sync(player: Entity, equipment_info: EquipmentInfo): void {
-        this.equipment_key = equipment_info.type;
-
         this.title.text = equipment_info.name;
-        this.icon.set_frame(4);
+
+        if (player.has_equipment(equipment_info.type)) {
+            this.icon.set_frame(3);
+        } else {
+            this.icon.set_frame(4);
+        }
 
         const equipment_level: number = player.get_equipment_level(equipment_info.type);
 
         let details: string = '';
-        let upgrade: string = 'Level ' + (equipment_level + 1) + Constants.LINE_BREAK;
+        let upgrade: string = 'Upgrade Level ' + (equipment_level + 1) + Constants.LINE_BREAK;
         switch (equipment_info.type) {
             case Dagger.name:
                 details = Dagger.description(0);
@@ -84,8 +90,15 @@ export default class LootCard {
                 break;
         }
 
+        for (const stat_type of equipment_info.scaling) {
+            upgrade += '+' + StringExtensions.stat_type(stat_type);
+        }
+
         this.details.text = details;
         this.upgrade.text = equipment_level > 0 ? upgrade : '';
         this.upgrade.set_position(this.details.group_x, this.details.group_y + this.details.height + this.render_context.space_buffer);
+
+        this.equipment_key = equipment_info.type;
+        this.upgrades = equipment_info.scaling;
     }
 }
