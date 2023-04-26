@@ -612,6 +612,8 @@ export default class Main extends AbstractScene {
         this.render_context.unbind_update('world_tick');
         this.render_context.unbind_update('enemy_face_player');
 
+        this.render_context.play(SFXType.CLASH, SFXChannel.FX);
+
         this.timer.doomed = true;
         this.scene_renderer.draw_game_over(this.player, this.enemies, this.timer, new CallbackBinding(() => {
             this.input.once(Constants.UP_EVENT, () => {

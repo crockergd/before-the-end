@@ -107,6 +107,7 @@ export default class Boot extends AbstractScene {
         this.load.audio('impact', require_audio('./impact.wav'));
         this.load.audio('impact_alt', require_audio('./impact_alt.wav'));
         this.load.audio('title_theme', require_audio('./title_theme.ogg'));
+        this.load.audio('clash', require_audio('./clash.wav'));
     }
 
     private load_animations(): void {
