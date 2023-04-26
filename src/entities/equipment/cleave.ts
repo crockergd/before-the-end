@@ -50,7 +50,7 @@ export default class Cleave extends Equipment {
 
             const cleave: Attack = new Attack(this.attack_info);
             cleave.sprite = this.scene_renderer.draw_cleave(player.x - adjust_sideways.x - adjust_backwards.x, player.y - adjust_sideways.y - adjust_backwards.y, angle);
-            if (flip) cleave.sprite.flip_y(true);
+            cleave.sprite.flip_y(flip);
 
             this.scene_physics.ready_cleave(player, cleave);
             this.scene_physics.apply_force(cleave.sprite, cursor_direction, this.attack_info.velocity);
