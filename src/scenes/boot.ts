@@ -64,7 +64,7 @@ export default class Boot extends AbstractScene {
         const require_image: __WebpackModuleApi.RequireContext = require.context('../../assets/images/', true);
         const require_tilesheet: __WebpackModuleApi.RequireContext = require.context('../../assets/tilesheets/', true);
         const require_audio: __WebpackModuleApi.RequireContext = require.context('../../assets/audio/', true);
-        // const require_json: __WebpackModuleApi.RequireContext = require.context('../../assets/json/', true);
+        const require_json: __WebpackModuleApi.RequireContext = require.context('../../assets/json/', true);
         const require_bitmap: __WebpackModuleApi.RequireContext = require.context('../../assets/bitmap/', true);
 
         this.load.bitmapFont('pixchicago', require_bitmap('./pixchicago_0.png'), require_bitmap('./pixchicago.fnt'));
@@ -110,6 +110,8 @@ export default class Boot extends AbstractScene {
         this.load.audio('title_theme', require_audio('./title_theme.ogg'));
         this.load.audio('clash', require_audio('./clash.wav'));
         this.load.audio('shop', require_audio('./shop.ogg'));
+
+        this.load.json('settings', require_json('./settings.json'));
     }
 
     private load_animations(): void {

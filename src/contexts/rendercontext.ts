@@ -22,6 +22,7 @@ import TweenConfig from '../utils/tweenconfig';
 import UpdateBinding from '../utils/updatebinding';
 import Vector from '../utils/vector';
 import SceneContext from './scenecontext';
+import SettingJson from '../json_defs/settingjson';
 
 export default class RenderContext {
     public scene: AbstractScene;
@@ -172,6 +173,10 @@ export default class RenderContext {
 
     public get cache(): Cache {
         return (this.scene.scene.get('cache') as Cache);
+    }
+
+    public get settings(): SettingJson {
+        return this.cache.settings;
     }
 
     public get focussed(): boolean {
@@ -461,6 +466,8 @@ export default class RenderContext {
     }
 
     public play(key: SFXType, channel: SFXChannel, volume: number = 1, loop: boolean = false): void {
+        if (this.settings.mute) return;
+
         let sound: AbstractSound;
         switch (channel) {
             case SFXChannel.FX:

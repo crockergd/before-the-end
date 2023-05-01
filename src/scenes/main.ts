@@ -40,7 +40,6 @@ export default class Main extends AbstractScene {
     public player: Entity;
     public enemies: Array<Entity>;
     public exp_drops: Array<ExpDrop>;
-    public debug: AbstractText;
 
     public enemies_defeated: number;
     public tick_count: number;
@@ -92,11 +91,6 @@ export default class Main extends AbstractScene {
         this.spawn_enemy(1, new Vector(-spawn_distance, spawn_distance));
         this.spawn_enemy(1, new Vector(spawn_distance, spawn_distance));
 
-        this.debug = this.render_context.add_text(this.render_context.space_buffer, this.render_context.space_buffer, '');
-        this.debug.set_depth(AbstractDepth.UI);
-        this.debug.affix_ui();
-        this.debug.set_visible(false);
-
         const world_tick_delay: number = 3000;
         this.render_context.delay(world_tick_delay, () => {
             this.render_context.bind_update('world_tick', new CallbackBinding(() => {
@@ -114,7 +108,7 @@ export default class Main extends AbstractScene {
             }
         }, this), 1000);
 
-        this.prep_intro_1(true);
+        this.prep_intro_1(this.render_context.settings.play_intro);
     }
 
     public update(time: number, dt_ms: number): void {
@@ -122,21 +116,6 @@ export default class Main extends AbstractScene {
         const dt: number = (dt_ms / 1000);
 
         if (!this.ready) return;
-
-        this.debug.text = 'Position: ' + Math.floor(this.player.x) + ', ' + Math.floor(this.player.y) + Constants.LINE_BREAK +
-            'Enemies Defeated: ' + this.enemies_defeated + Constants.LINE_BREAK +
-            'Time Remaining: ' + Math.floor(this.timer.expiry_time) + Constants.LINE_BREAK +
-            'Time Elapsed: ' + Math.ceil(this.timer.elapsed_time); // + Constants.LINE_BREAK +
-        // 'Enemies: ' + this.enemies.length;
-
-        let count: number = 0;
-        for (const scene of this.game.scene.scenes) {
-            count += scene.children.getChildren().length; //.filter(child => child.willRender(this.render_context.camera)).length;
-        }
-
-        this.debug.text = 'Display List: ' + count.toString();
-        this.debug.text += Constants.LINE_BREAK + 'FPS: ' + StringExtensions.numeric(this.render_context.scene.game.loop.actualFps);
-        this.debug.text += Constants.LINE_BREAK + 'Objects Created: ' + this.render_context.objects_created;
 
         for (const exp_drop of this.exp_drops.filter(exp_drop => exp_drop.collected)) {
             const player_direction: Vector = new Vector(exp_drop.sprite.absolute_x - this.player.x, exp_drop.sprite.absolute_y - this.player.y);
@@ -157,7 +136,7 @@ export default class Main extends AbstractScene {
             }
         }
 
-        if (!this.timer.update(dt)) {
+        if (!this.timer.update(dt) && !this.render_context.settings.ignore_time_limit) {
             this.end_game(false);
         }
         this.scene_renderer.update(dt);

@@ -20,11 +20,6 @@ export default class AbstractScene extends Scene {
             this.scene_context = data.scene_context;
         }
 
-        this.events.once('shutdown', () => {
-            this.render_context.unbind_update();
-            this.render_context.cache.tweens.killAll();
-        }, this);
-
         this.scale.on('resize', this.resize, this);
     }
 
