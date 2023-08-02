@@ -15,7 +15,7 @@ export default class Boot extends AbstractScene {
         this.physics_context.set_scene(this);
         this.physics_context.init();
 
-        this.game.scale.setGameSize(this.render_context.width * this.render_context.DPR, this.render_context.height * this.render_context.DPR);
+        // this.game.scale.setGameSize(this.render_context.width * this.render_context.DPR, this.render_context.height * this.render_context.DPR);
 
         const require_image: __WebpackModuleApi.RequireContext = require.context('../../assets/images/', true);
         this.load.image('radbee_logo', require_image('./radbee_logo.png')).once('filecomplete-image-radbee_logo', () => {

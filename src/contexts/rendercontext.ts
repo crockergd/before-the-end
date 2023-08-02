@@ -90,28 +90,12 @@ export default class RenderContext {
         return 360 * this.internal_scalar;
     }
 
-    public get inner_x(): number {
-        return this.baseline_x * this.inner_scale_factor;
-    }
-
-    public get inner_y(): number {
-        return this.baseline_y * this.inner_scale_factor;
-    }
-
-    public get scale_factor(): number {
-        return this.base_scale_factor * this.DPR;
-    }
-
-    public get tex_scale_factor(): number {
-        return Math.floor(this.base_scale_factor);
-    }
-
     public get round_scale_factor(): number {
         return Math.round(this.base_scale_factor);
     }
 
     public get base_scale_factor(): number {
-        return Math.max(Math.min((this.width / this.baseline_x), (this.height / this.baseline_y)), 1);
+        return 1; // Math.min((this.width / this.baseline_x), (this.height / this.baseline_y));
     }
 
     public get outer_scale_factor(): number {
