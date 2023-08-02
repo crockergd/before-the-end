@@ -1,8 +1,8 @@
 {
     "settings": {
         "dev": false,
-        "play_intro": false,
-        "ignore_time_limit": true,
-        "mute": true
+        "play_intro": true,
+        "ignore_time_limit": false,
+        "mute": false
     }
 }
