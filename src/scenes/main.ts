@@ -337,7 +337,6 @@ export default class Main extends AbstractScene {
         if (attack.constraint) this.matter.world.removeConstraint(attack.constraint);
 
         this.scene_renderer.flash_combat_text(enemy.x, enemy.y - enemy.sprite.height_half + this.render_context.literal(20), StringExtensions.numeric(power));
-        this.scene_renderer.flash_combat_hit(enemy);
 
         if (attack.attack_info.latch) {
             this.render_context.delay(50, () => {
@@ -378,6 +377,8 @@ export default class Main extends AbstractScene {
 
             enemy.register_hit(attack.uid, attack.attack_info.equipment_key);
             this.collide_repeat(attack, enemy);
+
+            this.scene_renderer.flash_combat_hit(enemy);
 
             return false;
         }

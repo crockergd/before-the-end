@@ -4,7 +4,6 @@ import TextAlignmentType from '../ui/textalignmenttype';
 import TextType from '../ui/texttype';
 import AbstractBaseType from './abstractbasetype';
 import { AbstractCollectionType } from './abstractcollectiontype';
-import * as Constants from '../utils/constants';
 
 export default class AbstractText extends AbstractBaseType {
     public framework_object: GameObjects.BitmapText;

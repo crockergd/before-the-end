@@ -5,7 +5,6 @@ import AbstractText from '../abstracts/abstracttext';
 import RenderContext from '../contexts/rendercontext';
 import Entity from '../entities/entity';
 import CallbackBinding from '../utils/callbackbinding';
-import Constants from '../utils/constants';
 import MathExtensions from '../utils/mathextensions';
 import SFXChannel from '../utils/sfxchannel';
 import SFXType from '../utils/sfxtype';
@@ -61,9 +60,6 @@ export default class MainRenderer {
     }
 
     public draw_tiles(): void {
-        // const transition: AbstractSprite = this.render_context.add_sprite(0, 0, 'zone_courtyards_transition');
-        // transition.set_anchor(0.5, 0.5);
-
         const map_height: number = 600;
         const map_width: number = 600;
         const map_data: Array<Array<number>> = new Array<Array<number>>();
@@ -96,7 +92,9 @@ export default class MainRenderer {
     }
 
     public draw_player(player: Entity): void {
-        player.sprite = this.render_context.add_sprite(0, 0, player.sprite_key, undefined, undefined, true);
+        player.sprite = this.render_context.add_sprite(0, 0, player.sprite_key, undefined, {
+            physics: true
+        });
         player.sprite.set_anchor(0.5, 0.5);
         player.sprite.set_depth(AbstractDepth.FIELD);
         player.sprite.play('idle_' + player.sprite_key);
@@ -110,12 +108,15 @@ export default class MainRenderer {
             this.enemy_layer.set_layer();
         }
 
-        enemy.sprite = this.scene.retrieve_cache(enemy.sprite_key) ?? this.render_context.add_sprite(0, 0, enemy.sprite_key, this.enemy_layer, undefined, true);
+        enemy.sprite = this.scene.retrieve_cache(enemy.sprite_key) ?? this.render_context.add_sprite(0, 0, enemy.sprite_key, this.enemy_layer, {
+            physics: true
+        });
         enemy.sprite.set_position(x, y);
         enemy.sprite.set_anchor(0.5, 0.5);
         enemy.sprite.play('idle_' + enemy.sprite_key);
         enemy.sprite.set_depth(Math.round(y), true);
         enemy.sprite.set_alpha(new Vector(1, 1, 0, 0));
+        enemy.sprite.framework_object.clearTint();
 
         if (player.x < enemy.x) {
             enemy.sprite.flip_x();
@@ -137,7 +138,9 @@ export default class MainRenderer {
     }
 
     public draw_dagger(player: Entity, angle: number): AbstractSprite {
-        const dagger: AbstractSprite = this.scene.retrieve_cache('stab') ?? this.render_context.add_sprite(0, 0, 'stab', undefined, undefined, true);
+        const dagger: AbstractSprite = this.scene.retrieve_cache('stab') ?? this.render_context.add_sprite(0, 0, 'stab', undefined, {
+            physics: true
+        });
         dagger.set_position(player.x, player.y);
         dagger.set_anchor(0, 0);
         dagger.set_depth(AbstractDepth.FIELD);
@@ -161,7 +164,9 @@ export default class MainRenderer {
     }
 
     public draw_fan(player: Entity, angle: number): AbstractSprite {
-        const fan: AbstractSprite = this.scene.retrieve_cache('stab') ?? this.render_context.add_sprite(0, 0, 'stab', undefined, undefined, true);
+        const fan: AbstractSprite = this.scene.retrieve_cache('stab') ?? this.render_context.add_sprite(0, 0, 'stab', undefined, {
+            physics: true
+        });
         fan.set_position(player.x, player.y);
         fan.set_anchor(0.5, 0.5);
         fan.set_depth(AbstractDepth.FIELD);
@@ -171,7 +176,9 @@ export default class MainRenderer {
     }
 
     public draw_cleave(x: number, y: number, angle: number): AbstractSprite {
-        const cleave: AbstractSprite = this.scene.retrieve_cache('swing_wide') ?? this.render_context.add_sprite(0, 0, 'swing_wide', undefined, undefined, true);
+        const cleave: AbstractSprite = this.scene.retrieve_cache('swing_wide') ?? this.render_context.add_sprite(0, 0, 'swing_wide', undefined, {
+            physics: true
+        });
         cleave.set_position(x, y);
         cleave.set_anchor(0.5, 0.5);
         cleave.set_depth(AbstractDepth.FIELD);
@@ -181,7 +188,9 @@ export default class MainRenderer {
     }
 
     public draw_dart(player: Entity, angle: number): AbstractSprite {
-        const dart: AbstractSprite = this.scene.retrieve_cache('dart') ?? this.render_context.add_sprite(0, 0, 'dart', undefined, undefined, true);
+        const dart: AbstractSprite = this.scene.retrieve_cache('dart') ?? this.render_context.add_sprite(0, 0, 'dart', undefined, {
+            physics: true
+        });
         dart.set_position(player.x, player.y);
         dart.set_anchor(0.5, 0.5);
         dart.set_depth(AbstractDepth.FIELD);
@@ -191,7 +200,9 @@ export default class MainRenderer {
     }
 
     public draw_exp_drop(player: Entity, enemy: Entity): AbstractSprite {
-        const exp_drop: AbstractSprite = this.scene.retrieve_cache('exp_drop') ?? this.render_context.add_sprite(0, 0, 'exp_drop', undefined, undefined, true);
+        const exp_drop: AbstractSprite = this.scene.retrieve_cache('exp_drop') ?? this.render_context.add_sprite(0, 0, 'exp_drop', undefined, {
+            physics: true
+        });
         exp_drop.set_position(enemy.x, enemy.y);
         exp_drop.set_anchor(0.5, 0.5);
 
@@ -199,7 +210,9 @@ export default class MainRenderer {
     }
 
     public draw_treasure(x: number, y: number): AbstractSprite {
-        const treasure: AbstractSprite = this.scene.retrieve_cache('treasure') ?? this.render_context.add_sprite(0, 0, 'treasure', undefined, undefined, true);
+        const treasure: AbstractSprite = this.scene.retrieve_cache('treasure') ?? this.render_context.add_sprite(0, 0, 'treasure', undefined, {
+            physics: true
+        });
         treasure.set_position(x, y);
         treasure.set_anchor(0.5, 0.5);
         treasure.set_frame(0);
@@ -314,18 +327,20 @@ export default class MainRenderer {
             this.render_context.play(SFXType.IMPACT_ALT, SFXChannel.FX, 0.7);
         }
 
-        const glow: Phaser.FX.Glow = enemy.sprite.framework_object.postFX.addGlow(0x7f062e, 0, 0);
+        enemy.sprite.hit_flash(150);
 
-        this.render_context.tween({
-            targets: [glow],
-            duration: 160,
-            innerStrength: 4,
-            yoyo: true,
-            on_complete: new CallbackBinding(() => {
-                glow.destroy();
-                enemy.sprite.framework_object.postFX.clear();
-            }, this)
-        });
+        // const glow: Phaser.FX.Glow = enemy.sprite.framework_object.postFX.addGlow(0x7f062e, 0, 0);
+
+        // this.render_context.tween({
+        //     targets: [glow],
+        //     duration: 160,
+        //     innerStrength: 4,
+        //     yoyo: true,
+        //     on_complete: new CallbackBinding(() => {
+        //         glow.destroy();
+        //         enemy.sprite.framework_object.postFX.clear();
+        //     }, this)
+        // });
     }
 
     public flash_enemy_death(enemy: Entity): void {

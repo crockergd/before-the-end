@@ -3,6 +3,7 @@ import RenderContext from '../contexts/rendercontext';
 import SceneContext from '../contexts/scenecontext';
 import SceneData from '../contexts/scenedata';
 import PhysicsContext from '../contexts/physicscontext';
+import AbstractSprite from './abstractsprite';
 
 export default class AbstractScene extends Scene {
     public scene_context: SceneContext;
@@ -36,7 +37,13 @@ export default class AbstractScene extends Scene {
 
     }
 
-    public resize(): void {
+    public resize(game_size: Phaser.Structs.Size, base_size: Phaser.Structs.Size, display_size: Phaser.Structs.Size, resolution: number): void {
+        // for (const child of this.render_context.game_objects) {
+        //     if (child instanceof AbstractSprite) {
+        //         child.set_base_scale(this.render_context.base_scale_factor, this.render_context.base_scale_factor);
+        //     }
+        // }
+
         // this.children.list.forEach((child: Phaser.GameObjects.GameObject) => {
         //     if (child instanceof Phaser.GameObjects.Sprite) {
         //         child.setScale(this.render_context.base_scale_factor, this.render_context.base_scale_factor);

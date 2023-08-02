@@ -6,8 +6,12 @@ import AbstractBaseType from './abstractbasetype';
 import { AbstractCollectionType } from './abstractcollectiontype';
 import AbstractScene from './abstractscene';
 
+import AbstractSpriteConfig from './abstractspriteconfig';
+import Vector from '../utils/vector';
+
 export default class AbstractSprite extends AbstractBaseType {
     public framework_object: GameObjects.Sprite;
+    public base_scale: Vector;
 
     get physics_body(): Phaser.Physics.Matter.Sprite {
         return (this.framework_object as Phaser.Physics.Matter.Sprite);
@@ -42,11 +46,11 @@ export default class AbstractSprite extends AbstractBaseType {
         return this.framework_object.isCropped;
     }
 
-    constructor(renderer: RenderContext, scene: AbstractScene, x: number, y: number, key: string | any, collection?: AbstractCollectionType, physics?: boolean) {
+    constructor(renderer: RenderContext, scene: AbstractScene, x: number, y: number, key: string | any, collection?: AbstractCollectionType, readonly config?: AbstractSpriteConfig) {
         super(renderer, x, y);
 
         let framework_object: GameObjects.Sprite;
-        if (physics) {
+        if (this.config?.physics) {
             framework_object = scene.matter.add.sprite(0, 0, key);
         } else {
             framework_object = scene.add.sprite(0, 0, key);
@@ -55,16 +59,25 @@ export default class AbstractSprite extends AbstractBaseType {
 
         this.set_anchor(0, 0);
 
+        if (this.config?.affixed) {
+            this.affix_ui();
+        }
+
         if (collection) {
             collection.add(this);
+
         } else {
             this.update_position();
         }
     }
 
+    public set_base_scale(x: number, y: number) {
+        this.base_scale = new Vector(x, y);
+        this.framework_object.setScale(this.base_scale.x, this.base_scale.y);
+    }
+
     public set_scale(x: number, y: number): void {
-        this.framework_object.scaleX *= x;
-        this.framework_object.scaleY *= y;
+        this.framework_object.setScale(this.base_scale.x * x, this.base_scale.y * y);
     }
 
     public set_rotation(degrees: number): void {
@@ -82,6 +95,14 @@ export default class AbstractSprite extends AbstractBaseType {
 
     public set_angle(angle: number): void {
         this.framework_object.setAngle(angle);
+    }
+
+    public set_fill(color?: number): void {
+        if (color || color === 0x000000) {
+            this.framework_object.setTintFill(color);
+        } else {
+            this.framework_object.clearTint();
+        }
     }
 
     public flag_cachable(): void {
@@ -133,6 +154,13 @@ export default class AbstractSprite extends AbstractBaseType {
         if (!this.framework_object.anims.currentAnim) return false;
 
         return this.framework_object.anims.currentAnim.key === key;
+    }
+
+    public hit_flash(duration: number, color: number = 0xffffff): void {
+        this.set_fill(color);
+        this.renderer.delay(duration, () => {
+            this.set_fill();
+        }, this);
     }
 
     public play(key: string, start?: number, reverse?: boolean, on_complete?: CallbackBinding): void {

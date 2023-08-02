@@ -23,12 +23,15 @@ import UpdateBinding from '../utils/updatebinding';
 import Vector from '../utils/vector';
 import SceneContext from './scenecontext';
 import SettingJson from '../json_defs/settingjson';
+import AbstractSpriteConfig from '../abstracts/abstractspriteconfig';
+import { AbstractType } from '../abstracts/abstracttype';
 
 export default class RenderContext {
     public scene: AbstractScene;
     public transitioning_scene: boolean;
     public transitioning_custom: boolean;
     public transitioning_component: boolean;
+    public game_objects: Array<AbstractType>;
     public objects_created: number;
 
     public anim_scale: number;
@@ -192,6 +195,7 @@ export default class RenderContext {
     }
 
     constructor() {
+        this.game_objects = new Array<AbstractType>();
         this.transitioning_scene = false;
         this.transitioning_custom = false;
         this.transitioning_component = false;
@@ -238,13 +242,14 @@ export default class RenderContext {
         return group_object;
     }
 
-    public add_sprite(x: number, y: number, key: string, collection?: AbstractCollectionType, scene_override?: AbstractScene, physics?: boolean): AbstractSprite {
-        const scene: AbstractScene = scene_override ?? this.scene;
+    public add_sprite(x: number, y: number, key: string, collection?: AbstractCollectionType, config?: AbstractSpriteConfig): AbstractSprite {
+        const scene: AbstractScene = config?.scene_override ?? this.scene;
 
-        const sprite_object: AbstractSprite = new AbstractSprite(this, scene, x, y, key, collection, physics);
-        sprite_object.set_scale(this.base_scale_factor, this.base_scale_factor);
+        const sprite_object: AbstractSprite = new AbstractSprite(this, scene, x, y, key, collection, config);
+        sprite_object.set_base_scale(this.base_scale_factor, this.base_scale_factor);
 
         this.objects_created++;
+        this.game_objects.push(sprite_object);
 
         return sprite_object;
     }

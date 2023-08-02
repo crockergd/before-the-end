@@ -12,7 +12,7 @@ import AbstractGame from './abstracts/abstractgame';
             transparent: false
         },
         scale: {
-            mode: Phaser.Scale.NONE,
+            mode: Phaser.Scale.RESIZE,
             width: '100%',
             height: '100%'
         },
