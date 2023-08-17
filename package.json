@@ -1,11 +1,11 @@
 {
-    "name": "before-the-end",
+    "name": "before-the-end-jam",
     "author": "George Crocker (Radical Bumblebee) <crockergd@outlook.com>",
     "version": "0.0.4",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/crockergd/before-the-end.git"
+        "url": "https://github.com/crockergd/before-the-end-jam.git"
     },
     "dependencies": {
         "localforage": "^1.10.0",
