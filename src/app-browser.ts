@@ -16,8 +16,6 @@ import AbstractGame from './abstracts/abstractgame';
             autoCenter: Phaser.Scale.CENTER_BOTH,
             width: 1280,
             height: 720
-            // width: '100%',
-            // height: '100%'
         },
         physics: {
             default: 'matter',
