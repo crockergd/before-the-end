@@ -1,18 +1,18 @@
 {
     "compilerOptions": {
-        "target": "es2016",
-        "moduleResolution": "bundler",
+        "target": "ES2016",
+        "module": "Preserve",
         "sourceMap": true,
-        "outDir": "./www",
+        "strict": true,
+        "strictNullChecks": false,
+        "noImplicitAny": false,
+        "noImplicitOverride": false,
         "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "skipLibCheck": true
+        "removeComments": true,
+        "outDir": "./www"
     },
     "include": [
         "src/**/*.ts",
         "typings/*.d.ts"
-    ],
-    "exclude": [
-        "node_modules"
     ]
 }
